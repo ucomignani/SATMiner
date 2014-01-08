@@ -1,0 +1,4 @@
+FIND X,Y OVER name, company, city, country, first, last, founder, successor, notes
+FROM studios t1, t2
+SUCH THAT NOT (F A(X) t1.A = t2.A) OR (F B(Y) t1.B = t2.B)
+WITH EMPTY INTERSECTION, SINGLETON(Y);

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+        <action>
+            <actionName>CUSTOM-sonar</actionName>
+            <displayName>sonar</displayName>
+            <goals>
+                <goal>clean</goal>
+                <goal>install</goal>
+                <goal>sonar:sonar</goal>
+            </goals>
+            <properties>
+                <maven.test.failure.ignore>true</maven.test.failure.ignore>
+            </properties>
+        </action>
+        <action>
+            <actionName>run</actionName>
+            <goals>
+                <goal>process-classes</goal>
+                <goal>org.codehaus.mojo:exec-maven-plugin:1.2:exec</goal>
+            </goals>
+            <properties>
+                <exec.args>-classpath %classpath fr.cnrs.liris.dag.smsat.run.Main -fim -o test-fim.output -i test-fim.input -f 2 -minisat ./minisat.sh -bvpb -closed -maximal</exec.args>
+                <exec.executable>java</exec.executable>
+                <exec.classpathScope>runtime</exec.classpathScope>
+                <exec.workingdir>/Users/ecoquery/Work/Recherche/projets/DAG/svn/D3.3/java-generator/SequenceMiningSATGenerator</exec.workingdir>
+            </properties>
+        </action>
+        <action>
+            <actionName>debug</actionName>
+            <goals>
+                <goal>process-classes</goal>
+                <goal>org.codehaus.mojo:exec-maven-plugin:1.2:exec</goal>
+            </goals>
+            <properties>
+                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -classpath %classpath fr.cnrs.liris.dag.smsat.run.Main -fim -o test-fim.output -i test-fim.input -f 2 -minisat ./minisat.sh -bvpb -closed -maximal</exec.args>
+                <exec.executable>java</exec.executable>
+                <exec.classpathScope>runtime</exec.classpathScope>
+                <jpda.listen>true</jpda.listen>
+                <exec.workingdir>/Users/ecoquery/Work/Recherche/projets/DAG/svn/D3.3/java-generator/SequenceMiningSATGenerator</exec.workingdir>
+            </properties>
+        </action>
+        <action>
+            <actionName>profile</actionName>
+            <goals>
+                <goal>process-classes</goal>
+                <goal>org.codehaus.mojo:exec-maven-plugin:1.2:exec</goal>
+            </goals>
+            <properties>
+                <exec.args>${profiler.args} -classpath %classpath fr.cnrs.liris.dag.smsat.run.Main -fim -o test-fim.output -i test-fim.input -f 2 -minisat ./minisat.sh -bvpb -closed -maximal</exec.args>
+                <exec.executable>${profiler.java}</exec.executable>
+                <profiler.action>profile</profiler.action>
+                <exec.workingdir>/Users/ecoquery/Work/Recherche/projets/DAG/svn/D3.3/java-generator/SequenceMiningSATGenerator</exec.workingdir>
+            </properties>
+        </action>
+    </actions>
