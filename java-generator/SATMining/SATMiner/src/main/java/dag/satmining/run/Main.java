@@ -42,6 +42,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.Reader;
@@ -348,22 +349,22 @@ public class Main<L extends Literal<L>> implements Runnable {
 		}
 	}
 
-	private void usage() {
-		PrintWriter pw = new PrintWriter(_err);
-		simpleUsage(pw);
-		HelpFormatter help = new HelpFormatter();
-		if (_generator != null) {
-			help.printHelp(pw, 80, "Options for " + _generator.getTitle(), "",
-					_generator.getOptions(), 1, 0, "");
-		}
-		pw.flush();
-	}
-
-	private static void simpleUsage(PrintWriter pw) {
+	private static void usage(Generator<?> generator, OutputStream err) {
+		PrintWriter pw = new PrintWriter(err);
 		HelpFormatter help = new HelpFormatter();
 		help.printHelp(pw, 80, "java -jar SATMiner-xxxxx.jar ", "",
 				buildOptions(), 1, 0, "");
 		pw.flush();
+		if (generator != null) {
+			help = new HelpFormatter();
+			help.printHelp(pw, 80, "Options for " + generator.getTitle(), "",
+					generator.getOptions(), 1, 0, "");
+			pw.flush();
+		}
+	}
+	
+	private void usage() {
+		usage(_generator,_err);
 	}
 
 	public int getExitCode() {
@@ -375,7 +376,7 @@ public class Main<L extends Literal<L>> implements Runnable {
 		if (pos == -1) {
 			return null;
 		} else if (args.size() <= pos + 1) {
-			simpleUsage(new PrintWriter(System.err));
+			usage(null,System.err);
 			System.exit(1);
 			return null; // for the compiler
 		} else {
@@ -397,7 +398,7 @@ public class Main<L extends Literal<L>> implements Runnable {
 				BVPBOption.setVariant(BVPBOption.valueOf(codingOpt));
 			} catch (IllegalArgumentException e) {
 				System.err.println(e.getLocalizedMessage());
-				simpleUsage(new PrintWriter(System.err));
+				usage(null,System.err);
 				System.exit(1);
 			}
 			if (argsL.contains("-" + MINISAT_OPT)) {
@@ -445,15 +446,14 @@ public class Main<L extends Literal<L>> implements Runnable {
 	}
 
 	public static void main(String[] args) throws IOException {
-		Main<?> runner;
+		Main<?> runner = null;
 		try {
 			runner = buildMain(args);
 			runner.parseArgs(args);
 			runner.run();
 			System.exit(runner.getExitCode());
 		} catch (UsageException e) {
-			simpleUsage(new PrintWriter(System.err));
-			// System.err.println("coucou "+e.getMessage());
+			usage(runner == null ? null : runner._generator,System.err);
 			System.exit(1);
 		}
 	}
