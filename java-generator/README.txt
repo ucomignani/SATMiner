@@ -15,5 +15,5 @@ Compiling:
   unit tests by adding -DskipTests to the mvn package command below):
   run make in ../minisat_all_models/core and copy or link the minisat
   executable in SATMiner and satmining-backend directories
-- run "mvn package" from command line in this directory
+- run "mvn install" from command line in this directory
 - the full packaged jar is in SATMiner/target/
