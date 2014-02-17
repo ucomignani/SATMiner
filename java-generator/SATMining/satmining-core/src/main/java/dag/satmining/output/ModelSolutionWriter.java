@@ -45,7 +45,7 @@ import java.io.PrintWriter;
 
 import dag.satmining.backend.ModelReader;
 
-public class ModelSolutionWriter implements SolutionWriter {
+public class ModelSolutionWriter implements SolutionWriter, Limitable {
 
 	private ModelReader _reader;
 	private OutputStream _output;
@@ -72,6 +72,11 @@ public class ModelSolutionWriter implements SolutionWriter {
 					.getCurrentInterpretation()));
 		}
 		writer.close();
+	}
+
+	@Override
+	public void setLimit(long max) {
+		_reader.setLimit(max);
 	}
 
 }

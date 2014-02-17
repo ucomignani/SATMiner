@@ -85,6 +85,8 @@ public class SAT4JPBBuilder extends AbstractClauseBuilder<DimacsLiteral>
 	private ModelIterator _iteratorOnSolver;
 	private boolean _noMoreModels;
 	private boolean _started;
+	private long _limit = -1;
+	private long _nbModels = 0;
 
 	public SAT4JPBBuilder(int initNbVar) {
 		_reifier = new PBReifier<DimacsLiteral>(this);
@@ -254,7 +256,7 @@ public class SAT4JPBBuilder extends AbstractClauseBuilder<DimacsLiteral>
 
 	@Override
 	public boolean getNext() {
-		if (_noMoreModels) {
+		if (_noMoreModels || (_limit != -1 && _nbModels >= _limit)) {
 			return false;
 		}
 		try {
@@ -273,6 +275,9 @@ public class SAT4JPBBuilder extends AbstractClauseBuilder<DimacsLiteral>
 		} catch (TimeoutException e) {
 			LOG.error("SAT4J timed out ...", e);
 			_noMoreModels = true;
+		}
+		if (!_noMoreModels) {
+			++ _nbModels;
 		}
 		return !_noMoreModels;
 	}
@@ -325,4 +330,8 @@ public class SAT4JPBBuilder extends AbstractClauseBuilder<DimacsLiteral>
 		throw new UnsupportedOperationException("SAT4J backend does generate dimacs output");
 	}
 
+	@Override
+	public void setLimit(long _limit) {
+		this._limit = _limit;
+	}
 }

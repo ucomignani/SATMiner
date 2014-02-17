@@ -76,10 +76,12 @@ import dag.satmining.constraints.Literal;
 import dag.satmining.constraints.PBBuilder;
 import dag.satmining.constraints.mining.Generator;
 import dag.satmining.constraints.mining.UsageException;
+import dag.satmining.output.Limitable;
+import dag.satmining.output.Limiter;
 import dag.satmining.output.ModelSolutionWriter;
 import dag.satmining.output.SolutionWriter;
 import dag.satmining.problem.fim.FIMiningGenerator;
-import dag.satmining.problem.rql.RQL;
+import dag.satmining.problem.satql.SatQL;
 import dag.satmining.problem.seq.GSProblem;
 import dag.satmining.problem.seq.SequenceMiningGenerator1;
 
@@ -98,7 +100,7 @@ public class Main<L extends Literal<L>> implements Runnable {
 	private static final String NAIVE_OPT = "naive";
 
 	// Problem
-	private static final String RQL_OPT = "rql";
+	private static final String SATQL_OPT = "satql";
 	private static final String GS_OPT = "gs";
 	private static final String FIM_OPT = "fim";
 	private static final String FSM_OPT = "fsm";
@@ -110,6 +112,7 @@ public class Main<L extends Literal<L>> implements Runnable {
 
 	// Misc
 	private static final String DEBUG_OPT = "debug";
+	private static final String LIMIT_OPT = "limit";
 
 	// Internal variables
 	private PBBuilder<L> _builder;
@@ -123,6 +126,7 @@ public class Main<L extends Literal<L>> implements Runnable {
 	private PrintStream _err = System.err;
 	private int _exitCode = 0;
 	boolean _debug = false;
+	private long _limit = -1;
 
 	/**
 	 * Builds a PB-SAT miner using the provided {@link PBBuilder} as core
@@ -160,8 +164,8 @@ public class Main<L extends Literal<L>> implements Runnable {
 											.values()), e);
 				}
 			}
-		} else if (argsL.contains("-" + RQL_OPT)) {
-			_generator = new RQL<L>(_litClazz);
+		} else if (argsL.contains("-" + SATQL_OPT)) {
+			_generator = new SatQL<L>(_litClazz);
 		} else { // FSM_OPT by default
 			_generator = new SequenceMiningGenerator1<L>();
 		}
@@ -233,6 +237,17 @@ public class Main<L extends Literal<L>> implements Runnable {
 		handleInputOutput();
 		selectCoding();
 		selectOutputMode();
+		setLimit();
+	}
+
+	private void setLimit() throws UsageException {
+		if (_cmd.hasOption(LIMIT_OPT)) {
+			try {
+				_limit = Long.parseLong(_cmd.getOptionValue(LIMIT_OPT));
+			} catch (NumberFormatException e) {
+				throw new UsageException("Number expected form the limit switch, but found "+_cmd.getOptionValue(LIMIT_OPT));
+			}
+		}
 	}
 
 	@SuppressWarnings("static-access")
@@ -283,8 +298,9 @@ public class Main<L extends Literal<L>> implements Runnable {
 						"mine frequent sequences over alphabet <alphabet>. <alphabet> can be "
 								+ Arrays.deepToString(GSProblem.Predefined
 										.values())).create(GS_OPT));
-		opts.addOption(OptionBuilder.withDescription("execute RQL query")
-				.create(RQL_OPT));
+		opts.addOption(OptionBuilder.withDescription("execute SATQL query")
+				.create(SATQL_OPT));
+		opts.addOption(OptionBuilder.withArgName("n").hasArg().withDescription("limit the results to <n> models").create(LIMIT_OPT));
 		return opts;
 	}
 
@@ -296,6 +312,16 @@ public class Main<L extends Literal<L>> implements Runnable {
 			_generator.configure(_input, _cmd);
 			LOG.info("Converting model ...");
 			_generator.buildModel(_builder);
+			if (_limit == -1 && _generator instanceof Limiter && ((Limiter)_generator).getLimit() != -1) {
+					_limit = ((Limiter)_generator).getLimit();
+			}
+			if (_limit != -1) {
+				if(_solutionWriter instanceof Limitable) {
+					((Limitable)_solutionWriter).setLimit(_limit);
+				} else {
+					throw new IllegalStateException("Limit required but not supported by backend"); 
+				}
+			}
 			_builder.endProblem();
 			LOG.info("Computing solution ...");
 			_solutionWriter.writeSolution(_generator.getPatternConverter());

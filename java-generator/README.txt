@@ -1,11 +1,11 @@
 
 
-SAT generator for frequent sequence mining problem and RLT/RQL
+SAT generator for frequent sequence mining problem and RLT/SATQL
 - can output DIMACS format
 - can output solutions using SAT4J 
 Usage:
 java -jar /path/to/SATMiner-xxxxx-jar-with-dependecies.jar -help
-or (to use with jdbc for rql queries)
+or (to use with jdbc for satql queries)
 java -cp yourjdbcdriver.jar:/path/to/SATMiner-xxxxx-jar-with-dependecies.jar dag.satmining.run.Main -help
 
 Compiling:

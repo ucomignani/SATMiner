@@ -115,4 +115,9 @@ public class MinisatModelReader extends AbstractModelReader implements  FileMode
         }
     }
 
+	@Override
+	public void setLimit(long max) {
+		throw new UnsupportedOperationException("MinisatModelReader.setLimit");
+	}
+
 }

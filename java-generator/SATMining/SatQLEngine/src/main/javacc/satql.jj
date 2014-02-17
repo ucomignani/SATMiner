@@ -1,0 +1,424 @@
+/* satql.jj - JavaCC Grammar for the SATQL language.
+
+   Copyright (C) 2013, 2014 Emmanuel Coquery.
+
+This file is part of SATMiner
+
+SATMiner is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2, or (at your option)
+any later version.
+
+SATMiner is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with SATMiner; see the file COPYING.  If not, write to the
+Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+02110-1301 USA.
+
+Linking this library statically or dynamically with other modules is
+making a combined work based on this library.  Thus, the terms and
+conditions of the GNU General Public License cover the whole
+combination.
+
+As a special exception, the copyright holders of this library give you
+permission to link this library with independent modules to produce an
+executable, regardless of the license terms of these independent
+modules, and to copy and distribute the resulting executable under
+terms of your choice, provided that you also meet, for each linked
+independent module, the terms and conditions of the license of that
+module.  An independent module is a module which is not derived from
+or based on this library.  If you modify this library, you may extend
+this exception to your version of the library, but you are not
+obligated to do so.  If you do not wish to do so, delete this
+exception statement from your version. */
+
+options {
+
+}
+
+PARSER_BEGIN(SATQLParser)
+package dag.satmining.problem.satql.parser;
+
+import dag.satmining.problem.satql.ast.*;
+import dag.satmining.problem.satql.ast.sql.*;
+import java.util.ArrayList;
+import java.util.Collection; 
+import dag.satmining.constraints.Literal;
+
+@SuppressWarnings({"unused","serial"})
+public class SATQLParser<L extends Literal<L>> {
+
+}
+
+PARSER_END(SATQLParser)
+
+/** Comments starts with -- and finish at the end of the line */
+SKIP:
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+| <"--" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
+}
+
+TOKEN [ IGNORE_CASE ]:
+{
+  < AND: "AND">
+| < OR: "OR">
+| < NOT: "NOT">
+| < TRUE: "TRUE" >
+| < EQ: "=" >
+| < LT: "<" >
+| < DOT: "." >
+| < FORALL: "F" >
+| < EXISTS: "E" >
+| < FROM: "FROM" >
+| < WHERE: "WHERE" >
+| < SELECT: "SELECT" >
+| < FIND: "FIND" >
+| < OVER: "OVER" >
+| < SUCH: "SUCH" >
+| < THAT: "THAT" >
+| < AS: "AS" >
+| < EMPTY: "EMPTY" >
+| < INTERSECTION: "INTERSECTION" >
+| < WITH: "WITH" >
+| < SINGLETON: "SINGLETON" >
+| < CASE: "CASE" >
+| < WHEN: "WHEN" >
+| < THEN: "THEN" >
+| < ELSE: "ELSE" >
+| < END: "END" >
+| < MINIMIZE: "MINIMIZE" >
+| < MAXIMIZE: "MAXIMIZE" >
+| < LIMIT: "LIMIT" >
+}
+
+TOKEN : /* LITERALS */
+{
+  < LITERAL:
+        <DECIMAL_LITERAL> 
+      | <STRING_LITERAL>
+  >
+|
+  < #DECIMAL_LITERAL: (["0"-"9"])+ >
+|
+  < #STRING_LITERAL: "'" ("''"|~["'"])* "'" >
+}
+
+TOKEN : /* IDENTIFIERS */
+{
+  < IDENTIFIER: <LETTER> (<LETTER>|<DIGIT>)* >
+|
+  < #LETTER: ["_","a"-"z","A"-"Z"] >
+|
+  < #DIGIT: ["0"-"9"] >
+}
+
+/** Mining Statement. */
+
+MiningQuery<L> MiningQuery():
+{
+  MiningQuery<L> query;
+  Token t;
+  Where where;
+  MiningExpression expr;
+}
+{
+  <FIND> { query = new MiningQuery<L>(); }
+  t=<IDENTIFIER> { query.addSchemaVariable(t.image); }
+  ("," t=<IDENTIFIER> { query.addSchemaVariable(t.image); } )*
+  <OVER>
+  t=<IDENTIFIER> { query.addAttribute(t.image); }
+  ("," t=<IDENTIFIER> { query.addAttribute(t.image); } )*
+  FromClause(query.getFrom())
+  (where=WhereClause() {query.setWhere(where);})?
+  <SUCH> <THAT> expr=MiningExpr(query.getDict()) 
+  { query.setSuchThat(expr); }
+  ((  (<MINIMIZE> t=<IDENTIFIER> { query.minimize(t.image); } )
+    | (<MAXIMIZE> t=<IDENTIFIER> { query.maximize(t.image); } )
+  )
+  ( ","
+    ( (<MINIMIZE> t=<IDENTIFIER> { query.minimize(t.image); } )
+    | (<MAXIMIZE> t=<IDENTIFIER> { query.maximize(t.image); } ) )
+  )*)?
+  (    <LIMIT> t=<LITERAL> { query.setLimit(Long.parseLong(t.image)); }
+    )?
+  ";"
+  { return query; }
+}
+
+MiningExpression MiningExpr(ASTDictionnary dict) : 
+{ MiningExpression expr; }
+{
+  expr=QuantifierExpr(dict)
+  { return expr; }
+}
+
+MiningExpression QuantifierExpr(ASTDictionnary dict):
+{ 
+  MiningExpression expr; 
+  Token t,t2;
+}
+{
+  ( <FORALL> t=<IDENTIFIER> 
+    {dict.getAttributeVariable(t.image);} 
+    "(" t2=<IDENTIFIER> ")" expr=QuantifierExpr(dict) 
+    { return dict.forall(t.image,t2.image, expr); } )
+| ( <EXISTS> t=<IDENTIFIER> 
+    {dict.getAttributeVariable(t.image);} 
+    "(" t2=<IDENTIFIER> ")" expr=QuantifierExpr(dict) 
+    { return dict.exists(t.image,t2.image, expr); } )
+| ( expr=OrExpr(dict)
+    { return expr; } )
+}
+
+MiningExpression OrExpr(ASTDictionnary dict):
+{ MiningExpression a, b = null; }
+{
+  a=AndExpr(dict) ( <OR> b=OrExpr(dict) )? 
+  {
+    if (b==null) {
+        return a;
+    } else {
+        return dict.or(a,b);
+    }   
+  }
+}
+
+
+MiningExpression AndExpr(ASTDictionnary dict) :
+{ MiningExpression a, b = null; }
+{
+  a=NegExpr(dict) ( <AND> b=AndExpr(dict) )? 
+  {
+    if (b==null) {
+        return a;
+    } else {
+        return dict.and(a,b);
+    }   
+  }
+}
+
+MiningExpression NegExpr(ASTDictionnary dict) :
+{ MiningExpression a; }
+{
+  (<NOT> a=NegExpr(dict) {return dict.neg(a);})
+| (a=AtomicExpr(dict) {return a;})
+}
+
+MiningExpression AtomicExpr(ASTDictionnary dict) :
+{
+  MiningValue a,b;
+  Token t1, t2;
+  MiningExpression e;
+  
+}
+{
+  (<TRUE> {return dict.tt();})
+| LOOKAHEAD(2) (a=MiningVal(dict) <EQ> b=MiningVal(dict) {return dict.eq(a,b);})
+| (t1=<IDENTIFIER> <EQ> t2=<IDENTIFIER> {return dict.attCmp(t1.image,t2.image);})
+| (e=Singleton(dict) {return e;})
+| (e=EmptyIntersection(dict) {return e;})
+| ( "(" e=MiningExpr(dict) ")" {return e;} )
+}
+
+MiningExpression Singleton(ASTDictionnary dict) :
+{
+  Token t1;
+}
+{
+  <SINGLETON> t1=<IDENTIFIER> {return Sugar.singleton(dict,t1.image);}
+}
+
+MiningExpression EmptyIntersection(ASTDictionnary dict) :
+{
+  Token t;
+  Collection<String> sch = new ArrayList<String>();
+}
+{
+  <EMPTY> <INTERSECTION> "(" t=<IDENTIFIER> {sch.add(t.image);} 
+  ( "," t=<IDENTIFIER> {sch.add(t.image);})+ ")" 
+  {return Sugar.emptyIntersection(dict,sch);}
+}
+
+MiningValue MiningVal(ASTDictionnary dict) :
+{ MiningValue a; }
+{
+  (a=MiningConstantValue(dict) {return a;})
+| (a=MiningTupleValue(dict) {return a;})
+}
+
+MiningValue MiningConstantValue(ASTDictionnary dict) :
+{ Token t; }
+{
+  t=<LITERAL> {return MiningValue.cst(t.image);}
+}
+
+MiningValue MiningTupleValue(ASTDictionnary dict) :
+{ 
+  Token t; 
+  String tTupleName, tAttName;
+}
+{
+  t=<IDENTIFIER> {tTupleName = t.image;}
+  <DOT>
+  t=<IDENTIFIER> 
+  {
+    tAttName = t.image;
+    try {
+      return dict.mkTupleAttributeValue(tTupleName,tAttName);
+    } catch (IllegalArgumentException e) {
+      throw new ParseException(e.getMessage());
+    }
+  }
+}
+
+Query SQLQuery():
+{
+Select select;
+From from = new From(false);
+Where where;
+}
+{
+    select=SelectClause() FromClause(from) where=WhereClause()
+    { return new Query(select,from,where); }
+}
+
+Select SelectClause():
+{ 
+  Select select; 
+  Token t = null;
+  SQLValue v;
+}
+{
+  <SELECT> {select = new Select();}
+  SelectEntry(select) ("," SelectEntry(select))*
+  { return select; }
+}
+
+void SelectEntry(Select select):
+{ 
+  Token t = null;
+  SQLValue v;
+}
+{
+    ( v=NonBooleanSQLValue() ( <AS> t=<IDENTIFIER> )? { select.addEntry(v,t==null?null:t.image); } )
+  | ( "*" { select.addStar(); } )
+}
+
+void FromClause(From from):
+{  
+}
+{
+  <FROM> FromExpr(from) 
+  ( "," FromExpr(from) )*
+}
+
+void FromExpr(From from):
+{
+FromExpression query = null;
+Token t, t2 = null;
+}
+{
+  ( "(" query=SQLQuery() ")" t=<IDENTIFIER> { from.addQueryName(query,t.image); } )
+| ( t=<IDENTIFIER> (t2=<IDENTIFIER> )? 
+    { if (t2==null) { 
+        from.addName(t.image); 
+    } else {
+        from.addQueryName(new Relation(t.image), t2.image);
+    } } )
+}
+
+Where WhereClause():
+{ SQLBooleanValue c; }
+{
+  <WHERE> c=SQLBooleanValue()
+  { return new Where(c); }
+}
+
+SQLValue NonBooleanSQLValue():
+{ SQLValue v; }
+{
+  v=AtomicNonBooleanSQLValue() {return v;}
+}
+
+SQLBooleanValue SQLBooleanValue():
+{ SQLBooleanValue v;}
+{
+  v=SQLOr() { return v; }
+}
+
+SQLBooleanValue SQLOr():
+{ SQLBooleanValue a, b = null; }
+{
+  a=SQLAnd() ( <OR> b= SQLOr() ) ? 
+  {
+    return b == null ? a : SQLBooleanOp.or(a,b);
+  }
+}
+
+SQLBooleanValue SQLAnd():
+{ SQLBooleanValue a, b = null; }
+{
+  a=AtomicSQLBooleanValue() ( <AND> b= SQLAnd() ) ? 
+  {
+    return b == null ? a : SQLBooleanOp.and(a,b);
+  }
+}
+
+SQLBooleanValue AtomicSQLBooleanValue():
+{
+  SQLValue a, b = null;
+  SQLBooleanValue v = null;
+}
+{
+  ( (a=NonBooleanSQLValue() ) 
+    ( <EQ> b=NonBooleanSQLValue() { return Comparison.eq(a,b); } 
+    | <LT> b=NonBooleanSQLValue() { return Comparison.lt(a,b); } ) )
+| ( "(" v=SQLBooleanValue() ")" { return v; } )
+}
+
+SQLValue AtomicNonBooleanSQLValue():
+{ SQLValue v; }
+{
+( (v=SQLConstant()) 
+| (v=TupleAccess()) 
+| (v=CaseNoValue())
+// | ( "(" v=NonBooleanSQLValue()) ")" ) 
+)
+  { return v; }
+}
+
+SQLValue SQLConstant():
+{ Token t; }
+{
+  t=<LITERAL>
+  { return new SQLConstant(t.image); }
+}
+
+SQLValue TupleAccess():
+{ Token t, t2; }
+{
+  t=<IDENTIFIER> <DOT> t2=<IDENTIFIER> 
+  { return new TupleAccess(t.image,t2.image); }
+}
+
+SQLValue CaseNoValue():
+{ 
+  CaseNoValue cnv; 
+  SQLBooleanValue test;
+  SQLValue val;
+}
+{
+  <CASE> { cnv = new CaseNoValue(); }
+  (<WHEN> test=SQLBooleanValue() <THEN> val=NonBooleanSQLValue() {cnv.addWhen(test,val);} )+
+  (<ELSE> val=NonBooleanSQLValue() {cnv.setElse(val);} )?
+  <END>
+  { return cnv; } 
+}
