@@ -83,7 +83,7 @@
         </dependency>
         <dependency>
         	<groupId>fr.liris.bd.dag</groupId>
-        	<artifactId>RQLEngine</artifactId>
+        	<artifactId>SatQLEngine</artifactId>
         	<version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>

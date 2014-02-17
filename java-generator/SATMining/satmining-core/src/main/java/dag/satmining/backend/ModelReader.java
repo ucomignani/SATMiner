@@ -38,7 +38,9 @@ exception statement from your version. */
 
 package dag.satmining.backend;
 
-public interface ModelReader {
+import dag.satmining.output.Limitable;
+
+public interface ModelReader extends Limitable {
 
 	boolean getNext();
 	

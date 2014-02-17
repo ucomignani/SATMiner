@@ -12,7 +12,7 @@
 	<name>SATMining</name>
 	<modules>
 		<module>SATMiner</module>
-		<module>RQLEngine</module>
+		<module>SatQLEngine</module>
 		<module>satmining-utils</module>
 		<module>satmining-core</module>
 		<module>satmining-backend</module>

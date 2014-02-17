@@ -38,6 +38,10 @@ exception statement from your version. */
 
 package dag.satmining;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+
 import junit.framework.TestCase;
 import boolvar.model.Variable;
 import dag.satmining.backend.dimacs.DimacsLiteral;
@@ -48,6 +52,18 @@ import dag.satmining.run.Main;
 
 public class OutputTest extends TestCase {
 
+	private static final int LIMIT_VALUE = 4;
+	private static final String TEST_OUTPUT = "target/test-tmp/test.output";
+	private static final String TARGET_TEST_LIMIT_OUTPUT = "target/test-tmp/limit.output";
+
+	private static void ensureDir(String path) {
+		File file = new File(path);
+		File dir = file.getParentFile();
+		if (!dir.exists()) {
+			dir.mkdirs();
+		}
+	}
+	
 	@Override
 	protected final void setUp() throws Exception {
 		Variable.setUsed(0);
@@ -55,12 +71,31 @@ public class OutputTest extends TestCase {
 
 	public final void testMainWithGeneratedData() throws Exception {
 		String[] args = { "-f", "5", "-m", "3", "-genseq", "15", "3", "-o",
-				"test.output" };
+				TEST_OUTPUT };
+		ensureDir(TEST_OUTPUT);
 		Main<DimacsLiteral> pgm = new Main<DimacsLiteral>(DimacsLiteral.class,
 				new CardNetworksPBFactory<DimacsLiteral>(
 						new FileDimacsBackend()), null);
 		pgm.parseArgs(args);
 		pgm.run();
+	}
+
+	public final void testMainWithGeneratedDataAndLimit() throws Exception {
+		String[] args = { "-f", "5", "-m", "3", "-genseq", "15", "3", "-o",
+				TARGET_TEST_LIMIT_OUTPUT, "-sat4j", "-limit",String.valueOf(LIMIT_VALUE) };
+		ensureDir(TARGET_TEST_LIMIT_OUTPUT);
+		SAT4JPBBuilder sat4j = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
+		Main<DimacsLiteral> pgm = new Main<DimacsLiteral>(DimacsLiteral.class,
+				sat4j, sat4j);
+		pgm.parseArgs(args);
+		pgm.run();
+		BufferedReader outputFile = new BufferedReader(new FileReader(TARGET_TEST_LIMIT_OUTPUT));
+		int cpt = 0;
+		while(outputFile.readLine() != null) {
+			++cpt;
+		}
+		outputFile.close();
+		assertEquals(LIMIT_VALUE, cpt);
 	}
 
 	public final void testSolutionOutput() throws Exception {

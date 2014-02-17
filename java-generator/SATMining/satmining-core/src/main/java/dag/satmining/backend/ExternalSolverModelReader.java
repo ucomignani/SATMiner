@@ -38,12 +38,10 @@ exception statement from your version. */
 
 package dag.satmining.backend;
 
-import dag.satmining.backend.FileModelReader;
-import dag.satmining.backend.Interpretation;
-import dag.satmining.backend.ModelReader;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +57,9 @@ public class ExternalSolverModelReader implements ModelReader {
     private FileModelReader _fileReader;
     private String[] _cmd;
     private boolean _started = false;
+    private String _limitSwitch = null;
+    private long _limit = -1;
+    private long _nbModels = 0;
 
     public ExternalSolverModelReader(
             FileModelReader reader, File problemFile, String... cmd)
@@ -71,14 +72,20 @@ public class ExternalSolverModelReader implements ModelReader {
             _cmd[i] = _cmd[i].replace("#in", _solverInput.getAbsolutePath()).replace("#out", _solverOutput.getAbsolutePath());
         }
     }
+    
+    public void setLimitSwitch(String switchName) {
+    	_limitSwitch = switchName;
+    }
 
     public boolean getNext() {
         try {
             if (!_started) {
                 run();
                 _fileReader.open(_solverOutput);
+                _started = true;
             }
-            if (_fileReader.getNext()) {
+            if ((_limit == -1 || _nbModels < _limit) && _fileReader.getNext()) {
+            	++ _nbModels;
                 return true;
             } else {
                 _fileReader.close();
@@ -112,4 +119,18 @@ public class ExternalSolverModelReader implements ModelReader {
         }
         _started = true;
     }
+
+	@Override
+	public void setLimit(long max) {
+		if (max != -1) {
+			if (_limitSwitch != null) {
+				_limit = max;
+				_cmd = Arrays.copyOf(_cmd, _cmd.length+2);
+				_cmd[_cmd.length-2] = _limitSwitch;
+				_cmd[_cmd.length-1] = String.valueOf(_limit);
+			} else {
+				throw new IllegalStateException("External solver not configured with limit switch");
+			}
+		}
+	}
 }
