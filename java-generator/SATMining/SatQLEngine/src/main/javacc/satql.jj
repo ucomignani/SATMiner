@@ -98,6 +98,7 @@ TOKEN [ IGNORE_CASE ]:
 | < MINIMIZE: "MINIMIZE" >
 | < MAXIMIZE: "MAXIMIZE" >
 | < LIMIT: "LIMIT" >
+| < IF: "IF" >
 }
 
 TOKEN : /* LITERALS */
@@ -158,24 +159,26 @@ MiningQuery<L> MiningQuery():
 MiningExpression MiningExpr(ASTDictionnary dict) : 
 { MiningExpression expr; }
 {
-  expr=QuantifierExpr(dict)
+  expr=QuantifierIfExpr(dict)
   { return expr; }
 }
 
-MiningExpression QuantifierExpr(ASTDictionnary dict):
+MiningExpression QuantifierIfExpr(ASTDictionnary dict):
 { 
-  MiningExpression expr; 
+  MiningExpression expr,expr2; 
   Token t,t2;
 }
 {
   ( <FORALL> t=<IDENTIFIER> 
     {dict.getAttributeVariable(t.image);} 
-    "(" t2=<IDENTIFIER> ")" expr=QuantifierExpr(dict) 
+    "(" t2=<IDENTIFIER> ")" expr=QuantifierIfExpr(dict) 
     { return dict.forall(t.image,t2.image, expr); } )
 | ( <EXISTS> t=<IDENTIFIER> 
     {dict.getAttributeVariable(t.image);} 
-    "(" t2=<IDENTIFIER> ")" expr=QuantifierExpr(dict) 
+    "(" t2=<IDENTIFIER> ")" expr=QuantifierIfExpr(dict) 
     { return dict.exists(t.image,t2.image, expr); } )
+| ( <IF> expr=QuantifierIfExpr(dict) <THEN> expr2=QuantifierIfExpr(dict)
+  { return dict.or(dict.neg(expr),expr2); } )
 | ( expr=OrExpr(dict)
     { return expr; } )
 }

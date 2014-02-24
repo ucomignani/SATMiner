@@ -122,6 +122,27 @@ public class MiningQueryTest extends TestCase {
 		assertEquals(64, nbModels);
 	}
 
+	public void testFunctionnalDependenciesIfThenSSBF() throws ParseException,
+			NoSolutionException {
+		MiningQuery<DimacsLiteral> query = MiningQuery.parse(
+				DimacsLiteral.class, new InputStreamReader(getClass()
+						.getResourceAsStream("/funct_deps_ifthen.satql")));
+		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
+		LOG.debug("before parser");
+		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
+		LOG.debug("made parser");
+		query.addClauses(sat4jHandler);
+		LOG.debug("added clauses");
+		sat4jHandler.endProblem();
+		int nbModels = 0;
+		while (sat4jHandler.getNext()) {
+			LOG.debug("found: {}",
+					query.getPattern(sat4jHandler.getCurrentInterpretation()));
+			nbModels++;
+		}
+		assertEquals(64, nbModels);
+	}
+
 	public void testFunctionnalDependenciesNLBF() throws ParseException,
 			NoSolutionException {
 		MiningQuery<DimacsLiteral> query = MiningQuery.parse(
