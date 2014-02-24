@@ -1,0 +1,6 @@
+Version XXX:
+- Changed RQL to SATQL:
+  - FROM becomes SCOPE except in SQL queries
+  - Added an IF ... THEN construct
+  - the CLI switch is now -satql
+ 
