@@ -74,7 +74,6 @@ import dag.satmining.problem.satql.parser.SATQLParser;
  */
 public class MiningQuery<L extends Literal<L>> implements Constraint<L>, PatternConverter {
 
-	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory
 			.getLogger(MiningQuery.class);
 	private ASTDictionnary _dict = new ASTDictionnary();
@@ -247,6 +246,7 @@ public class MiningQuery<L extends Literal<L>> implements Constraint<L>, Pattern
 	}
 
 	public static <L extends Literal<L>> MiningQuery<L> parse(Class<L> clazz, Reader input) throws ParseException {
+		LOG.debug("SATQL input {}",input);
 		return new SATQLParser<L>(input).MiningQuery();
 	}
 
