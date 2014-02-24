@@ -1,5 +1,5 @@
 FIND X,Y OVER sex,length,diameter,height,whole_weight,meat_weight,viscera_weight,shell_weight,rings
-FROM abalo t1, t2
+SCOPE abalo t1, t2
 SUCH THAT 
 (NOT (F A(X) t1.A = t2.A) OR (F B(Y) t1.B = t2.B))
 AND EMPTY INTERSECTION (X,Y)

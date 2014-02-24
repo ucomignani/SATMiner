@@ -78,6 +78,7 @@ TOKEN [ IGNORE_CASE ]:
 | < FORALL: "F" >
 | < EXISTS: "E" >
 | < FROM: "FROM" >
+| < SCOPE: "SCOPE" > 
 | < WHERE: "WHERE" >
 | < SELECT: "SELECT" >
 | < FIND: "FIND" >
@@ -136,7 +137,8 @@ MiningQuery<L> MiningQuery():
   <OVER>
   t=<IDENTIFIER> { query.addAttribute(t.image); }
   ("," t=<IDENTIFIER> { query.addAttribute(t.image); } )*
-  FromClause(query.getFrom())
+  <SCOPE> FromExpr(query.getFrom()) 
+  ( "," FromExpr(query.getFrom()) )*
   (where=WhereClause() {query.setWhere(where);})?
   <SUCH> <THAT> expr=MiningExpr(query.getDict()) 
   { query.setSuchThat(expr); }
