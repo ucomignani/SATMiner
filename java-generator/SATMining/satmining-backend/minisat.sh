@@ -10,6 +10,9 @@ then
     elif which minisat-all-models > /dev/null
     then
         minisat=minisat-all-models
+    elif [ -x ../../../minisat_all_models/core/minisat ]
+    then 
+        minisat=../../../minisat_all_models/core/minisat
     fi
 fi
 if [ ! -z ""$minisat ]
