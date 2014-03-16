@@ -62,9 +62,13 @@ public final class Comparison extends SQLBooleanValue {
 	public static Comparison eq(SQLValue a, SQLValue b) {
 		return new Comparison(a, Op.Eq, b);
 	}
-	
+
 	public static Comparison lt(SQLValue a, SQLValue b) {
-		return  new Comparison(a, Op.Lt, b);
+		return new Comparison(a, Op.Lt, b);
+	}
+
+	public static Comparison like(SQLValue a, SQLValue b) {
+		return new Comparison(a, Op.Like, b);
 	}
 
 	@Override
@@ -79,11 +83,14 @@ public final class Comparison extends SQLBooleanValue {
 	}
 
 	public enum Op {
-		Eq, Lt;
+		Eq, Lt, Like;
 		public String infixRepr() {
 			switch (this) {
 			case Lt:
 				return "<";
+			case Like:
+				return "LIKE";
+			case Eq:
 			default:
 				return "=";
 			}
@@ -98,13 +105,21 @@ public final class Comparison extends SQLBooleanValue {
 				return a.compareTo(b) < 0;
 			}
 		}
-		
+
+		private static boolean like(String a, String b) {
+			String re = b.replace("\\", "\\\\").replace(".", "\\.")
+					.replace("_", ".").replace("%", ".*");
+			return a.matches(re);
+		}
+
 		public boolean eval(String a, String b) {
 			switch (this) {
 			case Eq:
 				return a != null && a.equals(b);
 			case Lt:
-				return a != null && b != null && le(a,b);
+				return a != null && b != null && le(a, b);
+			case Like:
+				return a != null && b != null && like(a, b);
 			default:
 				return false;
 			}

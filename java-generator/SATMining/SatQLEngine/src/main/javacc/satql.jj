@@ -99,6 +99,7 @@ TOKEN [ IGNORE_CASE ]:
 | < MAXIMIZE: "MAXIMIZE" >
 | < LIMIT: "LIMIT" >
 | < IF: "IF" >
+| < LIKE: "LIKE" >
 }
 
 TOKEN : /* LITERALS */
@@ -227,6 +228,7 @@ MiningExpression AtomicExpr(ASTDictionnary dict) :
 {
   (<TRUE> {return dict.tt();})
 | LOOKAHEAD(2) (a=MiningVal(dict) <EQ> b=MiningVal(dict) {return dict.eq(a,b);})
+| LOOKAHEAD(2) (a=MiningVal(dict) <LIKE> b=MiningVal(dict) {return dict.like(a,b);})
 | (t1=<IDENTIFIER> <EQ> t2=<IDENTIFIER> {return dict.attCmp(t1.image,t2.image);})
 | (e=Singleton(dict) {return e;})
 | (e=EmptyIntersection(dict) {return e;})
@@ -385,7 +387,8 @@ SQLBooleanValue AtomicSQLBooleanValue():
 {
   ( (a=NonBooleanSQLValue() ) 
     ( <EQ> b=NonBooleanSQLValue() { return Comparison.eq(a,b); } 
-    | <LT> b=NonBooleanSQLValue() { return Comparison.lt(a,b); } ) )
+    | <LT> b=NonBooleanSQLValue() { return Comparison.lt(a,b); }
+    | <LIKE> b=NonBooleanSQLValue() { return Comparison.like(a,b); }    ) )
 | ( "(" v=SQLBooleanValue() ")" { return v; } )
 }
 

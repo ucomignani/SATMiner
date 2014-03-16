@@ -111,12 +111,14 @@ public final class BinOpAtom extends AtomicMiningExpression {
 
 	public enum Op {
 
-		Eq;
+		Eq,Like;
 
 		public String applyTo(String fst, String snd) {
 			switch (this) {
 			case Eq:
 				return fst + " = " + snd;
+			case Like:
+				return fst + " LIKE " + snd;
 			}
 			return null;
 		}
@@ -124,6 +126,10 @@ public final class BinOpAtom extends AtomicMiningExpression {
 
 	public static BinOpAtom eq(MiningValue a, MiningValue b) {
 		return new BinOpAtom(a, b, Op.Eq);
+	}
+	
+	public static BinOpAtom like(MiningValue a,MiningValue b) {
+		return new BinOpAtom(a, b, Op.Like);
 	}
 
 	@Override
