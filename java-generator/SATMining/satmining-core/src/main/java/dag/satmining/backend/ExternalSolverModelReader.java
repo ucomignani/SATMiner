@@ -46,12 +46,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * 
  * @author ecoquery
  */
 public class ExternalSolverModelReader implements ModelReader {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ExternalSolverModelReader.class);
+    private static final Logger LOG = LoggerFactory
+            .getLogger(ExternalSolverModelReader.class);
     private File _solverInput;
     private File _solverOutput;
     private FileModelReader _fileReader;
@@ -60,21 +61,22 @@ public class ExternalSolverModelReader implements ModelReader {
     private String _limitSwitch = null;
     private long _limit = -1;
     private long _nbModels = 0;
+    private boolean _addEqToLimit = true;
 
-    public ExternalSolverModelReader(
-            FileModelReader reader, File problemFile, String... cmd)
-            throws IOException {
+    public ExternalSolverModelReader(FileModelReader reader, File problemFile,
+            String... cmd) throws IOException {
         this._fileReader = reader;
         this._solverInput = problemFile;
         this._solverOutput = File.createTempFile("satminer_ext_output", ".txt");
         this._cmd = Arrays.copyOf(cmd, cmd.length);
         for (int i = 0; i < _cmd.length; i++) {
-            _cmd[i] = _cmd[i].replace("#in", _solverInput.getAbsolutePath()).replace("#out", _solverOutput.getAbsolutePath());
+            _cmd[i] = _cmd[i].replace("#in", _solverInput.getAbsolutePath())
+                    .replace("#out", _solverOutput.getAbsolutePath());
         }
     }
-    
+
     public void setLimitSwitch(String switchName) {
-    	_limitSwitch = switchName;
+        _limitSwitch = switchName;
     }
 
     public boolean getNext() {
@@ -85,14 +87,14 @@ public class ExternalSolverModelReader implements ModelReader {
                 _started = true;
             }
             if ((_limit == -1 || _nbModels < _limit) && _fileReader.getNext()) {
-            	++ _nbModels;
+                ++_nbModels;
                 return true;
             } else {
                 _fileReader.close();
                 return false;
             }
         } catch (IOException e) {
-            LOG.warn("IO: {}",e.getLocalizedMessage());
+            LOG.warn("IO: {}", e.getLocalizedMessage());
             return false;
         }
     }
@@ -114,23 +116,33 @@ public class ExternalSolverModelReader implements ModelReader {
             }
             LOG.info("External call terminated");
         } catch (IOException ex) {
-            LOG.error("IO problem: {}"+ex.getLocalizedMessage());
+            LOG.error("IO problem: {}" + ex.getLocalizedMessage());
             throw new RuntimeException(ex);
         }
         _started = true;
     }
 
-	@Override
-	public void setLimit(long max) {
-		if (max != -1) {
-			if (_limitSwitch != null) {
-				_limit = max;
-				_cmd = Arrays.copyOf(_cmd, _cmd.length+2);
-				_cmd[_cmd.length-2] = _limitSwitch;
-				_cmd[_cmd.length-1] = String.valueOf(_limit);
-			} else {
-				throw new IllegalStateException("External solver not configured with limit switch");
-			}
-		}
-	}
+    @Override
+    public void setLimit(long max) {
+        if (max != -1) {
+            if (_limitSwitch != null) {
+                _limit = max;
+                if (_addEqToLimit) {
+                    _cmd = Arrays.copyOf(_cmd, _cmd.length + 1);
+                    _cmd[_cmd.length - 1] = _limitSwitch+"="+String.valueOf(_limit);
+                } else {
+                    _cmd = Arrays.copyOf(_cmd, _cmd.length + 2);
+                    _cmd[_cmd.length - 2] = _limitSwitch;
+                    _cmd[_cmd.length - 1] = String.valueOf(_limit);
+                }
+            } else {
+                throw new IllegalStateException(
+                        "External solver not configured with limit switch");
+            }
+        }
+    }
+
+    public void setAddEqToLimit(boolean addEqToLimit) {
+        this._addEqToLimit = addEqToLimit;
+    }
 }

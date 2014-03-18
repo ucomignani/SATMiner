@@ -87,13 +87,14 @@ import dag.satmining.problem.seq.GSProblem;
 import dag.satmining.problem.seq.SequenceMiningGenerator1;
 
 public class Main<L extends Literal<L>> implements Runnable {
-
-	private static final Logger LOG = LoggerFactory.getLogger(Main.class);
+    
+    private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
 	// SAT/PB Backend
 	private static final String MINISAT_OPT = "minisat";
 	private static final String SAT4J_OPT = "sat4j";
 	private static final String CNF_OPT = "cnf";
+	private static final String MAX_MODELS_SWITCH = "-max-models";
 
 	// PB Coding
 	private static final String BVPB_CODING_OPT = "bvpbCoding";
@@ -410,6 +411,7 @@ public class Main<L extends Literal<L>> implements Runnable {
 				ExternalSolverModelReader reader = new ExternalSolverModelReader(
 						new MinisatModelReader(), cnffile, solverCmd, "#in",
 						"-o", "#out");
+				reader.setLimitSwitch(MAX_MODELS_SWITCH);
 				runner = new Main<BVLiteral>(BVLiteral.class, builder, reader);
 			} else if (argsL.contains("-" + SAT4J_OPT)) {
 				SAT4JPBBuilder sat4jbuilder = new SAT4JPBBuilder(
@@ -430,6 +432,7 @@ public class Main<L extends Literal<L>> implements Runnable {
 			ExternalSolverModelReader reader = new ExternalSolverModelReader(
 					new MinisatModelReader(), cnffile, solverCmd, "#in", "-o",
 					"#out");
+			reader.setLimitSwitch(MAX_MODELS_SWITCH);
 			runner = new Main<DimacsLiteral>(DimacsLiteral.class,
 					defaultEncoding(backend), reader);
 		} else if (argsL.contains("-" + SAT4J_OPT)) {
