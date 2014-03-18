@@ -687,6 +687,7 @@ public class SQLBinding {
 	}
 
 	public int registerSQLStatement(SQLBooleanValue statement) {
+	    if (statement == null) throw new IllegalArgumentException("trying to register null statement");
 		int idx = _selectStatements.size();
 		_selectStatements.add(statement);
 		return idx;

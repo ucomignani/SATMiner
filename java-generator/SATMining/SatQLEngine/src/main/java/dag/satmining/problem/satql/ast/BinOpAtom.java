@@ -53,6 +53,7 @@ import dag.satmining.problem.satql.ast.sql.Comparison;
 import dag.satmining.problem.satql.ast.sql.SQLBooleanValue;
 import dag.satmining.problem.satql.ast.sql.SQLValue;
 import dag.satmining.utils.BoundedIntPrefixTree;
+import dag.satmining.utils.UnreachableException;
 
 /**
  * 
@@ -60,161 +61,175 @@ import dag.satmining.utils.BoundedIntPrefixTree;
  */
 public final class BinOpAtom extends AtomicMiningExpression {
 
-	private final Op _op;
-	private final MiningValue _a;
-	private final MiningValue _b;
-	private final AttributeVariable[] _variables;
-	private BoundedIntPrefixTree<AtomicHolder> _intermediateLiterals;
+    private final Op _op;
+    private final MiningValue _a;
+    private final MiningValue _b;
+    private final AttributeVariable[] _variables;
+    private BoundedIntPrefixTree<AtomicHolder> _intermediateLiterals;
 
-	private BinOpAtom(MiningValue a, MiningValue b, Op op) {
-		this._a = a;
-		this._b = b;
-		this._op = op;
-		Set<AttributeVariable> var = new HashSet<AttributeVariable>();
-		var.addAll(a.getAttributeVariables());
-		var.addAll(b.getAttributeVariables());
-		this._variables = var.toArray(new AttributeVariable[var.size()]);
-	}
+    private BinOpAtom(MiningValue a, MiningValue b, Op op) {
+        this._a = a;
+        this._b = b;
+        this._op = op;
+        Set<AttributeVariable> var = new HashSet<AttributeVariable>();
+        var.addAll(a.getAttributeVariables());
+        var.addAll(b.getAttributeVariables());
+        this._variables = var.toArray(new AttributeVariable[var.size()]);
+    }
 
-	@Override
-	public MiningExpression pushDown(Quantifier q, AttributeVariable av,
-			SchemaVariable s) {
-		if (_a.getAttributeVariables().contains(av)
-				|| _b.getAttributeVariables().contains(av)) {
-			return new AttributeQuantifier(q, av, s, this);
-		} else {
-			return this;
-		}
-	}
+    @Override
+    public MiningExpression pushDown(Quantifier q, AttributeVariable av,
+            SchemaVariable s) {
+        if (_a.getAttributeVariables().contains(av)
+                || _b.getAttributeVariables().contains(av)) {
+            return new AttributeQuantifier(q, av, s, this);
+        } else {
+            return this;
+        }
+    }
 
-	@Override
-	public MiningExpression pushDown() {
-		return this;
-	}
+    @Override
+    public MiningExpression pushDown() {
+        return this;
+    }
 
-	@Override
-	public Set<AttributeVariable> getFreeAttVariables() {
-		Set<AttributeVariable> s = _a.getAttributeVariables();
-		s.addAll(_b.getAttributeVariables());
-		return s;
-	}
+    @Override
+    public Set<AttributeVariable> getFreeAttVariables() {
+        Set<AttributeVariable> s = _a.getAttributeVariables();
+        s.addAll(_b.getAttributeVariables());
+        return s;
+    }
 
-	@Override
-	public String toString() {
-		return _op.applyTo(_a.toString(), _b.toString());
-	}
+    @Override
+    public String toString() {
+        return _op.applyTo(_a.toString(), _b.toString());
+    }
 
-	@Override
-	public <E> E accept(Visitor<E> v) {
-		return v.eq(_a, _b);
-	}
+    @Override
+    public <E> E accept(Visitor<E> v) {
+        return v.eq(_a, _b);
+    }
 
-	public enum Op {
+    public enum Op {
 
-		Eq,Like;
+        Eq, Like;
 
-		public String applyTo(String fst, String snd) {
-			switch (this) {
-			case Eq:
-				return fst + " = " + snd;
-			case Like:
-				return fst + " LIKE " + snd;
-			}
-			return null;
-		}
-	}
+        public String applyTo(String fst, String snd) {
+            switch (this) {
+            case Eq:
+                return fst + " = " + snd;
+            case Like:
+                return fst + " LIKE " + snd;
+            }
+            return null;
+        }
+    }
 
-	public static BinOpAtom eq(MiningValue a, MiningValue b) {
-		return new BinOpAtom(a, b, Op.Eq);
-	}
-	
-	public static BinOpAtom like(MiningValue a,MiningValue b) {
-		return new BinOpAtom(a, b, Op.Like);
-	}
+    public static BinOpAtom eq(MiningValue a, MiningValue b) {
+        return new BinOpAtom(a, b, Op.Eq);
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		final BinOpAtom other = (BinOpAtom) obj;
-		if (this._op != other._op) {
-			return false;
-		}
-		if (this._a != other._a
-				&& (this._a == null || !this._a.equals(other._a))) {
-			return false;
-		}
-		if (this._b != other._b
-				&& (this._b == null || !this._b.equals(other._b))) {
-			return false;
-		}
-		return true;
-	}
+    public static BinOpAtom like(MiningValue a, MiningValue b) {
+        return new BinOpAtom(a, b, Op.Like);
+    }
 
-	@Override
-	public int hashCode() {
-		int hash = 5;
-		hash = 29 * hash + (this._op != null ? this._op.hashCode() : 0);
-		hash = 29 * hash + (this._a != null ? this._a.hashCode() : 0);
-		hash = 29 * hash + (this._b != null ? this._b.hashCode() : 0);
-		return hash;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        BinOpAtom other = (BinOpAtom) obj;
+        if (_a == null) {
+            if (other._a != null)
+                return false;
+        } else if (!_a.equals(other._a))
+            return false;
+        if (_b == null) {
+            if (other._b != null)
+                return false;
+        } else if (!_b.equals(other._b))
+            return false;
+        if (_op != other._op)
+            return false;
+        return true;
+    }
 
-	@Override
-	public void acceptPrefix(VoidVisitor v) {
-		switch (_op) {
-		case Eq:
-			v.eq(this, _a, _b);
-			break;
-		}
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((_a == null) ? 0 : _a.hashCode());
+        result = prime * result + ((_b == null) ? 0 : _b.hashCode());
+        result = prime * result + ((_op == null) ? 0 : _op.hashCode());
+        return result;
+    }
 
-	@Override
-	void registerSQLExpressions(Collection<AttributeConstant> atts,
-			int maxAttId, SQLBinding binding, ASTDictionnary dict) {
-		if (_intermediateLiterals == null) {
-			_intermediateLiterals = new BoundedIntPrefixTree<AtomicHolder>(0,
-					maxAttId + 1);
-		}
-		registerSQLExpressionsAndBuildBFormulas(atts, binding, 0,
-				new int[_variables.length], new AttributeValuation(dict));
-	}
+    @Override
+    public void acceptPrefix(VoidVisitor v) {
+        switch (_op) {
+        case Eq:
+            v.eq(this, _a, _b);
+            break;
+        case Like:
+            v.like(this, _a, _b);
+            break;
+        default:
+            throw new UnreachableException();
+        }
+    }
 
-	private void registerSQLExpressionsAndBuildBFormulas(
-			Collection<AttributeConstant> atts, SQLBinding binding, int i,
-			int[] valuation, AttributeValuation attVal) {
-		if (i < _variables.length) {
-			for (AttributeConstant att : atts) {
-				valuation[i] = att.getId();
-				attVal.set(_variables[i], att);
-				registerSQLExpressionsAndBuildBFormulas(atts, binding, i+1, valuation, attVal);
-			}
-		} else {
-			SQLValue a = _a.generateSQLExpression(attVal);
-			SQLValue b = _b.generateSQLExpression(attVal);
-			SQLBooleanValue cmp = null;
-			switch (_op) {
-			case Eq:
-				cmp = Comparison.eq(a, b);
-			}
-			int exprIdx = binding.registerSQLStatement(cmp);
-			AtomicHolder h = new AtomicHolder(exprIdx);
-			_intermediateLiterals.put(valuation, h);
-		}
-	}
+    @Override
+    void registerSQLExpressions(Collection<AttributeConstant> atts,
+            int maxAttId, SQLBinding binding, ASTDictionnary dict) {
+        if (_intermediateLiterals == null) {
+            _intermediateLiterals = new BoundedIntPrefixTree<AtomicHolder>(0,
+                    maxAttId + 1);
+        }
+        registerSQLExpressionsAndBuildBFormulas(atts, binding, 0,
+                new int[_variables.length], new AttributeValuation(dict));
+    }
 
-	@Override
-	public BFormula buildIntermediateFormula(AttributeValuation attVal,
-			Collection<AttributeConstant> atts, ForceAttributeSchema fas,
-			Map<SchemaVariable, Map<AttributeConstant, Integer>> domain) {
-		int[] interp = new int[_variables.length];
-		for (int i = 0; i < interp.length; i++) {
-			interp[i] = attVal.getInt(_variables[i]);
-		}
-		return _intermediateLiterals.get(interp);
-	}
+    private void registerSQLExpressionsAndBuildBFormulas(
+            Collection<AttributeConstant> atts, SQLBinding binding, int i,
+            int[] valuation, AttributeValuation attVal) {
+        if (i < _variables.length) {
+            for (AttributeConstant att : atts) {
+                valuation[i] = att.getId();
+                attVal.set(_variables[i], att);
+                registerSQLExpressionsAndBuildBFormulas(atts, binding, i + 1,
+                        valuation, attVal);
+            }
+        } else {
+            SQLValue a = _a.generateSQLExpression(attVal);
+            SQLValue b = _b.generateSQLExpression(attVal);
+            SQLBooleanValue cmp = null;
+            switch (_op) {
+            case Eq:
+                cmp = Comparison.eq(a, b);
+                break;
+            case Like:
+                cmp = Comparison.like(a, b);
+                break;
+            default:
+                throw new UnreachableException();
+            }
+            int exprIdx = binding.registerSQLStatement(cmp);
+            AtomicHolder h = new AtomicHolder(exprIdx);
+            _intermediateLiterals.put(valuation, h);
+        }
+    }
+
+    @Override
+    public BFormula buildIntermediateFormula(AttributeValuation attVal,
+            Collection<AttributeConstant> atts, ForceAttributeSchema fas,
+            Map<SchemaVariable, Map<AttributeConstant, Integer>> domain) {
+        int[] interp = new int[_variables.length];
+        for (int i = 0; i < interp.length; i++) {
+            interp[i] = attVal.getInt(_variables[i]);
+        }
+        return _intermediateLiterals.get(interp);
+    }
 }

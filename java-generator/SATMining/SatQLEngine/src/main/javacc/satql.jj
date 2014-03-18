@@ -75,8 +75,8 @@ TOKEN [ IGNORE_CASE ]:
 | < EQ: "=" >
 | < LT: "<" >
 | < DOT: "." >
-| < FORALL: "F" >
-| < EXISTS: "E" >
+| < FORALL: "F"|"FORALL" >
+| < EXISTS: "E"|"EXISTS" >
 | < FROM: "FROM" >
 | < SCOPE: "SCOPE" > 
 | < WHERE: "WHERE" >
@@ -100,6 +100,10 @@ TOKEN [ IGNORE_CASE ]:
 | < LIMIT: "LIMIT" >
 | < IF: "IF" >
 | < LIKE: "LIKE" >
+| < PLUS: "+" >
+| < CONCAT: "||" >
+| < IN: "IN" >
+| < COLON: ":" >
 }
 
 TOKEN : /* LITERALS */
@@ -172,11 +176,13 @@ MiningExpression QuantifierIfExpr(ASTDictionnary dict):
 {
   ( <FORALL> t=<IDENTIFIER> 
     {dict.getAttributeVariable(t.image);} 
-    "(" t2=<IDENTIFIER> ")" expr=QuantifierIfExpr(dict) 
+    ( ("(" t2=<IDENTIFIER> ")")|(< IN > t2=< IDENTIFIER > < COLON >) )
+    expr=QuantifierIfExpr(dict) 
     { return dict.forall(t.image,t2.image, expr); } )
 | ( <EXISTS> t=<IDENTIFIER> 
     {dict.getAttributeVariable(t.image);} 
-    "(" t2=<IDENTIFIER> ")" expr=QuantifierIfExpr(dict) 
+    ( ("(" t2=<IDENTIFIER> ")")|(< IN > t2=< IDENTIFIER > < COLON >) )
+    expr=QuantifierIfExpr(dict) 
     { return dict.exists(t.image,t2.image, expr); } )
 | ( <IF> expr=QuantifierIfExpr(dict) <THEN> expr2=QuantifierIfExpr(dict)
   { return dict.or(dict.neg(expr),expr2); } )
@@ -221,14 +227,13 @@ MiningExpression NegExpr(ASTDictionnary dict) :
 MiningExpression AtomicExpr(ASTDictionnary dict) :
 {
   MiningValue a,b;
-  Token t1, t2;
+  Token t1, t2, tOp;
   MiningExpression e;
   
 }
 {
   (<TRUE> {return dict.tt();})
-| LOOKAHEAD(2) (a=MiningVal(dict) <EQ> b=MiningVal(dict) {return dict.eq(a,b);})
-| LOOKAHEAD(2) (a=MiningVal(dict) <LIKE> b=MiningVal(dict) {return dict.like(a,b);})
+| LOOKAHEAD(2) (a=MiningVal(dict) (tOp=<LIKE>|tOp=<EQ>) b=MiningVal(dict) {return dict.op(tOp.image,a,b);})
 | (t1=<IDENTIFIER> <EQ> t2=<IDENTIFIER> {return dict.attCmp(t1.image,t2.image);})
 | (e=Singleton(dict) {return e;})
 | (e=EmptyIntersection(dict) {return e;})
@@ -352,8 +357,18 @@ Where WhereClause():
 SQLValue NonBooleanSQLValue():
 { SQLValue v; }
 {
-  v=AtomicNonBooleanSQLValue() {return v;}
+  v=OpNonBooleanSQLValue() {return v;}
 }
+
+SQLValue OpNonBooleanSQLValue():
+{ SQLValue v1,v2; SQLBinOpValue.Op op; }
+{  (    v1=AtomicNonBooleanSQLValue()
+  ((  (< PLUS > { op=SQLBinOpValue.Op.Plus;})    | (< CONCAT > { op=SQLBinOpValue.Op.Concat; }))
+   v2=OpNonBooleanSQLValue()   { v1=new SQLBinOpValue(op,v1,v2); }  )?
+  )
+  {    return v1;
+  }
+}        
 
 SQLBooleanValue SQLBooleanValue():
 { SQLBooleanValue v;}

@@ -167,6 +167,14 @@ public final class ASTDictionnary {
 	public MiningExpression like(MiningValue a, MiningValue b) {
 		return getMiningExpression(BinOpAtom.like(a, b));
 	}
+	
+	public MiningExpression op(String op, MiningValue a, MiningValue b) {
+	    if (op.equals("=")) {
+	        return eq(a,b);
+	    } else {
+	        return like(a,b);
+	    }
+	}
 
 	public MiningExpression tt() {
 		return getMiningExpression(True.getInstance());

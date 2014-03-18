@@ -73,4 +73,8 @@ public abstract class MiningValue {
     }
     
     public abstract <E> E accept(Visitor<E> v);
+    
+    public abstract boolean equals(Object o);
+    
+    public abstract int hashCode();
 }

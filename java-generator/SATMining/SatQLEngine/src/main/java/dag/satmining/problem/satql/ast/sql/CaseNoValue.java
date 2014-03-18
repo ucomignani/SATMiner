@@ -58,6 +58,8 @@ public class CaseNoValue extends SQLValue {
 	}
 
 	public void addWhen(SQLBooleanValue condition, SQLValue value) {
+	    if (condition == null) throw new IllegalArgumentException("condition is null in case");
+	    if (value == null) throw new IllegalArgumentException("value is null in case");
 		_whens.add(new When(condition, value));
 	}
 
