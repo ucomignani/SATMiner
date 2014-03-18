@@ -98,7 +98,7 @@ Solver::Solver() :
   , conflict_budget    (-1)
   , propagation_budget (-1)
   , asynch_interrupt   (false)
-{motifsz = 0; alphasz = 0; nbmodels=0; amconflicts=0; freqconflict = false;}
+{motifsz = 0; alphasz = 0; nbmodels=0; amconflicts=0; freqconflict = false; limitmodels=-1;}
 
 
 Solver::~Solver()

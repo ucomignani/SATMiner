@@ -23,6 +23,9 @@ bool Solver::counterModel(){
   
   nbmodels++;
   printModel(real_model);
+  if (limitmodels != -1 && nbmodels >= limitmodels) {
+    return false;
+  }
 
   cancelUntil(0);
   
@@ -39,33 +42,33 @@ bool Solver::counterModel(){
 
 //=================================================================================================
 
-void Solver::removeLastJockerLits(vec<Lit>& lits){
- int i = lits.size()-1;
-  while(isJockerVar(lits[i])){
-   lits.pop();
-   i = lits.size()-1;
-  }
-} 
+/* void Solver::removeLastJockerLits(vec<Lit>& lits){ */
+/*  int i = lits.size()-1; */
+/*   while(isJockerVar(lits[i])){ */
+/*    lits.pop(); */
+/*    i = lits.size()-1; */
+/*   } */
+/* }  */
   
 
-//=================================================================================================
-void Solver::removeJockerLits(vec<Lit>& lt){
- int i, j ;
- for(i = j = 0; i < lt.size(); i++)
-    if(!isJockerVar(lt[i]))
-	lt[j++] = lt[i];
- lt.shrink(i-j);
-return;
+/* //================================================================================================= */
+/* void Solver::removeJockerLits(vec<Lit>& lt){ */
+/*  int i, j ; */
+/*  for(i = j = 0; i < lt.size(); i++) */
+/*     if(!isJockerVar(lt[i])) */
+/* 	lt[j++] = lt[i]; */
+/*  lt.shrink(i-j); */
+/* return; */
 
-  i = 0, j = lt.size();
-  while(i < j){
-    if(isJockerVar(lt[i])){
-	lt[i] = lt[--j];
-	lt.pop();
-    }else
-      i++;
-  }
-}
+/*   i = 0, j = lt.size(); */
+/*   while(i < j){ */
+/*     if(isJockerVar(lt[i])){ */
+/* 	lt[i] = lt[--j]; */
+/* 	lt.pop(); */
+/*     }else */
+/*       i++; */
+/*   } */
+/* } */
 
 //=================================================================================================
 //Debug
