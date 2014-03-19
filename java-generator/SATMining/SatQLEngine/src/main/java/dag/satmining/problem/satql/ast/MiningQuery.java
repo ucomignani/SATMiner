@@ -88,6 +88,7 @@ public class MiningQuery<L extends Literal<L>> implements Constraint<L>, Pattern
 	private List<SchemaVariable> _toMinimize = new ArrayList<SchemaVariable>();
 	private List<SchemaVariable> _toMaximize = new ArrayList<SchemaVariable>();
 	private long _limit = -1;
+	private boolean _doCache = true;
 
 	public List<AttributeConstant> getAttributes() {
 		return _attributes;
@@ -166,7 +167,7 @@ public class MiningQuery<L extends Literal<L>> implements Constraint<L>, Pattern
 			buildDomain(satHandler);
 			_suchThat = _suchThat.pushDown();
 			SQLBinding sqlBinding = new SQLBinding(_suchThat, _attributes,
-					getDomainMap(), _dict);
+					getDomainMap(), _dict, _doCache);
 			List<SQLBooleanValue> subFormulasToEvaluate = sqlBinding
 					.getSelectStatements();
 			_bsr.setSelect(subFormulasToEvaluate);
@@ -256,5 +257,9 @@ public class MiningQuery<L extends Literal<L>> implements Constraint<L>, Pattern
 	
 	public void setLimit(long limit) {
 		this._limit = limit;
+	}
+	
+	public void enableCache(boolean doCache) {
+	    this._doCache = doCache;
 	}
 }
