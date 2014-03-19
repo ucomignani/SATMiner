@@ -137,7 +137,8 @@ public:
 
     // Statistics: (read-only member variable)
     //
-    uint64_t solves, starts, decisions, rnd_decisions, propagations, conflicts, nbmodels, limitmodels;
+    uint64_t solves, starts, decisions, rnd_decisions, propagations, conflicts;
+    int64_t nbmodels, limitmodels;
     uint64_t dec_vars, clauses_literals, learnts_literals, max_literals, tot_literals;
     uint64_t amconflicts;
     vec<char>  BG;        // 1 is in Backdoor, 2 is a jocker
