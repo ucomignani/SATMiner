@@ -189,6 +189,7 @@ public class SAT4JPBBuilder extends AbstractClauseBuilder<DimacsLiteral>
 				break;
 			case EQ:
 				_solver.addExactly(iVectIntFrom(lits), new VecInt(coefs), value);
+				break;
 			default:
 				throw new Error("bug in " + getClass().getSimpleName()
 						+ " unknown ineq " + ineq);
