@@ -85,6 +85,7 @@ import dag.satmining.problem.fim.FIMiningGenerator;
 import dag.satmining.problem.satql.SatQL;
 import dag.satmining.problem.seq.GSProblem;
 import dag.satmining.problem.seq.SequenceMiningGenerator1;
+import dag.satmining.utils.Timer;
 
 public class Main<L extends Literal<L>> implements Runnable {
     
@@ -451,9 +452,11 @@ public class Main<L extends Literal<L>> implements Runnable {
 	public static void main(String[] args) throws IOException {
 		Main<?> runner = null;
 		try {
+		    Timer timer = Timer.start("total");
 			runner = buildMain(args);
 			runner.parseArgs(args);
 			runner.run();
+			timer.stopAndPrint();
 			System.exit(runner.getExitCode());
 		} catch (UsageException e) {
 			usage(runner == null ? null : runner._generator,System.err);

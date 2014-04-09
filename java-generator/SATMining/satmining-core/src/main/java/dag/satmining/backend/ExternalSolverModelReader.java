@@ -45,6 +45,8 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dag.satmining.utils.Timer;
+
 /**
  * 
  * @author ecoquery
@@ -106,6 +108,7 @@ public class ExternalSolverModelReader implements ModelReader {
     public void run() {
         try {
             LOG.info("Executing {} ...", Arrays.toString(_cmd));
+            Timer timer = Timer.start("external solver");
             Process solverProcess = Runtime.getRuntime().exec(_cmd);
             try {
                 solverProcess.waitFor();
@@ -114,6 +117,7 @@ public class ExternalSolverModelReader implements ModelReader {
                 solverProcess.destroy();
                 throw new RuntimeException(e);
             }
+            timer.stopAndPrint();
             LOG.info("External call terminated");
         } catch (IOException ex) {
             LOG.error("IO problem: {}" + ex.getLocalizedMessage());
@@ -129,7 +133,8 @@ public class ExternalSolverModelReader implements ModelReader {
                 _limit = max;
                 if (_addEqToLimit) {
                     _cmd = Arrays.copyOf(_cmd, _cmd.length + 1);
-                    _cmd[_cmd.length - 1] = _limitSwitch+"="+String.valueOf(_limit);
+                    _cmd[_cmd.length - 1] = _limitSwitch + "="
+                            + String.valueOf(_limit);
                 } else {
                     _cmd = Arrays.copyOf(_cmd, _cmd.length + 2);
                     _cmd[_cmd.length - 2] = _limitSwitch;
