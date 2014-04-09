@@ -133,4 +133,9 @@ public class AttributeVarComparison extends MiningExpression {
 			return false;
 		return true;
 	}
+
+    @Override
+    protected boolean isDataIndependant() {
+        return true;
+    }
 }

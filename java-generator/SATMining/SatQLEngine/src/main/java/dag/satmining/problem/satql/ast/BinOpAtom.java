@@ -232,4 +232,9 @@ public final class BinOpAtom extends AtomicMiningExpression {
         }
         return _intermediateLiterals.get(interp);
     }
+
+    @Override
+    protected boolean isDataIndependant() {
+        return false;
+    }
 }

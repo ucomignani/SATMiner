@@ -133,6 +133,11 @@ public class AttributeVarConstantComparison extends MiningExpression {
 			return false;
 		return true;
 	}
+
+    @Override
+    protected boolean isDataIndependant() {
+        return true;
+    }
 	
 	
 	

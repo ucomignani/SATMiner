@@ -116,5 +116,10 @@ public final class True extends AtomicMiningExpression {
 	@Override
 	public int hashCode() {
 		return 0;
-	} 
+	}
+
+    @Override
+    protected boolean isDataIndependant() {
+        return true;
+    } 
 }

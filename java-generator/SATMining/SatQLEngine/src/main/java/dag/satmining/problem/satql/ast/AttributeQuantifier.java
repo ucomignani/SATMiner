@@ -229,4 +229,9 @@ public final class AttributeQuantifier extends
 		_expr.registerSQLExpressions(atts, maxAttId, binding, dict);
 	}
 
+    @Override
+    protected boolean isDataIndependant() {
+        return _expr.isDataIndependant();
+    }
+
 }

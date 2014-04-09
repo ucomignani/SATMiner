@@ -146,4 +146,6 @@ public abstract class MiningExpression {
 	}
 
 	public abstract void acceptPrefix(VoidVisitor v);
+	
+	protected abstract boolean isDataIndependant();
 }

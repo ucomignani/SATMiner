@@ -101,17 +101,17 @@ public class SQLBinding {
     }
 
     private class CacheEnabler extends AbstractMiningExpressionVisitor {
-
+       
         @Override
         public void exists(MiningExpression e, AttributeVariable av,
                 SchemaVariable sv, MiningExpression a) {
-            e.enableCache(true);
+            e.enableCache(_doCache || e.isDataIndependant());
         }
 
         @Override
         public void forall(MiningExpression e, AttributeVariable av,
                 SchemaVariable sv, MiningExpression a) {
-            e.enableCache(true);
+            e.enableCache(_doCache || e.isDataIndependant());
         }
 
     }
@@ -122,11 +122,12 @@ public class SQLBinding {
             SQLException, IOException {
         if (_doCache) {
             LOG.debug("Enabling cache in main expression and quantifiers");
-            _mainExpression.acceptPrefix(new CacheEnabler());
             _mainExpression.enableCache(true);
         } else {
-            LOG.debug("Disabling cache in mining expressions");
+            LOG.debug("Caching only mining expressions independant of data");
         }
+        // CacheEnabler enables cache only for data independant formulas is the _doCache is false   
+        _mainExpression.acceptPrefix(new CacheEnabler()); 
         LOG.debug("Generating intermediate formulas");
         int nbConfigs = 1 + _attributes.size()
                 * (toMinimize.size() + toMaximize.size());
