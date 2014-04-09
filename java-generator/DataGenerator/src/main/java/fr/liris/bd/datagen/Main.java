@@ -91,7 +91,7 @@ public class Main {
     public void run(PrintStream out, PrintStream err)
             throws Exception {
         if (!_output.hasOutput()) {
-            setCSV("-");
+            setCSV("<std>");
         }
         DataGen datagen = new DataGen(_tableName, _output);
         for (ColumnConfig c : _columns) {
