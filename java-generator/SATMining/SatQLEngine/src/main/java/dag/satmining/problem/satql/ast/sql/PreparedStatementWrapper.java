@@ -63,6 +63,7 @@ public class PreparedStatementWrapper implements TupleFetcher {
 	public PreparedStatementWrapper(Connection connection, String query)
 			throws SQLException {
 		_pstat = connection.prepareStatement(query);
+		LOG.debug("Generated SQL Query:\n{}",query);
 		reset();
 		ResultSetMetaData metadata = _rs.getMetaData();
 		_schema = new HashMap<String, Integer>();
