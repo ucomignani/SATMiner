@@ -74,6 +74,7 @@ TOKEN [ IGNORE_CASE ]:
 | < TRUE: "TRUE" >
 | < EQ: "=" >
 | < LT: "<" >
+| < GT: ">" >
 | < DOT: "." >
 | < FORALL: "F"|"FORALL" >
 | < EXISTS: "E"|"EXISTS" >
@@ -113,7 +114,7 @@ TOKEN : /* LITERALS */
       | <STRING_LITERAL>
   >
 |
-  < #DECIMAL_LITERAL: (["0"-"9"])+ >
+  < #DECIMAL_LITERAL: (["0"-"9"]("."["0"-"9"])?)+ >
 |
   < #STRING_LITERAL: "'" ("''"|~["'"])* "'" >
 }
@@ -233,7 +234,7 @@ MiningExpression AtomicExpr(ASTDictionnary dict) :
 }
 {
   (<TRUE> {return dict.tt();})
-| LOOKAHEAD(2) (a=MiningVal(dict) (tOp=<LIKE>|tOp=<EQ>) b=MiningVal(dict) {return dict.op(tOp.image,a,b);})
+| LOOKAHEAD(2) (a=MiningVal(dict) (tOp=<LIKE>|tOp=<EQ>|tOp=<GT>|tOp=<LT>) b=MiningVal(dict) {return dict.op(tOp.image,a,b);})
 | (t1=<IDENTIFIER> <EQ> t2=<IDENTIFIER> {return dict.attCmp(t1.image,t2.image);})
 | (e=Singleton(dict) {return e;})
 | (e=EmptyIntersection(dict) {return e;})

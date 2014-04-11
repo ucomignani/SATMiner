@@ -159,21 +159,9 @@ public final class ASTDictionnary {
 	public MiningExpression neg(MiningExpression a) {
 		return getMiningExpression(new Neg(a));
 	}
-
-	public MiningExpression eq(MiningValue a, MiningValue b) {
-		return getMiningExpression(BinOpAtom.eq(a, b));
-	}
-	
-	public MiningExpression like(MiningValue a, MiningValue b) {
-		return getMiningExpression(BinOpAtom.like(a, b));
-	}
 	
 	public MiningExpression op(String op, MiningValue a, MiningValue b) {
-	    if (op.equals("=")) {
-	        return eq(a,b);
-	    } else {
-	        return like(a,b);
-	    }
+	    return getMiningExpression(BinOpAtom.op(op,a,b));
 	}
 
 	public MiningExpression tt() {

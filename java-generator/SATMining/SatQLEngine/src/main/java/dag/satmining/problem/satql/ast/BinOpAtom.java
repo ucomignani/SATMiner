@@ -112,7 +112,7 @@ public final class BinOpAtom extends AtomicMiningExpression {
 
     public enum Op {
 
-        Eq, Like;
+        Eq, Like, Gt, Lt;
 
         public String applyTo(String fst, String snd) {
             switch (this) {
@@ -120,17 +120,25 @@ public final class BinOpAtom extends AtomicMiningExpression {
                 return fst + " = " + snd;
             case Like:
                 return fst + " LIKE " + snd;
+            case Gt:
+                return fst + " > " + snd;
+            case Lt:
+                return fst + "< " + snd;
             }
             return null;
         }
-    }
-
-    public static BinOpAtom eq(MiningValue a, MiningValue b) {
-        return new BinOpAtom(a, b, Op.Eq);
-    }
-
-    public static BinOpAtom like(MiningValue a, MiningValue b) {
-        return new BinOpAtom(a, b, Op.Like);
+        
+        public static Op fromString(String op) {
+            if ("=".equals(op)) {
+                return Eq;
+            } else if ("LIKE".equals(op.toUpperCase())) {
+                return Like;
+            } else if (">".equals(op)) {
+                return Gt;
+            } else {
+                return Lt;
+            }
+        }
     }
 
     @Override
@@ -176,6 +184,12 @@ public final class BinOpAtom extends AtomicMiningExpression {
         case Like:
             v.like(this, _a, _b);
             break;
+        case Lt:
+            v.lt(this, _a, _b);
+            break;
+        case Gt:
+            v.gt(this, _a, _b);
+            break;
         default:
             throw new UnreachableException();
         }
@@ -213,6 +227,12 @@ public final class BinOpAtom extends AtomicMiningExpression {
             case Like:
                 cmp = Comparison.like(a, b);
                 break;
+            case Gt:
+                cmp = Comparison.gt(a, b);
+                break;
+            case Lt:
+                cmp = Comparison.lt(a, b);
+                break;
             default:
                 throw new UnreachableException();
             }
@@ -236,5 +256,9 @@ public final class BinOpAtom extends AtomicMiningExpression {
     @Override
     protected boolean isDataIndependant() {
         return false;
+    }
+
+    public static MiningExpression op(String op, MiningValue a, MiningValue b) {
+        return new BinOpAtom(a,b,Op.fromString(op));
     }
 }

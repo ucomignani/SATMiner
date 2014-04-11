@@ -127,6 +127,10 @@ public abstract class MiningExpression {
 		void eq(MiningExpression e, MiningValue a, MiningValue b);
 		
 		void like(MiningExpression e, MiningValue a, MiningValue b);
+        
+        void lt(MiningExpression e, MiningValue a, MiningValue b);
+        
+        void gt(MiningExpression e, MiningValue a, MiningValue b);
 
 		void exists(MiningExpression e, AttributeVariable av,
 				SchemaVariable sv, MiningExpression a);
