@@ -202,4 +202,9 @@ public final class BinOpExpr extends MiningExpression {
 			throw new UnreachableException();
 		}
 	}
+
+    @Override
+    protected boolean isDataIndependant() {
+        return _a.isDataIndependant() && _b.isDataIndependant();
+    }
 }

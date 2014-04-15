@@ -51,8 +51,23 @@ public abstract class AbstractMiningExpressionVisitor implements VoidVisitor {
 	public void eq(MiningExpression e, MiningValue a, MiningValue b) {
 		defaultHandling(e);
 	}
+	
+	@Override
+	public void like(MiningExpression e, MiningValue a, MiningValue b) {
+	    defaultHandling(e);
+	}
 
 	@Override
+    public void lt(MiningExpression e, MiningValue a, MiningValue b) {
+	    defaultHandling(e);
+    }
+
+    @Override
+    public void gt(MiningExpression e, MiningValue a, MiningValue b) {
+        defaultHandling(e);
+    }
+
+    @Override
 	public void exists(MiningExpression e, AttributeVariable av,
 			SchemaVariable sv, MiningExpression a) {
 		defaultHandling(e);

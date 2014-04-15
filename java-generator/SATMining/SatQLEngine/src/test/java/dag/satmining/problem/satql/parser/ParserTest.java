@@ -126,4 +126,14 @@ public class ParserTest extends TestCase {
         assertEquals(SQLTrue.instance(),mq.getWhere().getExpr());
     }
     
+    public void testParseMiningQueryIfThen() throws ParseException {
+        MiningQuery<DimacsLiteral> mq;
+        SATQLParser<DimacsLiteral> p = fromResource("/funct_deps_ifthen.satql");
+        mq = p.MiningQuery();
+        assertNotNull(mq);
+        assertEquals(2,mq.getSchemaVariables().size());
+        assertEquals(5,mq.getAttributes().size());
+        assertEquals(SQLTrue.instance(),mq.getWhere().getExpr());
+    }
+    
 }

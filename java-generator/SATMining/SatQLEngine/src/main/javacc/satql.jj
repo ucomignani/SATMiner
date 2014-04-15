@@ -74,10 +74,12 @@ TOKEN [ IGNORE_CASE ]:
 | < TRUE: "TRUE" >
 | < EQ: "=" >
 | < LT: "<" >
+| < GT: ">" >
 | < DOT: "." >
-| < FORALL: "F" >
-| < EXISTS: "E" >
+| < FORALL: "F"|"FORALL" >
+| < EXISTS: "E"|"EXISTS" >
 | < FROM: "FROM" >
+| < SCOPE: "SCOPE" > 
 | < WHERE: "WHERE" >
 | < SELECT: "SELECT" >
 | < FIND: "FIND" >
@@ -97,6 +99,12 @@ TOKEN [ IGNORE_CASE ]:
 | < MINIMIZE: "MINIMIZE" >
 | < MAXIMIZE: "MAXIMIZE" >
 | < LIMIT: "LIMIT" >
+| < IF: "IF" >
+| < LIKE: "LIKE" >
+| < PLUS: "+" >
+| < CONCAT: "||" >
+| < IN: "IN" >
+| < COLON: ":" >
 }
 
 TOKEN : /* LITERALS */
@@ -106,7 +114,7 @@ TOKEN : /* LITERALS */
       | <STRING_LITERAL>
   >
 |
-  < #DECIMAL_LITERAL: (["0"-"9"])+ >
+  < #DECIMAL_LITERAL: (["0"-"9"]("."["0"-"9"])?)+ >
 |
   < #STRING_LITERAL: "'" ("''"|~["'"])* "'" >
 }
@@ -136,7 +144,8 @@ MiningQuery<L> MiningQuery():
   <OVER>
   t=<IDENTIFIER> { query.addAttribute(t.image); }
   ("," t=<IDENTIFIER> { query.addAttribute(t.image); } )*
-  FromClause(query.getFrom())
+  <SCOPE> FromExpr(query.getFrom()) 
+  ( "," FromExpr(query.getFrom()) )*
   (where=WhereClause() {query.setWhere(where);})?
   <SUCH> <THAT> expr=MiningExpr(query.getDict()) 
   { query.setSuchThat(expr); }
@@ -156,24 +165,28 @@ MiningQuery<L> MiningQuery():
 MiningExpression MiningExpr(ASTDictionnary dict) : 
 { MiningExpression expr; }
 {
-  expr=QuantifierExpr(dict)
+  expr=QuantifierIfExpr(dict)
   { return expr; }
 }
 
-MiningExpression QuantifierExpr(ASTDictionnary dict):
+MiningExpression QuantifierIfExpr(ASTDictionnary dict):
 { 
-  MiningExpression expr; 
+  MiningExpression expr,expr2; 
   Token t,t2;
 }
 {
   ( <FORALL> t=<IDENTIFIER> 
     {dict.getAttributeVariable(t.image);} 
-    "(" t2=<IDENTIFIER> ")" expr=QuantifierExpr(dict) 
+    ( ("(" t2=<IDENTIFIER> ")")|(< IN > t2=< IDENTIFIER > < COLON >) )
+    expr=QuantifierIfExpr(dict) 
     { return dict.forall(t.image,t2.image, expr); } )
 | ( <EXISTS> t=<IDENTIFIER> 
     {dict.getAttributeVariable(t.image);} 
-    "(" t2=<IDENTIFIER> ")" expr=QuantifierExpr(dict) 
+    ( ("(" t2=<IDENTIFIER> ")")|(< IN > t2=< IDENTIFIER > < COLON >) )
+    expr=QuantifierIfExpr(dict) 
     { return dict.exists(t.image,t2.image, expr); } )
+| ( <IF> expr=QuantifierIfExpr(dict) <THEN> expr2=QuantifierIfExpr(dict)
+  { return dict.or(dict.neg(expr),expr2); } )
 | ( expr=OrExpr(dict)
     { return expr; } )
 }
@@ -215,13 +228,13 @@ MiningExpression NegExpr(ASTDictionnary dict) :
 MiningExpression AtomicExpr(ASTDictionnary dict) :
 {
   MiningValue a,b;
-  Token t1, t2;
+  Token t1, t2, tOp;
   MiningExpression e;
   
 }
 {
   (<TRUE> {return dict.tt();})
-| LOOKAHEAD(2) (a=MiningVal(dict) <EQ> b=MiningVal(dict) {return dict.eq(a,b);})
+| LOOKAHEAD(2) (a=MiningVal(dict) (tOp=<LIKE>|tOp=<EQ>|tOp=<GT>|tOp=<LT>) b=MiningVal(dict) {return dict.op(tOp.image,a,b);})
 | (t1=<IDENTIFIER> <EQ> t2=<IDENTIFIER> {return dict.attCmp(t1.image,t2.image);})
 | (e=Singleton(dict) {return e;})
 | (e=EmptyIntersection(dict) {return e;})
@@ -345,8 +358,18 @@ Where WhereClause():
 SQLValue NonBooleanSQLValue():
 { SQLValue v; }
 {
-  v=AtomicNonBooleanSQLValue() {return v;}
+  v=OpNonBooleanSQLValue() {return v;}
 }
+
+SQLValue OpNonBooleanSQLValue():
+{ SQLValue v1,v2; SQLBinOpValue.Op op; }
+{  (    v1=AtomicNonBooleanSQLValue()
+  ((  (< PLUS > { op=SQLBinOpValue.Op.Plus;})    | (< CONCAT > { op=SQLBinOpValue.Op.Concat; }))
+   v2=OpNonBooleanSQLValue()   { v1=new SQLBinOpValue(op,v1,v2); }  )?
+  )
+  {    return v1;
+  }
+}        
 
 SQLBooleanValue SQLBooleanValue():
 { SQLBooleanValue v;}
@@ -380,7 +403,8 @@ SQLBooleanValue AtomicSQLBooleanValue():
 {
   ( (a=NonBooleanSQLValue() ) 
     ( <EQ> b=NonBooleanSQLValue() { return Comparison.eq(a,b); } 
-    | <LT> b=NonBooleanSQLValue() { return Comparison.lt(a,b); } ) )
+    | <LT> b=NonBooleanSQLValue() { return Comparison.lt(a,b); }
+    | <LIKE> b=NonBooleanSQLValue() { return Comparison.like(a,b); }    ) )
 | ( "(" v=SQLBooleanValue() ")" { return v; } )
 }
 

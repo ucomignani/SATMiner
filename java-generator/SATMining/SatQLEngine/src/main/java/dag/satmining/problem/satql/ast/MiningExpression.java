@@ -125,6 +125,12 @@ public abstract class MiningExpression {
 		void and(MiningExpression e, MiningExpression a, MiningExpression b);
 
 		void eq(MiningExpression e, MiningValue a, MiningValue b);
+		
+		void like(MiningExpression e, MiningValue a, MiningValue b);
+        
+        void lt(MiningExpression e, MiningValue a, MiningValue b);
+        
+        void gt(MiningExpression e, MiningValue a, MiningValue b);
 
 		void exists(MiningExpression e, AttributeVariable av,
 				SchemaVariable sv, MiningExpression a);
@@ -144,4 +150,6 @@ public abstract class MiningExpression {
 	}
 
 	public abstract void acceptPrefix(VoidVisitor v);
+	
+	protected abstract boolean isDataIndependant();
 }

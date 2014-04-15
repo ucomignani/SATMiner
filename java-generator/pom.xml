@@ -10,5 +10,6 @@
     <module>BoolVarPB</module>
     <module>SATMining</module>
     <module>LinesToChars</module>
+    <module>DataGenerator</module>
   </modules>
 </project>

@@ -130,5 +130,10 @@ public class Neg extends MiningExpression {
 			Map<SchemaVariable, Map<AttributeConstant, Integer>> domain) {
 		return new BNeg(_a.getIntermediateFormula(attVal, atts, fas, domain));
 	}
+
+    @Override
+    protected boolean isDataIndependant() {
+        return _a.isDataIndependant();
+    }
     
 }

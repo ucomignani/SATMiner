@@ -137,7 +137,8 @@ public:
 
     // Statistics: (read-only member variable)
     //
-    uint64_t solves, starts, decisions, rnd_decisions, propagations, conflicts, nbmodels;
+    uint64_t solves, starts, decisions, rnd_decisions, propagations, conflicts;
+    int64_t nbmodels, limitmodels;
     uint64_t dec_vars, clauses_literals, learnts_literals, max_literals, tot_literals;
     uint64_t amconflicts;
     vec<char>  BG;        // 1 is in Backdoor, 2 is a jocker
@@ -235,15 +236,15 @@ protected:
     bool     atLeastOneTrue(int i,int alphabetsz, vec<Lit>& motif_clause, vec<Lit>& out_learnt);
     CRef      addToDataBase(vec<Lit>& out_learnt);
 
-    void     removeJockerLits(vec<Lit>& lits);
-    void     removeLastJockerLits(vec<Lit>& lits);
+    //    void     removeJockerLits(vec<Lit>& lits);
+    //    void     removeLastJockerLits(vec<Lit>& lits);
 
     void     getDecisionsClause(vec<Lit>& lits, vec<Lit>& resolvante);
 
-    bool     isJockerVar(Lit q)  {return (BG[var(q)] == 2);}
+    /* bool     isJockerVar(Lit q)  {return (BG[var(q)] == 2);} */
     bool     isBackDoorVar(Lit q){return (BG[var(q)] > 0) ;}
     
-    void     antiMonotony(vec<Lit>& lits, int m, int alphabetsz, vec<Lit>& unitClauses, int& bt);
+    //    void     antiMonotony(vec<Lit>& lits, int m, int alphabetsz, vec<Lit>& unitClauses, int& bt);
     void     printModel(vec<Lit>& lits);
     bool     counterModel();
     void     insertVarOrder   (Var x);                                                 // Insert a variable in the decision order priority queue.

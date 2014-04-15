@@ -50,76 +50,99 @@ import java.util.Map;
  */
 public final class Comparison extends SQLBooleanValue {
 
-	private final Op _op;
-	private final SQLValue _a, _b;
+    private final Op _op;
+    private final SQLValue _a, _b;
 
-	private Comparison(SQLValue a, Op op, SQLValue b) {
-		this._a = a;
-		this._b = b;
-		this._op = op;
-	}
+    private Comparison(SQLValue a, Op op, SQLValue b) {
+        this._a = a;
+        this._b = b;
+        this._op = op;
+    }
 
-	public static Comparison eq(SQLValue a, SQLValue b) {
-		return new Comparison(a, Op.Eq, b);
-	}
-	
-	public static Comparison lt(SQLValue a, SQLValue b) {
-		return  new Comparison(a, Op.Lt, b);
-	}
+    public static Comparison eq(SQLValue a, SQLValue b) {
+        return new Comparison(a, Op.Eq, b);
+    }
 
-	@Override
-	public void buildSQLQuery(StringBuilder output) {
-		output.append("(");
-		_a.buildSQLQuery(output);
-		output.append(" ");
-		output.append(_op.infixRepr());
-		output.append(" ");
-		_b.buildSQLQuery(output);
-		output.append(")");
-	}
+    public static Comparison lt(SQLValue a, SQLValue b) {
+        return new Comparison(a, Op.Lt, b);
+    }
 
-	public enum Op {
-		Eq, Lt;
-		public String infixRepr() {
-			switch (this) {
-			case Lt:
-				return "<";
-			default:
-				return "=";
-			}
-		}
+    public static Comparison gt(SQLValue a, SQLValue b) {
+        return new Comparison(a, Op.Gt, b);
+    }
 
-		private static boolean le(String a, String b) {
-			try {
-				double a1 = Double.parseDouble(a);
-				double b1 = Double.parseDouble(b);
-				return a1 < b1;
-			} catch (NumberFormatException e) {
-				return a.compareTo(b) < 0;
-			}
-		}
-		
-		public boolean eval(String a, String b) {
-			switch (this) {
-			case Eq:
-				return a != null && a.equals(b);
-			case Lt:
-				return a != null && b != null && le(a,b);
-			default:
-				return false;
-			}
-		}
-	}
+    public static Comparison like(SQLValue a, SQLValue b) {
+        return new Comparison(a, Op.Like, b);
+    }
 
-	@Override
-	public void setupEval(Map<String, Integer> tupleIdx,
-			Map<String, Integer>[] tupleSchemas) {
-		_a.setupEval(tupleIdx, tupleSchemas);
-		_b.setupEval(tupleIdx, tupleSchemas);
-	}
+    @Override
+    public void buildSQLQuery(StringBuilder output) {
+        output.append("(");
+        _a.buildSQLQuery(output);
+        output.append(" ");
+        output.append(_op.infixRepr());
+        output.append(" ");
+        _b.buildSQLQuery(output);
+        output.append(")");
+    }
 
-	@Override
-	public boolean eval(Tuple[] tuples) {
-		return _op.eval(_a.eval(tuples), _b.eval(tuples));
-	}
+    public enum Op {
+        Eq, Lt, Like, Gt;
+        public String infixRepr() {
+            switch (this) {
+            case Lt:
+                return "<";
+            case Like:
+                return "LIKE";
+            case Gt:
+                return ">";
+            case Eq:
+            default:
+                return "=";
+            }
+        }
+
+        private static boolean lt(String a, String b) {
+            try {
+                double a1 = Double.parseDouble(a);
+                double b1 = Double.parseDouble(b);
+                return a1 < b1;
+            } catch (NumberFormatException e) {
+                return a.compareTo(b) < 0;
+            }
+        }
+
+        private static boolean like(String a, String b) {
+            String re = b.replace("\\", "\\\\").replace(".", "\\.")
+                    .replace("_", ".").replace("%", ".*");
+            return a.matches(re);
+        }
+
+        public boolean eval(String a, String b) {
+            switch (this) {
+            case Eq:
+                return a != null && a.equals(b);
+            case Lt:
+                return a != null && b != null && lt(a, b);
+            case Like:
+                return a != null && b != null && like(a, b);
+            case Gt:
+                return a != null && b != null && lt(b, a);
+            default:
+                return false;
+            }
+        }
+    }
+
+    @Override
+    public void setupEval(Map<String, Integer> tupleIdx,
+            Map<String, Integer>[] tupleSchemas) {
+        _a.setupEval(tupleIdx, tupleSchemas);
+        _b.setupEval(tupleIdx, tupleSchemas);
+    }
+
+    @Override
+    public boolean eval(Tuple[] tuples) {
+        return _op.eval(_a.eval(tuples), _b.eval(tuples));
+    }
 }

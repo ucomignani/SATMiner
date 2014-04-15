@@ -87,6 +87,7 @@ int main(int argc, char** argv)
         IntOption    cpu_lim("MAIN", "cpu-lim","Limit on CPU time allowed in seconds.\n", INT32_MAX, IntRange(0, INT32_MAX));
         IntOption    mem_lim("MAIN", "mem-lim","Limit on memory usage in megabytes.\n", INT32_MAX, IntRange(0, INT32_MAX));
         IntOption    am     ("MAIN", "am","anti monotony 1 with, 0 without.\n", 1, IntRange(0, 1));
+        IntOption    models_lim("MAIN", "max-models","maximal number of models to produce, -1 for no limit.\n", -1, IntRange(-1,INT32_MAX));
         
         parseOptions(argc, argv, true);
 
@@ -95,6 +96,7 @@ int main(int argc, char** argv)
 
         S.verbosity = verb;
 	S.antimonotony_flag = am;
+        S.limitmodels = models_lim;
         
         solver = &S;
         // Use signal handlers that forcibly quit until the solver will be able to respond to

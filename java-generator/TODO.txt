@@ -1,0 +1,2 @@
+- check syntax for attribute quantifiers
+- extend syntax for sql conditions 
