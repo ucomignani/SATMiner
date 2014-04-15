@@ -43,40 +43,49 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 
+import dag.satmining.backend.ExternalSolverModelReader;
 import dag.satmining.backend.ModelReader;
 
 public class ModelSolutionWriter implements SolutionWriter, Limitable {
 
-	private ModelReader _reader;
-	private OutputStream _output;
+    private ModelReader _reader;
+    private OutputStream _output;
 
-	public ModelSolutionWriter(ModelReader _reader) {
-		super();
-		this._reader = _reader;
-	}
+    public ModelSolutionWriter(ModelReader _reader) {
+        super();
+        this._reader = _reader;
+    }
 
-	@Override
-	public void setOutput(String outputFile) throws IOException {
-		if ("-".equals(outputFile)) {
-			this._output = System.out;
-		} else {
-			this._output = new FileOutputStream(outputFile);
-		}
-	}
+    @Override
+    public void setOutput(String outputFile) throws IOException {
+        if ("-".equals(outputFile)) {
+            this._output = System.out;
+        } else {
+            this._output = new FileOutputStream(outputFile);
+        }
+    }
 
-	@Override
-	public void writeSolution(PatternConverter converter) throws IOException {
-		PrintWriter writer = new PrintWriter(_output);
-		while (_reader.getNext()) {
-			writer.println(converter.getPattern(_reader
-					.getCurrentInterpretation()));
-		}
-		writer.close();
-	}
+    @Override
+    public void writeSolution(PatternConverter converter) throws IOException {
+        PrintWriter writer = new PrintWriter(_output);
+        while (_reader.getNext()) {
+            writer.println(converter.getPattern(_reader
+                    .getCurrentInterpretation()));
+        }
+        writer.close();
+    }
 
-	@Override
-	public void setLimit(long max) {
-		_reader.setLimit(max);
-	}
+    @Override
+    public void setLimit(long max) {
+        _reader.setLimit(max);
+    }
+
+    public void setTimeout(long max) {
+        if (_reader instanceof ExternalSolverModelReader) {
+            ((ExternalSolverModelReader) _reader).setTimeout(max);
+        } else {
+            throw new IllegalStateException("Cannot set timeout on "+_reader.getClass());
+        }
+    }
 
 }

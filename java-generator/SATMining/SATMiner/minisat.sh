@@ -17,8 +17,8 @@ then
 fi
 if [ ! -z "$minisat" ]
 then
-    echo $minisat "$1 > $3"
-    $minisat "$1" $4 $5 > "$3"
+    echo $minisat "$1 $4 $5 $6 $7 > $3"
+    $minisat "$1" $4 $5 $6 $7 > "$3"
 else
     echo "No minisat-all-models"
     exit 1

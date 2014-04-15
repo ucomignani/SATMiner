@@ -88,379 +88,415 @@ import dag.satmining.problem.seq.SequenceMiningGenerator1;
 import dag.satmining.utils.Timer;
 
 public class Main<L extends Literal<L>> implements Runnable {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
-	// SAT/PB Backend
-	private static final String MINISAT_OPT = "minisat";
-	private static final String SAT4J_OPT = "sat4j";
-	private static final String CNF_OPT = "cnf";
-	private static final String MAX_MODELS_SWITCH = "-max-models";
+    // SAT/PB Backend
+    private static final String MINISAT_OPT = "minisat";
+    private static final String SAT4J_OPT = "sat4j";
+    private static final String CNF_OPT = "cnf";
+    private static final String MAX_MODELS_SWITCH = "-max-models";
+    private static final String MINISAT_TIMEOUT_OPT = "minisatTimeout";
+    private static final String CPU_LIM_SWITCH = "-cpu-lim";
 
-	// PB Coding
-	private static final String BVPB_CODING_OPT = "bvpbCoding";
-	private static final String CARDNETWORKS_OPT = "cardnet";
-	private static final String NAIVE_OPT = "naive";
+    // PB Coding
+    private static final String BVPB_CODING_OPT = "bvpbCoding";
+    private static final String CARDNETWORKS_OPT = "cardnet";
+    private static final String NAIVE_OPT = "naive";
 
-	// Problem
-	private static final String SATQL_OPT = "satql";
-	private static final String GS_OPT = "gs";
-	private static final String FIM_OPT = "fim";
-	private static final String FSM_OPT = "fsm";
+    // Problem
+    private static final String SATQL_OPT = "satql";
+    private static final String GS_OPT = "gs";
+    private static final String FIM_OPT = "fim";
+    private static final String FSM_OPT = "fsm";
 
-	// Input / output
-	private static final String GENSEQ_OPT = "genseq";
-	private static final String INPUT_OPT = "i";
-	private static final String OUTPUT_OPT = "o";
+    // Input / output
+    private static final String GENSEQ_OPT = "genseq";
+    private static final String INPUT_OPT = "i";
+    private static final String OUTPUT_OPT = "o";
 
-	// Misc
-	private static final String DEBUG_OPT = "debug";
-	private static final String LIMIT_OPT = "limit";
+    // Misc
+    private static final String DEBUG_OPT = "debug";
+    private static final String LIMIT_OPT = "limit";
 
-	// Internal variables
-	private PBBuilder<L> _builder;
-	private Generator<L> _generator;
-	private CommandLine _cmd;
-	private Class<L> _litClazz;
-	private Reader _input;
-	private String _outputFile = "-";
-	private ModelReader _modelReader;
-	private SolutionWriter _solutionWriter;
-	private PrintStream _err = System.err;
-	private int _exitCode = 0;
-	boolean _debug = false;
-	private long _limit = -1;
+    // Internal variables
+    private PBBuilder<L> _builder;
+    private Generator<L> _generator;
+    private CommandLine _cmd;
+    private Class<L> _litClazz;
+    private Reader _input;
+    private String _outputFile = "-";
+    private ModelReader _modelReader;
+    private SolutionWriter _solutionWriter;
+    private PrintStream _err = System.err;
+    private int _exitCode = 0;
+    boolean _debug = false;
+    private long _limit = -1;
+    private long _minisatTimeout = -1L;
 
-	/**
-	 * Builds a PB-SAT miner using the provided {@link PBBuilder} as core
-	 * backend.
-	 * 
-	 * @param internalBuilder
-	 */
-	public Main(Class<L> litClazz, PBBuilder<L> internalBuilder,
-			ModelReader modelReader) {
-		this._builder = internalBuilder;
-		this._litClazz = litClazz;
-		this._modelReader = modelReader;
-	}
+    /**
+     * Builds a PB-SAT miner using the provided {@link PBBuilder} as core
+     * backend.
+     * 
+     * @param internalBuilder
+     */
+    public Main(Class<L> litClazz, PBBuilder<L> internalBuilder,
+            ModelReader modelReader) {
+        this._builder = internalBuilder;
+        this._litClazz = litClazz;
+        this._modelReader = modelReader;
+    }
 
-	private Options chooseProblem(String[] args) throws UsageException,
-			IOException {
-		Options opts = buildOptions();
-		List<String> argsL = Arrays.asList(args);
-		if (argsL.contains("-" + FIM_OPT)) {
-			_generator = new FIMiningGenerator<L>();
-		} else if (argsL.contains("-" + GS_OPT)) {
-			int idx = argsL.indexOf("-" + GS_OPT);
-			if (idx + 1 >= argsL.size()) {
-				throw new UsageException("-" + GS_OPT + " requires an alphabet");
-			} else {
-				String alphaS = argsL.get(idx + 1);
-				try {
-					GSProblem.Predefined alpha = GSProblem.Predefined
-							.valueOf(alphaS);
-					_generator = GSProblem.newProblem(_litClazz, alpha);
-				} catch (IllegalArgumentException e) {
-					throw new UsageException(
-							"alphabet should be one of "
-									+ Arrays.deepToString(GSProblem.Predefined
-											.values()), e);
-				}
-			}
-		} else if (argsL.contains("-" + SATQL_OPT)) {
-			_generator = new SatQL<L>(_litClazz);
-		} else { // FSM_OPT by default
-			_generator = new SequenceMiningGenerator1<L>();
-		}
-		for (Object o : _generator.getOptions().getOptions()) {
-			opts.addOption((Option) o);
-		}
-		return opts;
-	}
+    private Options chooseProblem(String[] args) throws UsageException,
+            IOException {
+        Options opts = buildOptions();
+        List<String> argsL = Arrays.asList(args);
+        if (argsL.contains("-" + FIM_OPT)) {
+            _generator = new FIMiningGenerator<L>();
+        } else if (argsL.contains("-" + GS_OPT)) {
+            int idx = argsL.indexOf("-" + GS_OPT);
+            if (idx + 1 >= argsL.size()) {
+                throw new UsageException("-" + GS_OPT + " requires an alphabet");
+            } else {
+                String alphaS = argsL.get(idx + 1);
+                try {
+                    GSProblem.Predefined alpha = GSProblem.Predefined
+                            .valueOf(alphaS);
+                    _generator = GSProblem.newProblem(_litClazz, alpha);
+                } catch (IllegalArgumentException e) {
+                    throw new UsageException(
+                            "alphabet should be one of "
+                                    + Arrays.deepToString(GSProblem.Predefined
+                                            .values()), e);
+                }
+            }
+        } else if (argsL.contains("-" + SATQL_OPT)) {
+            _generator = new SatQL<L>(_litClazz);
+        } else { // FSM_OPT by default
+            _generator = new SequenceMiningGenerator1<L>();
+        }
+        for (Object o : _generator.getOptions().getOptions()) {
+            opts.addOption((Option) o);
+        }
+        return opts;
+    }
 
-	private void handleInputOutput() throws IOException {
-		if (_cmd.hasOption(GENSEQ_OPT)) {
-			if (_input != null) {
-				_input.close();
-			}
-			String[] values = _cmd.getOptionValues(GENSEQ_OPT);
-			int size = Integer.parseInt(values[0]);
-			int nbChars = Integer.parseInt(values[1]);
-			_input = new DataInputGenerator(size, nbChars, true);
-		}
-		if (_cmd.hasOption(OUTPUT_OPT)) {
-			_outputFile = _cmd.getOptionValue(OUTPUT_OPT);
-		}
-		if (_cmd.hasOption(INPUT_OPT)) {
-			if (_input != null) {
-				_input.close();
-			}
-			String inFile = _cmd.getOptionValue(INPUT_OPT);
-			if ("-".equals(inFile)) {
-				_input = new InputStreamReader(System.in);
-			} else {
-				_input = new FileReader(inFile);
-			}
-		}
-	}
+    private void handleInputOutput() throws IOException {
+        if (_cmd.hasOption(GENSEQ_OPT)) {
+            if (_input != null) {
+                _input.close();
+            }
+            String[] values = _cmd.getOptionValues(GENSEQ_OPT);
+            int size = Integer.parseInt(values[0]);
+            int nbChars = Integer.parseInt(values[1]);
+            _input = new DataInputGenerator(size, nbChars, true);
+        }
+        if (_cmd.hasOption(OUTPUT_OPT)) {
+            _outputFile = _cmd.getOptionValue(OUTPUT_OPT);
+        }
+        if (_cmd.hasOption(INPUT_OPT)) {
+            if (_input != null) {
+                _input.close();
+            }
+            String inFile = _cmd.getOptionValue(INPUT_OPT);
+            if ("-".equals(inFile)) {
+                _input = new InputStreamReader(System.in);
+            } else {
+                _input = new FileReader(inFile);
+            }
+        }
+    }
 
-	private void selectCoding() {
-		if (_cmd.hasOption(CARDNETWORKS_OPT)) {
-			_builder = new CardNetworksPBFactory<L>(_builder);
-		} else if (_cmd.hasOption(NAIVE_OPT)) {
-			_builder = new NaivePBFactory<L>(_builder);
-		} // do nothing for native
-	}
+    private void selectCoding() {
+        if (_cmd.hasOption(CARDNETWORKS_OPT)) {
+            _builder = new CardNetworksPBFactory<L>(_builder);
+        } else if (_cmd.hasOption(NAIVE_OPT)) {
+            _builder = new NaivePBFactory<L>(_builder);
+        } // do nothing for native
+    }
 
-	private void selectOutputMode() {
-		if (_modelReader == null) {
-			_solutionWriter = _builder.getCNFWriter();
-		} else {
-			_solutionWriter = new ModelSolutionWriter(_modelReader);
-		}
-	}
+    private void selectOutputMode() {
+        if (_modelReader == null) {
+            _solutionWriter = _builder.getCNFWriter();
+        } else {
+            _solutionWriter = new ModelSolutionWriter(_modelReader);
+        }
+    }
 
-	private void handleDebug() {
-		if (_cmd.hasOption(DEBUG_OPT)) {
-			_debug = true;
-		}
-	}
+    private void handleDebug() {
+        if (_cmd.hasOption(DEBUG_OPT)) {
+            _debug = true;
+        }
+    }
 
-	public void parseArgs(String[] args) throws UsageException, IOException {
-		Options opts = chooseProblem(args);
-		try {
-			_cmd = new BasicParser().parse(opts, args);
-			LOG.info("Parsed cmd line");
-		} catch (ParseException ex) {
-			LOG.warn("Error while parsing command line: {}",
-					ex.getLocalizedMessage());
-			throw new UsageException(ex);
-		}
-		handleDebug();
-		handleInputOutput();
-		selectCoding();
-		selectOutputMode();
-		setLimit();
-	}
+    public void parseArgs(String[] args) throws UsageException, IOException {
+        Options opts = chooseProblem(args);
+        try {
+            _cmd = new BasicParser().parse(opts, args);
+            LOG.info("Parsed cmd line");
+        } catch (ParseException ex) {
+            LOG.warn("Error while parsing command line: {}",
+                    ex.getLocalizedMessage());
+            throw new UsageException(ex);
+        }
+        handleDebug();
+        handleInputOutput();
+        selectCoding();
+        selectOutputMode();
+        setLimit();
+        setTimeout();
+    }
 
-	private void setLimit() throws UsageException {
-		if (_cmd.hasOption(LIMIT_OPT)) {
-			try {
-				_limit = Long.parseLong(_cmd.getOptionValue(LIMIT_OPT));
-			} catch (NumberFormatException e) {
-				throw new UsageException("Number expected form the limit switch, but found "+_cmd.getOptionValue(LIMIT_OPT));
-			}
-		}
-	}
+    private void setLimit() throws UsageException {
+        if (_cmd.hasOption(LIMIT_OPT)) {
+            try {
+                _limit = Long.parseLong(_cmd.getOptionValue(LIMIT_OPT));
+            } catch (NumberFormatException e) {
+                throw new UsageException(
+                        "Number expected form the limit switch, but found "
+                                + _cmd.getOptionValue(LIMIT_OPT));
+            }
+        }
+    }
 
-	@SuppressWarnings("static-access")
-	public static Options buildOptions() {
-		Options opts = new Options();
-		opts.addOption(OptionBuilder.withArgName("size nbchars").hasArgs(2)
-				.withDescription("generate a sequence for basic tests")
-				.create(GENSEQ_OPT));
-		opts.addOption(OptionBuilder.withArgName("file").hasArg()
-				.withDescription("output results to file").create(OUTPUT_OPT));
-		opts.addOption(OptionBuilder.withArgName("file").hasArg()
-				.withDescription("reads data from file (- for stdin)")
-				.create(INPUT_OPT));
-		opts.addOption(OptionBuilder.withDescription(
-				"uses SAT4J as mining backend").create(SAT4J_OPT));
-		opts.addOption(OptionBuilder
-				.withArgName("minisat_exe")
-				.hasArg()
-				.withDescription(
-						"use minisat as backend, minisat_exe being minisat's executable")
-				.create(MINISAT_OPT));
-		opts.addOption(OptionBuilder.withDescription("only generate CNF")
-				.create(CNF_OPT));
-		opts.addOption(OptionBuilder.withDescription(
-				"Replace backend encoding with naive encoding").create(
-				NAIVE_OPT));
-		opts.addOption(OptionBuilder.withDescription(
-				"Replace backend encoding with cardinality networks encoding")
-				.create(CARDNETWORKS_OPT));
-		opts.addOption(OptionBuilder.withDescription(
-				"print exception stack in case of an error").create(DEBUG_OPT));
-		opts.addOption(OptionBuilder
-				.withArgName("coding")
-				.hasArg()
-				.withDescription(
-						"use BoolvarPB with sum encoding: "
-								+ Arrays.deepToString(BVPBOption.values())
-								+ " (defaults to " + BVPBOption.getVariant()
-								+ ")").create(BVPB_CODING_OPT));
-		opts.addOption(OptionBuilder.withDescription("mine frequent itemsets")
-				.create(FIM_OPT));
-		opts.addOption(OptionBuilder.withDescription(
-				"mine frequent sequences (default)").create(FSM_OPT));
-		opts.addOption(OptionBuilder
-				.withArgName("alphabet")
-				.hasArg()
-				.withDescription(
-						"mine frequent sequences over alphabet <alphabet>. <alphabet> can be "
-								+ Arrays.deepToString(GSProblem.Predefined
-										.values())).create(GS_OPT));
-		opts.addOption(OptionBuilder.withDescription("execute SATQL query")
-				.create(SATQL_OPT));
-		opts.addOption(OptionBuilder.withArgName("n").hasArg().withDescription("limit the results to <n> models").create(LIMIT_OPT));
-		return opts;
-	}
+    private void setTimeout() throws UsageException {
+        if (_cmd.hasOption(MINISAT_TIMEOUT_OPT)) {
+            try {
+                _minisatTimeout = Long.parseLong(_cmd
+                        .getOptionValue(MINISAT_TIMEOUT_OPT));
+            } catch (NumberFormatException e) {
+                throw new UsageException("Number expected form the "
+                        + MINISAT_TIMEOUT_OPT + " switch, but found "
+                        + _cmd.getOptionValue(LIMIT_OPT));
+            }
+        }
+    }
 
-	@Override
-	public void run() {
-		try {
-			LOG.info("Setup problem ...");
-			_solutionWriter.setOutput(_outputFile);
-			_generator.configure(_input, _cmd);
-			LOG.info("Converting model ...");
-			_generator.buildModel(_builder);
-			if (_limit == -1 && _generator instanceof Limiter && ((Limiter)_generator).getLimit() != -1) {
-					_limit = ((Limiter)_generator).getLimit();
-			}
-			if (_limit != -1) {
-				if(_solutionWriter instanceof Limitable) {
-					((Limitable)_solutionWriter).setLimit(_limit);
-				} else {
-					throw new IllegalStateException("Limit required but not supported by backend"); 
-				}
-			}
-			_builder.endProblem();
-			LOG.info("Computing solution ...");
-			_solutionWriter.writeSolution(_generator.getPatternConverter());
-			LOG.info("finished");
-		} catch (NoSolutionException e) {
-			LOG.warn("No solution found", e);
-			_exitCode = 2;
-			if (_debug) {
-				e.printStackTrace(System.err);
-			}
-		} catch (IOException e) {
-			LOG.error("IO error", e);
-			_exitCode = 3;
-			if (_debug) {
-				e.printStackTrace(System.err);
-			}
-		} catch (UsageException e) {
-			LOG.error(e.getLocalizedMessage());
-			usage();
-			_exitCode = 1;
-			if (_debug) {
-				e.printStackTrace(System.err);
-			}
-		}
-	}
+    @SuppressWarnings("static-access")
+    public static Options buildOptions() {
+        Options opts = new Options();
+        opts.addOption(OptionBuilder.withArgName("size nbchars").hasArgs(2)
+                .withDescription("generate a sequence for basic tests")
+                .create(GENSEQ_OPT));
+        opts.addOption(OptionBuilder.withArgName("file").hasArg()
+                .withDescription("output results to file").create(OUTPUT_OPT));
+        opts.addOption(OptionBuilder.withArgName("file").hasArg()
+                .withDescription("reads data from file (- for stdin)")
+                .create(INPUT_OPT));
+        opts.addOption(OptionBuilder.withDescription(
+                "uses SAT4J as mining backend").create(SAT4J_OPT));
+        opts.addOption(OptionBuilder
+                .withArgName("minisat_exe")
+                .hasArg()
+                .withDescription(
+                        "use minisat as backend, minisat_exe being minisat's executable")
+                .create(MINISAT_OPT));
+        opts.addOption(OptionBuilder.withArgName("sec").hasArg()
+                .withDescription("set minisat timeout to sec")
+                .create(MINISAT_TIMEOUT_OPT));
+        opts.addOption(OptionBuilder.withDescription("only generate CNF")
+                .create(CNF_OPT));
+        opts.addOption(OptionBuilder.withDescription(
+                "Replace backend encoding with naive encoding").create(
+                NAIVE_OPT));
+        opts.addOption(OptionBuilder.withDescription(
+                "Replace backend encoding with cardinality networks encoding")
+                .create(CARDNETWORKS_OPT));
+        opts.addOption(OptionBuilder.withDescription(
+                "print exception stack in case of an error").create(DEBUG_OPT));
+        opts.addOption(OptionBuilder
+                .withArgName("coding")
+                .hasArg()
+                .withDescription(
+                        "use BoolvarPB with sum encoding: "
+                                + Arrays.deepToString(BVPBOption.values())
+                                + " (defaults to " + BVPBOption.getVariant()
+                                + ")").create(BVPB_CODING_OPT));
+        opts.addOption(OptionBuilder.withDescription("mine frequent itemsets")
+                .create(FIM_OPT));
+        opts.addOption(OptionBuilder.withDescription(
+                "mine frequent sequences (default)").create(FSM_OPT));
+        opts.addOption(OptionBuilder
+                .withArgName("alphabet")
+                .hasArg()
+                .withDescription(
+                        "mine frequent sequences over alphabet <alphabet>. <alphabet> can be "
+                                + Arrays.deepToString(GSProblem.Predefined
+                                        .values())).create(GS_OPT));
+        opts.addOption(OptionBuilder.withDescription("execute SATQL query")
+                .create(SATQL_OPT));
+        opts.addOption(OptionBuilder.withArgName("n").hasArg()
+                .withDescription("limit the results to <n> models")
+                .create(LIMIT_OPT));
+        return opts;
+    }
 
-	private static void usage(Generator<?> generator, OutputStream err) {
-		PrintWriter pw = new PrintWriter(err);
-		HelpFormatter help = new HelpFormatter();
-		help.printHelp(pw, 80, "java -jar SATMiner-xxxxx.jar ", "",
-				buildOptions(), 1, 0, "");
-		pw.flush();
-		if (generator != null) {
-			help = new HelpFormatter();
-			help.printHelp(pw, 80, "Options for " + generator.getTitle(), "",
-					generator.getOptions(), 1, 0, "");
-			pw.flush();
-		}
-	}
-	
-	private void usage() {
-		usage(_generator,_err);
-	}
+    @Override
+    public void run() {
+        try {
+            LOG.info("Setup problem ...");
+            _solutionWriter.setOutput(_outputFile);
+            _generator.configure(_input, _cmd);
+            LOG.info("Converting model ...");
+            _generator.buildModel(_builder);
+            if (_limit == -1 && _generator instanceof Limiter
+                    && ((Limiter) _generator).getLimit() != -1) {
+                _limit = ((Limiter) _generator).getLimit();
+            }
+            if (_limit != -1) {
+                if (_solutionWriter instanceof Limitable) {
+                    ((Limitable) _solutionWriter).setLimit(_limit);
+                } else {
+                    throw new IllegalStateException(
+                            "Limit required but not supported by backend");
+                }
+            }
+            if (_minisatTimeout != -1) {
+                if (_solutionWriter instanceof ModelSolutionWriter) {
+                    ((ModelSolutionWriter) _solutionWriter).setTimeout(_limit);
+                } else {
+                    throw new IllegalStateException(
+                            "Timeout required but not supported by backend: "+_solutionWriter.getClass());
+                }
+            }
+            _builder.endProblem();
+            LOG.info("Computing solution ...");
+            _solutionWriter.writeSolution(_generator.getPatternConverter());
+            LOG.info("finished");
+        } catch (NoSolutionException e) {
+            LOG.warn("No solution found", e);
+            _exitCode = 2;
+            if (_debug) {
+                e.printStackTrace(System.err);
+            }
+        } catch (IOException e) {
+            LOG.error("IO error", e);
+            _exitCode = 3;
+            if (_debug) {
+                e.printStackTrace(System.err);
+            }
+        } catch (UsageException e) {
+            LOG.error(e.getLocalizedMessage());
+            usage();
+            _exitCode = 1;
+            if (_debug) {
+                e.printStackTrace(System.err);
+            }
+        }
+    }
 
-	public int getExitCode() {
-		return _exitCode;
-	}
+    private static void usage(Generator<?> generator, OutputStream err) {
+        PrintWriter pw = new PrintWriter(err);
+        HelpFormatter help = new HelpFormatter();
+        help.printHelp(pw, 80, "java -jar SATMiner-xxxxx.jar ", "",
+                buildOptions(), 1, 0, "");
+        pw.flush();
+        if (generator != null) {
+            help = new HelpFormatter();
+            help.printHelp(pw, 80, "Options for " + generator.getTitle(), "",
+                    generator.getOptions(), 1, 0, "");
+            pw.flush();
+        }
+    }
 
-	private static String getOptVal(List<String> args, String opt) {
-		int pos = args.indexOf("-" + opt);
-		if (pos == -1) {
-			return null;
-		} else if (args.size() <= pos + 1) {
-			usage(null,System.err);
-			System.exit(1);
-			return null; // for the compiler
-		} else {
-			return args.get(pos + 1);
-		}
-	}
+    private void usage() {
+        usage(_generator, _err);
+    }
 
-	private static <L extends Literal<L>> PBBuilder<L> defaultEncoding(
-			ClauseBuilder<L> builder) {
-		return new CardNetworksPBFactory<L>(builder);
-	}
+    public int getExitCode() {
+        return _exitCode;
+    }
 
-	public static Main<?> buildMain(String[] args) throws IOException {
-		Main<?> runner;
-		List<String> argsL = Arrays.asList(args);
-		if (argsL.contains("-" + BVPB_CODING_OPT)) {
-			try {
-				String codingOpt = getOptVal(argsL, BVPB_CODING_OPT);
-				BVPBOption.setVariant(BVPBOption.valueOf(codingOpt));
-			} catch (IllegalArgumentException e) {
-				System.err.println(e.getLocalizedMessage());
-				usage(null,System.err);
-				System.exit(1);
-			}
-			if (argsL.contains("-" + MINISAT_OPT)) {
-				String solverCmd = getOptVal(argsL, MINISAT_OPT);
-				File cnffile = File.createTempFile("satminer_model_", ".cnf");
-				LOG.info("Writing dimacs to {}", cnffile);
-				BVPBBuilder builder = new BVPBBuilder();
-				builder.setOutput(cnffile.getAbsolutePath());
-				ExternalSolverModelReader reader = new ExternalSolverModelReader(
-						new MinisatModelReader(), cnffile, solverCmd, "#in",
-						"-o", "#out");
-				reader.setLimitSwitch(MAX_MODELS_SWITCH);
-				runner = new Main<BVLiteral>(BVLiteral.class, builder, reader);
-			} else if (argsL.contains("-" + SAT4J_OPT)) {
-				SAT4JPBBuilder sat4jbuilder = new SAT4JPBBuilder(
-						SAT4JPBBuilder.LARGE);
-				BVPBWrapper<DimacsLiteral> wrapper = new BVPBWrapper<DimacsLiteral>(
-						sat4jbuilder);
-				runner = new Main<BVLiteral>(BVLiteral.class, wrapper,
-						sat4jbuilder);
-			} else { // defaults to writing the CNF
-				BVPBBuilder builder = new BVPBBuilder();
-				runner = new Main<BVLiteral>(BVLiteral.class, builder, null);
-			}
-		} else if (argsL.contains("-" + MINISAT_OPT)) {
-			String solverCmd = getOptVal(argsL, MINISAT_OPT);
-			File cnffile = File.createTempFile("satminer_model_", ".cnf");
-			LOG.info("Writing dimacs to {}", cnffile);
-			FileDimacsBackend backend = new FileDimacsBackend(cnffile);
-			ExternalSolverModelReader reader = new ExternalSolverModelReader(
-					new MinisatModelReader(), cnffile, solverCmd, "#in", "-o",
-					"#out");
-			reader.setLimitSwitch(MAX_MODELS_SWITCH);
-			runner = new Main<DimacsLiteral>(DimacsLiteral.class,
-					defaultEncoding(backend), reader);
-		} else if (argsL.contains("-" + SAT4J_OPT)) {
-			SAT4JPBBuilder sat4jbuilder = new SAT4JPBBuilder(
-					SAT4JPBBuilder.LARGE);
-			runner = new Main<DimacsLiteral>(DimacsLiteral.class, sat4jbuilder,
-					sat4jbuilder);
-		} else { // default: just output CNF
-			FileDimacsBackend fdb = new FileDimacsBackend();
-			runner = new Main<DimacsLiteral>(DimacsLiteral.class,
-					defaultEncoding(fdb), null);
-		}
-		return runner;
-	}
+    private static String getOptVal(List<String> args, String opt) {
+        int pos = args.indexOf("-" + opt);
+        if (pos == -1) {
+            return null;
+        } else if (args.size() <= pos + 1) {
+            usage(null, System.err);
+            System.exit(1);
+            return null; // for the compiler
+        } else {
+            return args.get(pos + 1);
+        }
+    }
 
-	public static void main(String[] args) throws IOException {
-		Main<?> runner = null;
-		try {
-		    Timer timer = Timer.start("total");
-			runner = buildMain(args);
-			runner.parseArgs(args);
-			runner.run();
-			timer.stopAndPrint();
-			System.exit(runner.getExitCode());
-		} catch (UsageException e) {
-			usage(runner == null ? null : runner._generator,System.err);
-			System.exit(1);
-		}
-	}
+    private static <L extends Literal<L>> PBBuilder<L> defaultEncoding(
+            ClauseBuilder<L> builder) {
+        return new CardNetworksPBFactory<L>(builder);
+    }
+
+    public static Main<?> buildMain(String[] args) throws IOException {
+        Main<?> runner;
+        List<String> argsL = Arrays.asList(args);
+        if (argsL.contains("-" + BVPB_CODING_OPT)) {
+            try {
+                String codingOpt = getOptVal(argsL, BVPB_CODING_OPT);
+                BVPBOption.setVariant(BVPBOption.valueOf(codingOpt));
+            } catch (IllegalArgumentException e) {
+                System.err.println(e.getLocalizedMessage());
+                usage(null, System.err);
+                System.exit(1);
+            }
+            if (argsL.contains("-" + MINISAT_OPT)) {
+                String solverCmd = getOptVal(argsL, MINISAT_OPT);
+                File cnffile = File.createTempFile("satminer_model_", ".cnf");
+                LOG.info("Writing dimacs to {}", cnffile);
+                BVPBBuilder builder = new BVPBBuilder();
+                builder.setOutput(cnffile.getAbsolutePath());
+                ExternalSolverModelReader reader = new ExternalSolverModelReader(
+                        new MinisatModelReader(), cnffile, solverCmd, "#in",
+                        "-o", "#out");
+                reader.setLimitSwitch(MAX_MODELS_SWITCH);
+                reader.setTimeoutSwitch(CPU_LIM_SWITCH);
+                runner = new Main<BVLiteral>(BVLiteral.class, builder, reader);
+            } else if (argsL.contains("-" + SAT4J_OPT)) {
+                SAT4JPBBuilder sat4jbuilder = new SAT4JPBBuilder(
+                        SAT4JPBBuilder.LARGE);
+                BVPBWrapper<DimacsLiteral> wrapper = new BVPBWrapper<DimacsLiteral>(
+                        sat4jbuilder);
+                runner = new Main<BVLiteral>(BVLiteral.class, wrapper,
+                        sat4jbuilder);
+            } else { // defaults to writing the CNF
+                BVPBBuilder builder = new BVPBBuilder();
+                runner = new Main<BVLiteral>(BVLiteral.class, builder, null);
+            }
+        } else if (argsL.contains("-" + MINISAT_OPT)) {
+            String solverCmd = getOptVal(argsL, MINISAT_OPT);
+            File cnffile = File.createTempFile("satminer_model_", ".cnf");
+            LOG.info("Writing dimacs to {}", cnffile);
+            FileDimacsBackend backend = new FileDimacsBackend(cnffile);
+            ExternalSolverModelReader reader = new ExternalSolverModelReader(
+                    new MinisatModelReader(), cnffile, solverCmd, "#in", "-o",
+                    "#out");
+            reader.setLimitSwitch(MAX_MODELS_SWITCH);
+            reader.setTimeoutSwitch(CPU_LIM_SWITCH);
+            runner = new Main<DimacsLiteral>(DimacsLiteral.class,
+                    defaultEncoding(backend), reader);
+        } else if (argsL.contains("-" + SAT4J_OPT)) {
+            SAT4JPBBuilder sat4jbuilder = new SAT4JPBBuilder(
+                    SAT4JPBBuilder.LARGE);
+            runner = new Main<DimacsLiteral>(DimacsLiteral.class, sat4jbuilder,
+                    sat4jbuilder);
+        } else { // default: just output CNF
+            FileDimacsBackend fdb = new FileDimacsBackend();
+            runner = new Main<DimacsLiteral>(DimacsLiteral.class,
+                    defaultEncoding(fdb), null);
+        }
+        return runner;
+    }
+
+    public static void main(String[] args) throws IOException {
+        Main<?> runner = null;
+        try {
+            Timer timer = Timer.start("total");
+            runner = buildMain(args);
+            runner.parseArgs(args);
+            runner.run();
+            timer.stopAndPrint();
+            System.exit(runner.getExitCode());
+        } catch (UsageException e) {
+            usage(runner == null ? null : runner._generator, System.err);
+            System.exit(1);
+        }
+    }
 }

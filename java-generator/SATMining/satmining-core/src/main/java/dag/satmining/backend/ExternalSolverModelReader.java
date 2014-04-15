@@ -61,9 +61,12 @@ public class ExternalSolverModelReader implements ModelReader {
     private String[] _cmd;
     private boolean _started = false;
     private String _limitSwitch = null;
-    private long _limit = -1;
+    private long _limit = -1L;
     private long _nbModels = 0;
     private boolean _addEqToLimit = true;
+    private boolean _addEqToTimeout = true;
+    private String _timeoutSwitch = null;
+    private long _timeout = -1L;
 
     public ExternalSolverModelReader(FileModelReader reader, File problemFile,
             String... cmd) throws IOException {
@@ -79,6 +82,11 @@ public class ExternalSolverModelReader implements ModelReader {
 
     public void setLimitSwitch(String switchName) {
         _limitSwitch = switchName;
+    }
+
+    public void setTimeoutSwitch(String switchName) {
+        LOG.debug("Set timeout switch to {}",switchName);
+        _timeoutSwitch = switchName;
     }
 
     public boolean getNext() {
@@ -143,6 +151,26 @@ public class ExternalSolverModelReader implements ModelReader {
             } else {
                 throw new IllegalStateException(
                         "External solver not configured with limit switch");
+            }
+        }
+    }
+    
+    public void setTimeout(long max) {
+        if (max != -1) {
+            if (_timeoutSwitch != null) {
+                _timeout = max;
+                if (_addEqToTimeout) {
+                    _cmd = Arrays.copyOf(_cmd, _cmd.length + 1);
+                    _cmd[_cmd.length - 1] = _timeoutSwitch + "="
+                            + String.valueOf(_timeout);
+                } else {
+                    _cmd = Arrays.copyOf(_cmd, _cmd.length + 2);
+                    _cmd[_cmd.length - 2] = _timeoutSwitch;
+                    _cmd[_cmd.length - 1] = String.valueOf(_timeout);
+                }
+            } else {
+                throw new IllegalStateException(
+                        "External solver not configured with timeout switch");
             }
         }
     }
