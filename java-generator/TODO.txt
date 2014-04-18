@@ -1,2 +1,4 @@
-- check syntax for attribute quantifiers
-- extend syntax for sql conditions 
+- extend syntax for arbitrary sql conditions 
+- use native encoding of the boolean vector when the number of columns
+  supported by the DBMS allows it.
+
