@@ -42,13 +42,12 @@ exception statement from your version. */
  */
 package dag.satmining.problem.satql.ast.sql;
 
-import java.util.Map;
 
 /**
  *
  * @author ecoquery
  */
-public final class SQLTrue extends SQLBooleanValue {
+public final class SQLTrue implements SQLBooleanValue {
 
     private static final SQLTrue INSTANCE = new SQLTrue();
     
@@ -62,15 +61,5 @@ public final class SQLTrue extends SQLBooleanValue {
     public static SQLTrue instance() {
         return INSTANCE;
     }
-
-	@Override
-	public void setupEval(Map<String, Integer> tupleIdx,
-			Map<String, Integer>[] tupleSchemas) {	
-	}
-
-	@Override
-	public boolean eval(Tuple[] tuples) {
-		return true;
-	}
     
 }

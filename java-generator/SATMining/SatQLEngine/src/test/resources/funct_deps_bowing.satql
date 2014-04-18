@@ -1,5 +1,5 @@
 FIND X,Y OVER id,m1x,m1y,m1z,m2x,m2y,m2z,m3x,m3y,m3z,m4x,m4y,m4z,m5x,m5y,m5z,m6x,m6y,m6z,m7x,m7y,m7z,m8x,m8y,m8z,m9x,m9y,m9z
 SCOPE bowing t1, t2
-SUCH THAT NOT (F A(X) t1.A = t2.A) OR (F B(Y) t1.B = t2.B)
+SUCH THAT NOT (FORALL $A IN X: {t1.$A = t2.$A}) OR (FORALL $B IN Y: {t1.$B = t2.$B})
 WITH EMPTY INTERSECTION, SINGLETON(Y);
 

@@ -47,6 +47,7 @@ import java.util.Map;
 import java.util.Set;
 
 import dag.satmining.problem.satql.ast.intermediate.BFormula;
+import dag.satmining.problem.satql.ast.sql.RAWSQLAtom;
 
 /**
  * 
@@ -54,6 +55,8 @@ import dag.satmining.problem.satql.ast.intermediate.BFormula;
  */
 public abstract class MiningExpression {
 	
+    // TODO: check correct construction of queries, mining formulas should be attribute-closed
+    
 	protected boolean _doCache = false;
 
 	public void enableCache(boolean enable) {
@@ -99,12 +102,10 @@ public abstract class MiningExpression {
 	public abstract int hashCode();
 
 	public interface Visitor<E> {
-
+	    
 		E forall(AttributeVariable av, SchemaVariable sv, MiningExpression e);
 
 		E exists(AttributeVariable av, SchemaVariable sv, MiningExpression e);
-
-		E eq(MiningValue a, MiningValue b);
 
 		E trueV();
 
@@ -117,20 +118,15 @@ public abstract class MiningExpression {
 		E attCmp(AttributeVariable a, AttributeVariable b);
 		
 		E attCmp(AttributeVariable a, AttributeConstant b);
+		
+		E sqlAtom(SQLDelegateAtom s);
 	}
 
 	public abstract <E> E accept(Visitor<E> v);
 
 	public interface VoidVisitor {
+	    
 		void and(MiningExpression e, MiningExpression a, MiningExpression b);
-
-		void eq(MiningExpression e, MiningValue a, MiningValue b);
-		
-		void like(MiningExpression e, MiningValue a, MiningValue b);
-        
-        void lt(MiningExpression e, MiningValue a, MiningValue b);
-        
-        void gt(MiningExpression e, MiningValue a, MiningValue b);
 
 		void exists(MiningExpression e, AttributeVariable av,
 				SchemaVariable sv, MiningExpression a);
@@ -147,6 +143,9 @@ public abstract class MiningExpression {
 		void attCmp(MiningExpression e, AttributeVariable a, AttributeVariable b);
 		
 		void attCmp(MiningExpression e, AttributeVariable a, AttributeConstant b);
+		
+		void sqlAtom(MiningExpression e, RAWSQLAtom a);
+		
 	}
 
 	public abstract void acceptPrefix(VoidVisitor v);

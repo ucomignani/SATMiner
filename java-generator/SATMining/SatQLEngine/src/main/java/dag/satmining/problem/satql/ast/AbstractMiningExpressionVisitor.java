@@ -39,33 +39,14 @@ exception statement from your version. */
 package dag.satmining.problem.satql.ast;
 
 import dag.satmining.problem.satql.ast.MiningExpression.VoidVisitor;
+import dag.satmining.problem.satql.ast.sql.RAWSQLAtom;
 
 public abstract class AbstractMiningExpressionVisitor implements VoidVisitor {
-
+    
 	@Override
 	public void and(MiningExpression e, MiningExpression a, MiningExpression b) {
 		defaultHandling(e);
 	}
-
-	@Override
-	public void eq(MiningExpression e, MiningValue a, MiningValue b) {
-		defaultHandling(e);
-	}
-	
-	@Override
-	public void like(MiningExpression e, MiningValue a, MiningValue b) {
-	    defaultHandling(e);
-	}
-
-	@Override
-    public void lt(MiningExpression e, MiningValue a, MiningValue b) {
-	    defaultHandling(e);
-    }
-
-    @Override
-    public void gt(MiningExpression e, MiningValue a, MiningValue b) {
-        defaultHandling(e);
-    }
 
     @Override
 	public void exists(MiningExpression e, AttributeVariable av,
@@ -94,8 +75,6 @@ public abstract class AbstractMiningExpressionVisitor implements VoidVisitor {
 		defaultHandling(e);
 	}
 	
-	
-	
 	@Override
 	public void attCmp(MiningExpression e, AttributeVariable a,
 			AttributeVariable b) {
@@ -107,8 +86,13 @@ public abstract class AbstractMiningExpressionVisitor implements VoidVisitor {
 			AttributeConstant b) {
 		defaultHandling(e);
 	}
+	
+	@Override
+    public void sqlAtom(MiningExpression e, RAWSQLAtom a) {
+        defaultHandling(e);
+    }
 
-	public void defaultHandling(MiningExpression e) {
+    public void defaultHandling(MiningExpression e) {
 	}
 
 }

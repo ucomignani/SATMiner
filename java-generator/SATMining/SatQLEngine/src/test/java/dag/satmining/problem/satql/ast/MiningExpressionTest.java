@@ -81,21 +81,21 @@ public class MiningExpressionTest extends TestCase {
     }
     
     public void testPrintEquals() throws ParseException {
-        MiningExpression e = read("F A(X) t.A=t2.A and true");
+        MiningExpression e = read("FORALL $A IN X: {t.$A=t2.$A} and true");
         String s = e.toString();
         assertEquals(e, read(s));
-        assertEquals("( F A(X) (t.A = t2.A AND TRUE) )",s);
+        assertEquals("( FORALL $A IN X: ({t.$A=t2.$A} AND TRUE) )",s);
     }
     
     public void testPushDown() throws ParseException {
-        MiningExpression e1 = read("(NOT t.A=t2.A) OR t.B=t2.B");
+        MiningExpression e1 = read("(NOT {t.$A=t2.$A}) OR {t.$B=t2.$B}");
         MiningExpression e1p = e1
                 .pushDown(Quantifier.Exists, dict.getAttributeVariable("A"), dict.getSchemaVariable("X"));
-        MiningExpression e2 = read("NOT (F A(X) t.A=t2.A) OR t.B=t2.B");
+        MiningExpression e2 = read("NOT (FORALL $A IN X: {t.$A=t2.$A}) OR {t.$B=t2.$B}");
         assertEquals(e2,e1p);
         e1p = e1p
                 .pushDown(Quantifier.ForAll, dict.getAttributeVariable("B"), dict.getSchemaVariable("Y"));
-        e2 = read("NOT (F A(X) t.A=t2.A) OR (F B(Y) t.B=t2.B)");
+        e2 = read("NOT (FORALL $A IN X: {t.$A=t2.$A}) OR (FORALL $B IN Y: {t.$B=t2.$B}))");
         assertEquals(e2,e1p);
     }
 }
