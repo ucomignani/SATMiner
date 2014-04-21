@@ -1,2 +1,6 @@
-- check syntax for attribute quantifiers
-- extend syntax for sql conditions 
+- extend syntax for arbitrary sql conditions -> embbeded-sql branch
+- use native encoding of the boolean vector when the number of columns
+  supported by the DBMS allows it.
+- min(ax)imization, and/or top k
+- support for counting
+
