@@ -115,9 +115,7 @@ public abstract class MiningExpression {
 
 		E neg(MiningExpression a);
 		
-		E attCmp(AttributeVariable a, AttributeVariable b);
-		
-		E attCmp(AttributeVariable a, AttributeConstant b);
+		E attCmp(AttributeEntity a, AttributeEntity b);
 		
 		E sqlAtom(SQLDelegateAtom s);
 	}
@@ -140,9 +138,7 @@ public abstract class MiningExpression {
 
 		void trueV(MiningExpression e);
 		
-		void attCmp(MiningExpression e, AttributeVariable a, AttributeVariable b);
-		
-		void attCmp(MiningExpression e, AttributeVariable a, AttributeConstant b);
+		void attCmp(MiningExpression e, AttributeEntity a, AttributeEntity b);
 		
 		void sqlAtom(MiningExpression e, RAWSQLAtom a);
 		

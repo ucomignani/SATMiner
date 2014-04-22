@@ -184,15 +184,13 @@ public final class ASTDictionnary {
 	public MiningExpression attCmp(String a, String b) {
 		MiningExpression e;
 		if (a.charAt(0)=='$') {
-		// if (_attributeVariables.containsKey(a)) {
 		    if(b.charAt(0) == '$') {
-		    // if (_attributeVariables.containsKey(b)) {
 				e = new AttributeVarComparison(getAttributeVariable(a), getAttributeVariable(b));
 			} else {
-				e=new AttributeVarConstantComparison(getAttributeVariable(a), getAttributeConstant(b));
+				e=new AttributeVarComparison(getAttributeVariable(a), getAttributeConstant(b));
 			}
 		} else {
-			e = new AttributeVarConstantComparison(getAttributeVariable(b), getAttributeConstant(a));
+			e = new AttributeVarComparison(getAttributeVariable(b), getAttributeConstant(a));
 		}
 		return getMiningExpression(e);
 	}

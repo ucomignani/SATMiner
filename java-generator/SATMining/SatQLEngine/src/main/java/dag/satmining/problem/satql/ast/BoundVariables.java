@@ -91,14 +91,8 @@ public class BoundVariables implements MiningExpression.Visitor<Set<AttributeVar
     }
 
 	@Override
-	public Set<AttributeVariable> attCmp(AttributeVariable a,
-			AttributeVariable b) {
-		return new HashSet<AttributeVariable>();
-	}
-
-	@Override
-	public Set<AttributeVariable> attCmp(AttributeVariable a,
-			AttributeConstant b) {
+	public Set<AttributeVariable> attCmp(AttributeEntity a,
+			AttributeEntity b) {
 		return new HashSet<AttributeVariable>();
 	}
 
