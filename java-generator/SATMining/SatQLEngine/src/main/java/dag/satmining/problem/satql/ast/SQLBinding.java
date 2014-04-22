@@ -126,7 +126,7 @@ public class SQLBinding {
         } else {
             LOG.debug("Caching only mining expressions independant of data");
         }
-        // CacheEnabler enables cache only for data independant formulas is the _doCache is false   
+        // CacheEnabler enables cache only for data independant formulas if _doCache is false   
         _mainExpression.acceptPrefix(new CacheEnabler()); 
         LOG.debug("Generating intermediate formulas");
         int nbConfigs = 1 + _attributes.size()

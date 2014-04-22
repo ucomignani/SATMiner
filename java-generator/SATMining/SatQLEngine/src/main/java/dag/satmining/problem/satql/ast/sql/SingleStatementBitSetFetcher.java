@@ -48,6 +48,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dag.satmining.problem.satql.jdbc.DriverCapabilities;
+
+// TODO: write unit tests for single and multiple statement encoding
+
 public class SingleStatementBitSetFetcher implements BitSetFetcher {
 
     private static final Logger LOG = LoggerFactory
@@ -63,6 +67,8 @@ public class SingleStatementBitSetFetcher implements BitSetFetcher {
     private boolean _finished;
     private BitSet _current;
     private int _nbCond;
+    private boolean _singleAttribute = true;
+    private boolean _singleForced = false;
 
     public SingleStatementBitSetFetcher(Connection connection) {
         this._connection = connection;
@@ -98,24 +104,54 @@ public class SingleStatementBitSetFetcher implements BitSetFetcher {
     @Override
     public BitSet getBitSet() throws SQLException {
         if (_current == null) {
-            _current = new BitSet();
-            String data = _cursor.getString(1);
-            for (int i = 0; i < _nbCond; i++) {
-                if (data.charAt(i) == TRUE_C) {
-                    _current.set(i);
-                }
+            if (_singleAttribute) {
+                _current = fromSingle(_cursor, _nbCond);
+            } else {
+                _current = fromMultiple(_cursor, _nbCond);
             }
         }
         return _current;
     }
 
+    private static BitSet fromSingle(ResultSet rs, int nbCond)
+            throws SQLException {
+        BitSet res = new BitSet();
+        String data = rs.getString(1);
+        for (int i = 0; i < nbCond; i++) {
+            if (data.charAt(i) == TRUE_C) {
+                res.set(i);
+            }
+        }
+        return res;
+    }
+
+    private static BitSet fromMultiple(ResultSet rs, int nbCond)
+            throws SQLException {
+        BitSet res = new BitSet();
+        for (int i = 0; i < nbCond; ++i) {
+            if (rs.getBoolean(i + 1)) {
+                res.set(i);
+                ;
+            }
+        }
+        return res;
+    }
+
     @Override
     public void setSelect(List<SQLBooleanValue> conditionsToTest) {
         _nbCond = conditionsToTest.size();
-        _select = translate(conditionsToTest);
+        if (!_singleForced) {
+            _singleAttribute = !DriverCapabilities.supportsNBooleanAtts(
+                    _connection, _nbCond);
+        }
+        if (_singleAttribute) {
+            _select = translateSingle(conditionsToTest);
+        } else {
+            _select = translateMultiple(conditionsToTest);
+        }
     }
 
-    private static Select translate(List<SQLBooleanValue> conditionsToTest) {
+    private static Select translateSingle(List<SQLBooleanValue> conditionsToTest) {
         Select result = new Select();
         StringBuilder concatCaseStrings = new StringBuilder("''");
         for (SQLBooleanValue condition : conditionsToTest) {
@@ -137,6 +173,20 @@ public class SingleStatementBitSetFetcher implements BitSetFetcher {
         sb.append(SELECT_BOOLEAN_CASE_ENCODING_END);
     }
 
+    private static Select translateMultiple(
+            List<SQLBooleanValue> conditionsToTest) {
+        Select result = new Select();
+        int i = 0;
+        for (SQLBooleanValue condition : conditionsToTest) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("( CASE WHEN ");
+            condition.buildSQLQuery(sb);
+            sb.append(" THEN 1 ELSE 0 END )");
+            result.addEntry(new SQLDelegatedValue(sb.toString()), "q" + i);
+        }
+        return result;
+    }
+
     @Override
     public void setFrom(From from) {
         _from = from;
@@ -145,6 +195,11 @@ public class SingleStatementBitSetFetcher implements BitSetFetcher {
     @Override
     public void setWhere(Where where) {
         _where = where;
+    }
+
+    public void forceSingleAttribute(boolean single) {
+        _singleForced = true;
+        _singleAttribute = single;
     }
 
 }
