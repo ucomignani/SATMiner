@@ -47,6 +47,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import dag.satmining.problem.satql.ast.sql.RAWSQLAtom;
+
 /**
  * 
  * @author ecoquery
@@ -86,6 +88,9 @@ public final class ASTDictionnary {
 	}
 
 	public AttributeVariable getAttributeVariable(String name) {
+	    if (name.charAt(0) == '$') {
+	        name = name.substring(1);
+	    }
 		if (!_attributeVariables.containsKey(name)) {
 			_attributeVariables.put(name, new AttributeVariable(name,
 					_attributeVariables.size()));
@@ -100,18 +105,6 @@ public final class ASTDictionnary {
 
 	public List<SchemaVariable> getSchemaVariables() {
 		return _schemaVariablesByIndex;
-	}
-
-	public MiningValue mkTupleAttributeValue(String tupleName, String attName) {
-		if (_attributeVariables.containsKey(attName)) {
-			return new TupleVariableAttribute(getTupleVariable(tupleName),
-					getAttributeVariable(attName));
-		}
-		if (_attributes.containsKey(attName)) {
-			return new TupleConstantAttribute(getTupleVariable(tupleName),
-					getAttributeConstant(attName));
-		}
-		throw new IllegalArgumentException("Unknown attribute: " + attName);
 	}
 
 	public boolean hasSchemaVariable(String name) {
@@ -160,10 +153,6 @@ public final class ASTDictionnary {
 		return getMiningExpression(new Neg(a));
 	}
 	
-	public MiningExpression op(String op, MiningValue a, MiningValue b) {
-	    return getMiningExpression(BinOpAtom.op(op,a,b));
-	}
-
 	public MiningExpression tt() {
 		return getMiningExpression(True.getInstance());
 	}
@@ -194,15 +183,20 @@ public final class ASTDictionnary {
 
 	public MiningExpression attCmp(String a, String b) {
 		MiningExpression e;
-		if (_attributeVariables.containsKey(a)) {
-			if (_attributeVariables.containsKey(b)) {
+		if (a.charAt(0)=='$') {
+		    if(b.charAt(0) == '$') {
 				e = new AttributeVarComparison(getAttributeVariable(a), getAttributeVariable(b));
 			} else {
-				e=new AttributeVarConstantComparison(getAttributeVariable(a), getAttributeConstant(b));
+				e=new AttributeVarComparison(getAttributeVariable(a), getAttributeConstant(b));
 			}
 		} else {
-			e = new AttributeVarConstantComparison(getAttributeVariable(b), getAttributeConstant(a));
+			e = new AttributeVarComparison(getAttributeVariable(b), getAttributeConstant(a));
 		}
 		return getMiningExpression(e);
+	}
+	
+	public MiningExpression rawSQLDelegate(String token) {
+	    RAWSQLAtom sql = new RAWSQLAtom(token, true);
+	    return new SQLDelegateAtom(sql,this);
 	}
 }

@@ -57,8 +57,6 @@ import org.slf4j.LoggerFactory;
 import dag.satmining.NoSolutionException;
 import dag.satmining.backend.dimacs.DimacsLiteral;
 import dag.satmining.backend.sat4j.SAT4JPBBuilder;
-import dag.satmining.problem.satql.ast.sql.InMemoryNestedLoopBitSetFetcher;
-import dag.satmining.problem.satql.ast.sql.NestedLoopBitSetFetcher;
 import dag.satmining.problem.satql.ast.sql.SingleStatementBitSetFetcher;
 import dag.satmining.problem.satql.parser.ParseException;
 import dag.satmining.utils.SQLScript;
@@ -143,45 +141,11 @@ public class MiningQueryTest extends TestCase {
 		assertEquals(64, nbModels);
 	}
 
-	public void testFunctionnalDependenciesNLBF() throws ParseException,
-			NoSolutionException {
-		MiningQuery<DimacsLiteral> query = MiningQuery.parse(
-				DimacsLiteral.class, new InputStreamReader(getClass()
-						.getResourceAsStream("/funct_deps.satql")));
-		query.setBitSetFetcher(new NestedLoopBitSetFetcher(c));
-		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
-		query.addClauses(sat4jHandler);
-		sat4jHandler.endProblem();
-		int nbModels = 0;
-		while (sat4jHandler.getNext()) {
-			LOG.debug("found: {}",
-					query.getPattern(sat4jHandler.getCurrentInterpretation()));
-			nbModels++;
-		}
-		assertEquals(64, nbModels);
-	}
-
-	public void testFunctionnalDependenciesIMNLBF() throws ParseException,
-			NoSolutionException {
-		MiningQuery<DimacsLiteral> query = MiningQuery.parse(DimacsLiteral.class,new InputStreamReader(getClass()
-				.getResourceAsStream("/funct_deps.satql")));
-		query.setBitSetFetcher(new InMemoryNestedLoopBitSetFetcher(c));
-		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
-		query.addClauses(sat4jHandler);
-		sat4jHandler.endProblem();
-		int nbModels = 0;
-		while(sat4jHandler.getNext()) {
-			LOG.debug("found: {}", query.getPattern(sat4jHandler.getCurrentInterpretation()));
-			nbModels++;
-		}
-		assertEquals(64, nbModels);
-	}
-
 	public void testFunctionnalDependenciesMinXSingY() throws ParseException,
 			NoSolutionException {
 		MiningQuery<DimacsLiteral> query = MiningQuery.parse(DimacsLiteral.class, new InputStreamReader(getClass()
 				.getResourceAsStream("/funct_deps_min_x_singleton_y.satql")));
-		query.setBitSetFetcher(new InMemoryNestedLoopBitSetFetcher(c));
+		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
 		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
 		query.addClauses(sat4jHandler);
 		sat4jHandler.endProblem();
@@ -197,7 +161,7 @@ public class MiningQueryTest extends TestCase {
 			NoSolutionException {
 		MiningQuery<DimacsLiteral> query = MiningQuery.parse(DimacsLiteral.class, new InputStreamReader(getClass()
 				.getResourceAsStream("/funct_deps_min_x_singleton_y_limit_5.satql")));
-		query.setBitSetFetcher(new InMemoryNestedLoopBitSetFetcher(c));
+		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
 		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
 		query.addClauses(sat4jHandler);
 		sat4jHandler.setLimit(query.getLimit());

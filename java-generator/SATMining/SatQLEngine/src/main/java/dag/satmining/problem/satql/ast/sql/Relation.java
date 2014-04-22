@@ -42,38 +42,29 @@ exception statement from your version. */
  */
 package dag.satmining.problem.satql.ast.sql;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
-
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
-
 /**
  * 
  * @author ecoquery
  */
-public class Relation extends FromExpression {
+public class Relation implements FromExpression {
 
-//	private static final Logger LOG = LoggerFactory.getLogger(Relation.class);
+    private final String _name;
 
-	private final String _name;
+    public Relation(String name) {
+        this._name = name;
+    }
 
-	public Relation(String name) {
-		this._name = name;
-	}
+    public String getName() {
+        return _name;
+    }
 
-	public String getName() {
-		return _name;
-	}
+    @Override
+    public void buildSQLQuery(StringBuilder output) {
+        output.append(_name);
+    }
 
-	@Override
-	public void buildSQLQuery(StringBuilder output) {
-		output.append(_name);
-	}
-
-	@Override
-	public TupleFetcher getTupleFetcher(Connection c) throws SQLException, IOException {
-		return new PreparedStatementWrapper(c, "SELECT * FROM "+_name);
-	}
+    @Override
+    public void buildSQLQueryNoName(StringBuilder output) {
+        buildSQLQuery(output);
+    }
 }

@@ -39,76 +39,53 @@ exception statement from your version. */
 package dag.satmining.problem.satql.ast;
 
 import dag.satmining.problem.satql.ast.MiningExpression.VoidVisitor;
+import dag.satmining.problem.satql.ast.sql.RAWSQLAtom;
 
 public abstract class AbstractMiningExpressionVisitor implements VoidVisitor {
 
-	@Override
-	public void and(MiningExpression e, MiningExpression a, MiningExpression b) {
-		defaultHandling(e);
-	}
-
-	@Override
-	public void eq(MiningExpression e, MiningValue a, MiningValue b) {
-		defaultHandling(e);
-	}
-	
-	@Override
-	public void like(MiningExpression e, MiningValue a, MiningValue b) {
-	    defaultHandling(e);
-	}
-
-	@Override
-    public void lt(MiningExpression e, MiningValue a, MiningValue b) {
-	    defaultHandling(e);
-    }
-
     @Override
-    public void gt(MiningExpression e, MiningValue a, MiningValue b) {
+    public void and(MiningExpression e, MiningExpression a, MiningExpression b) {
         defaultHandling(e);
     }
 
     @Override
-	public void exists(MiningExpression e, AttributeVariable av,
-			SchemaVariable sv, MiningExpression a) {
-		defaultHandling(e);
-	}
+    public void exists(MiningExpression e, AttributeVariable av,
+            SchemaVariable sv, MiningExpression a) {
+        defaultHandling(e);
+    }
 
-	@Override
-	public void forall(MiningExpression e, AttributeVariable av,
-			SchemaVariable sv, MiningExpression a) {
-		defaultHandling(e);
-	}
+    @Override
+    public void forall(MiningExpression e, AttributeVariable av,
+            SchemaVariable sv, MiningExpression a) {
+        defaultHandling(e);
+    }
 
-	@Override
-	public void neg(MiningExpression e, MiningExpression a) {
-		defaultHandling(e);
-	}
+    @Override
+    public void neg(MiningExpression e, MiningExpression a) {
+        defaultHandling(e);
+    }
 
-	@Override
-	public void or(MiningExpression e, MiningExpression a, MiningExpression b) {
-		defaultHandling(e);
-	}
+    @Override
+    public void or(MiningExpression e, MiningExpression a, MiningExpression b) {
+        defaultHandling(e);
+    }
 
-	@Override
-	public void trueV(MiningExpression e) {
-		defaultHandling(e);
-	}
-	
-	
-	
-	@Override
-	public void attCmp(MiningExpression e, AttributeVariable a,
-			AttributeVariable b) {
-		defaultHandling(e);
-	}
+    @Override
+    public void trueV(MiningExpression e) {
+        defaultHandling(e);
+    }
 
-	@Override
-	public void attCmp(MiningExpression e, AttributeVariable a,
-			AttributeConstant b) {
-		defaultHandling(e);
-	}
+    @Override
+    public void attCmp(MiningExpression e, AttributeEntity a, AttributeEntity b) {
+        defaultHandling(e);
+    }
 
-	public void defaultHandling(MiningExpression e) {
-	}
+    @Override
+    public void sqlAtom(MiningExpression e, RAWSQLAtom a) {
+        defaultHandling(e);
+    }
+
+    public void defaultHandling(MiningExpression e) {
+    }
 
 }

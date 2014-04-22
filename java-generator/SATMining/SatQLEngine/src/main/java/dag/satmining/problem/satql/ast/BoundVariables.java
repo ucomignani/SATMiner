@@ -65,11 +65,6 @@ public class BoundVariables implements MiningExpression.Visitor<Set<AttributeVar
     }
 
     @Override
-    public Set<AttributeVariable> eq(MiningValue a, MiningValue b) {
-        return new HashSet<AttributeVariable>();
-    }
-
-    @Override
     public Set<AttributeVariable> trueV() {
         return new HashSet<AttributeVariable>();
     }
@@ -96,14 +91,13 @@ public class BoundVariables implements MiningExpression.Visitor<Set<AttributeVar
     }
 
 	@Override
-	public Set<AttributeVariable> attCmp(AttributeVariable a,
-			AttributeVariable b) {
+	public Set<AttributeVariable> attCmp(AttributeEntity a,
+			AttributeEntity b) {
 		return new HashSet<AttributeVariable>();
 	}
 
-	@Override
-	public Set<AttributeVariable> attCmp(AttributeVariable a,
-			AttributeConstant b) {
-		return new HashSet<AttributeVariable>();
-	}
+    @Override
+    public Set<AttributeVariable> sqlAtom(SQLDelegateAtom s) {
+        return new HashSet<AttributeVariable>();
+    }
 }

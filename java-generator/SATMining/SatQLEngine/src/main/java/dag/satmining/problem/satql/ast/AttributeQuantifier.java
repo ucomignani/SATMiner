@@ -116,8 +116,8 @@ public final class AttributeQuantifier extends
 
 	@Override
 	public String toString() {
-		return "( " + _quantifier.syntax() + " " + _attributeVar.getName()
-				+ "(" + _schemaVar.getName() + ")" + " " + _expr.toString()
+		return "( " + _quantifier.syntax() + " $" + _attributeVar.getName()
+				+ " IN " + _schemaVar.getName() + ": " + _expr.toString()
 				+ " )";
 	}
 

@@ -46,48 +46,26 @@ package dag.satmining.problem.satql.ast;
  * 
  * @author ecoquery
  */
-public final class AttributeVariable implements Comparable<AttributeVariable> {
-	private final String _name;
-	private final int _id;
+public final class AttributeVariable extends AttributeEntity implements
+        Comparable<AttributeVariable> {
 
-	AttributeVariable(String name, int id) {
-		this._name = name;
-		this._id = id;
-	}
+    public AttributeVariable(String name, int id) {
+        super(name, id);
+    }
 
-	public String getName() {
-		return _name;
-	}
+    @Override
+    public int compareTo(AttributeVariable o) {
+        return this.getId() - o.getId();
+    }
 
-	public int getId() {
-		return _id;
-	}
+    @Override
+    public AttributeConstant getValue(AttributeValuation valuation) {
+        return valuation.getAtt(this);
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + _id;
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		AttributeVariable other = (AttributeVariable) obj;
-		if (_id != other._id)
-			return false;
-		return true;
-	}
-
-	@Override
-	public int compareTo(AttributeVariable o) {
-		return this._id - o._id;
-	}
+    @Override
+    public boolean isConstant() {
+        return false;
+    }
 
 }

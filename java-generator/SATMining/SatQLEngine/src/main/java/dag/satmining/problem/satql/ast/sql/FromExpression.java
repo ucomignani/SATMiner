@@ -42,20 +42,13 @@ exception statement from your version. */
  */
 package dag.satmining.problem.satql.ast.sql;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
 
 /**
  *
  * @author ecoquery
  */
-public abstract class FromExpression implements SQLRenderer {
+public interface FromExpression extends SQLRenderer {
 
-    public void buildSQLQueryNoName(StringBuilder output) {
-        buildSQLQuery(output);
-    }
-    
-    public abstract TupleFetcher getTupleFetcher(Connection c) throws SQLException, IOException;
+    void buildSQLQueryNoName(StringBuilder output);
     
 }

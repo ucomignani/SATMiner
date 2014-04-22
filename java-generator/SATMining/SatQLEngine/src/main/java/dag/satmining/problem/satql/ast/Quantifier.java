@@ -62,9 +62,9 @@ public enum Quantifier {
     public String syntax() {
         switch (this) {
             case ForAll:
-                return "F";
+                return "FORALL";
             default:
-                return "E";
+                return "EXISTS";
         }
     }
 }

@@ -66,58 +66,49 @@ SKIP:
 | <"--" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
 }
 
-TOKEN [ IGNORE_CASE ]:
+
+TOKEN [ IGNORE_CASE ]: /* KEYWORDS */
 {
   < AND: "AND">
 | < OR: "OR">
 | < NOT: "NOT">
 | < TRUE: "TRUE" >
 | < EQ: "=" >
-| < LT: "<" >
-| < GT: ">" >
-| < DOT: "." >
+//| < LT: "<" >
+//| < GT: ">" >
+//| < DOT: "." >
 | < FORALL: "F"|"FORALL" >
 | < EXISTS: "E"|"EXISTS" >
-| < FROM: "FROM" >
+// | < FROM: "FROM" >
 | < SCOPE: "SCOPE" > 
 | < WHERE: "WHERE" >
-| < SELECT: "SELECT" >
+// | < SELECT: "SELECT" >
 | < FIND: "FIND" >
 | < OVER: "OVER" >
 | < SUCH: "SUCH" >
 | < THAT: "THAT" >
-| < AS: "AS" >
+// | < AS: "AS" >
 | < EMPTY: "EMPTY" >
 | < INTERSECTION: "INTERSECTION" >
 | < WITH: "WITH" >
 | < SINGLETON: "SINGLETON" >
-| < CASE: "CASE" >
-| < WHEN: "WHEN" >
+// | < CASE: "CASE" >
+// | < WHEN: "WHEN" >
 | < THEN: "THEN" >
-| < ELSE: "ELSE" >
-| < END: "END" >
+// | < ELSE: "ELSE" >
+// | < END: "END" >
 | < MINIMIZE: "MINIMIZE" >
 | < MAXIMIZE: "MAXIMIZE" >
 | < LIMIT: "LIMIT" >
 | < IF: "IF" >
-| < LIKE: "LIKE" >
-| < PLUS: "+" >
-| < CONCAT: "||" >
+// | < LIKE: "LIKE" >
+// | < PLUS: "+" >
+// | < CONCAT: "||" >
 | < IN: "IN" >
 | < COLON: ":" >
 }
 
-TOKEN : /* LITERALS */
-{
-  < LITERAL:
-        <DECIMAL_LITERAL> 
-      | <STRING_LITERAL>
-  >
-|
-  < #DECIMAL_LITERAL: (["0"-"9"]("."["0"-"9"])?)+ >
-|
-  < #STRING_LITERAL: "'" ("''"|~["'"])* "'" >
-}
+TOKEN : /* LITERALS */{  < LITERAL:        <DECIMAL_LITERAL>       | <STRING_LITERAL>  >|  < #DECIMAL_LITERAL: (["0"-"9"]("."["0"-"9"])?)+ >|  < #STRING_LITERAL: "'" ("''"|~["'"])* "'" >}
 
 TOKEN : /* IDENTIFIERS */
 {
@@ -127,6 +118,11 @@ TOKEN : /* IDENTIFIERS */
 |
   < #DIGIT: ["0"-"9"] >
 }
+
+TOKEN : /* ATTRIBUTE IDENTIFIERS */
+{  < ATT_IDENTIFIER: "$" < IDENTIFIER > >
+} 
+TOKEN : /* RAW SQL STATEMENT */{  < RAW_SQL_STATEMENT: "{" (~["{","}"] | "{{" | "}}" )* "}" >}
 
 /** Mining Statement. */
 
@@ -175,14 +171,14 @@ MiningExpression QuantifierIfExpr(ASTDictionnary dict):
   Token t,t2;
 }
 {
-  ( <FORALL> t=<IDENTIFIER> 
+  ( <FORALL> t=<ATT_IDENTIFIER> 
     {dict.getAttributeVariable(t.image);} 
-    ( ("(" t2=<IDENTIFIER> ")")|(< IN > t2=< IDENTIFIER > < COLON >) )
+    < IN > t2=< IDENTIFIER > < COLON >
     expr=QuantifierIfExpr(dict) 
     { return dict.forall(t.image,t2.image, expr); } )
-| ( <EXISTS> t=<IDENTIFIER> 
+| ( <EXISTS> t=<ATT_IDENTIFIER> 
     {dict.getAttributeVariable(t.image);} 
-    ( ("(" t2=<IDENTIFIER> ")")|(< IN > t2=< IDENTIFIER > < COLON >) )
+    < IN > t2=< IDENTIFIER > < COLON >
     expr=QuantifierIfExpr(dict) 
     { return dict.exists(t.image,t2.image, expr); } )
 | ( <IF> expr=QuantifierIfExpr(dict) <THEN> expr2=QuantifierIfExpr(dict)
@@ -227,15 +223,15 @@ MiningExpression NegExpr(ASTDictionnary dict) :
 
 MiningExpression AtomicExpr(ASTDictionnary dict) :
 {
-  MiningValue a,b;
   Token t1, t2, tOp;
   MiningExpression e;
   
 }
 {
   (<TRUE> {return dict.tt();})
-| LOOKAHEAD(2) (a=MiningVal(dict) (tOp=<LIKE>|tOp=<EQ>|tOp=<GT>|tOp=<LT>) b=MiningVal(dict) {return dict.op(tOp.image,a,b);})
-| (t1=<IDENTIFIER> <EQ> t2=<IDENTIFIER> {return dict.attCmp(t1.image,t2.image);})
+// | LOOKAHEAD(2) (a=MiningVal(dict) (tOp=<LIKE>|tOp=<EQ>|tOp=<GT>|tOp=<LT>) b=MiningVal(dict) {return dict.op(tOp.image,a,b);})
+| (t1=< RAW_SQL_STATEMENT > {return dict.rawSQLDelegate(t1.image);})
+| ((t1=<ATT_IDENTIFIER>|t1=< IDENTIFIER >) <EQ> (t2=<ATT_IDENTIFIER>|t2=< IDENTIFIER >) {return dict.attCmp(t1.image,t2.image);})
 | (e=Singleton(dict) {return e;})
 | (e=EmptyIntersection(dict) {return e;})
 | ( "(" e=MiningExpr(dict) ")" {return e;} )
@@ -260,78 +256,15 @@ MiningExpression EmptyIntersection(ASTDictionnary dict) :
   {return Sugar.emptyIntersection(dict,sch);}
 }
 
-MiningValue MiningVal(ASTDictionnary dict) :
-{ MiningValue a; }
-{
-  (a=MiningConstantValue(dict) {return a;})
-| (a=MiningTupleValue(dict) {return a;})
-}
+//MiningValue MiningVal(ASTDictionnary dict) ://{ MiningValue a; }//{//  (a=MiningConstantValue(dict) {return a;})//| (a=MiningTupleValue(dict) {return a;})//}////MiningValue MiningConstantValue(ASTDictionnary dict) ://{ Token t; }//{//  t=<LITERAL> {return MiningValue.cst(t.image);}//}////MiningValue MiningTupleValue(ASTDictionnary dict) ://{ //  Token t; //  String tTupleName, tAttName;//}//{//  t=<IDENTIFIER> {tTupleName = t.image;}//  <DOT>//  t=<IDENTIFIER> //  {//    tAttName = t.image;//    try {//      return dict.mkTupleAttributeValue(tTupleName,tAttName);//    } catch (IllegalArgumentException e) {//      throw new ParseException(e.getMessage());//    }//  }//}
 
-MiningValue MiningConstantValue(ASTDictionnary dict) :
-{ Token t; }
-{
-  t=<LITERAL> {return MiningValue.cst(t.image);}
-}
+//Query SQLQuery()://{//Select select;//From from = new From(false);//Where where;//}//{//    select=SelectClause() FromClause(from) where=WhereClause()//    { return new Query(select,from,where); }//}
 
-MiningValue MiningTupleValue(ASTDictionnary dict) :
-{ 
-  Token t; 
-  String tTupleName, tAttName;
-}
-{
-  t=<IDENTIFIER> {tTupleName = t.image;}
-  <DOT>
-  t=<IDENTIFIER> 
-  {
-    tAttName = t.image;
-    try {
-      return dict.mkTupleAttributeValue(tTupleName,tAttName);
-    } catch (IllegalArgumentException e) {
-      throw new ParseException(e.getMessage());
-    }
-  }
-}
+//Select SelectClause()://{ //  Select select; //  Token t = null;//  SQLValue v;//}//{//  <SELECT> {select = new Select();}//  SelectEntry(select) ("," SelectEntry(select))*//  { return select; }//}
 
-Query SQLQuery():
-{
-Select select;
-From from = new From(false);
-Where where;
-}
-{
-    select=SelectClause() FromClause(from) where=WhereClause()
-    { return new Query(select,from,where); }
-}
+//void SelectEntry(Select select)://{ //  Token t = null;//  SQLValue v;//}//{//    ( v=NonBooleanSQLValue() ( <AS> t=<IDENTIFIER> )? { select.addEntry(v,t==null?null:t.image); } )//  | ( "*" { select.addStar(); } )//}
 
-Select SelectClause():
-{ 
-  Select select; 
-  Token t = null;
-  SQLValue v;
-}
-{
-  <SELECT> {select = new Select();}
-  SelectEntry(select) ("," SelectEntry(select))*
-  { return select; }
-}
-
-void SelectEntry(Select select):
-{ 
-  Token t = null;
-  SQLValue v;
-}
-{
-    ( v=NonBooleanSQLValue() ( <AS> t=<IDENTIFIER> )? { select.addEntry(v,t==null?null:t.image); } )
-  | ( "*" { select.addStar(); } )
-}
-
-void FromClause(From from):
-{  
-}
-{
-  <FROM> FromExpr(from) 
-  ( "," FromExpr(from) )*
-}
+//void FromClause(From from)://{  //}//{//  <FROM> FromExpr(from) //  ( "," FromExpr(from) )*//}
 
 void FromExpr(From from):
 {
@@ -339,7 +272,7 @@ FromExpression query = null;
 Token t, t2 = null;
 }
 {
-  ( "(" query=SQLQuery() ")" t=<IDENTIFIER> { from.addQueryName(query,t.image); } )
+  ( t=< RAW_SQL_STATEMENT > t2=<IDENTIFIER> { from.addQueryName(new RAWSQLQuery(t.image,true),t2.image); } )
 | ( t=<IDENTIFIER> (t2=<IDENTIFIER> )? 
     { if (t2==null) { 
         from.addName(t.image); 
@@ -355,21 +288,9 @@ Where WhereClause():
   { return new Where(c); }
 }
 
-SQLValue NonBooleanSQLValue():
-{ SQLValue v; }
-{
-  v=OpNonBooleanSQLValue() {return v;}
-}
+//SQLValue NonBooleanSQLValue()://{ SQLValue v; }//{//  v=OpNonBooleanSQLValue() {return v;}//}
 
-SQLValue OpNonBooleanSQLValue():
-{ SQLValue v1,v2; SQLBinOpValue.Op op; }
-{  (    v1=AtomicNonBooleanSQLValue()
-  ((  (< PLUS > { op=SQLBinOpValue.Op.Plus;})    | (< CONCAT > { op=SQLBinOpValue.Op.Concat; }))
-   v2=OpNonBooleanSQLValue()   { v1=new SQLBinOpValue(op,v1,v2); }  )?
-  )
-  {    return v1;
-  }
-}        
+//SQLValue OpNonBooleanSQLValue()://{ SQLValue v1,v2; SQLBinOpValue.Op op; }//{//  (//    v1=AtomicNonBooleanSQLValue()//  ((  (< PLUS > { op=SQLBinOpValue.Op.Plus;})//    | (< CONCAT > { op=SQLBinOpValue.Op.Concat; }))//   v2=OpNonBooleanSQLValue()//   { v1=new SQLBinOpValue(op,v1,v2); }//  )?//  )//  {//    return v1;//  }//}        
 
 SQLBooleanValue SQLBooleanValue():
 { SQLBooleanValue v;}
@@ -397,52 +318,21 @@ SQLBooleanValue SQLAnd():
 
 SQLBooleanValue AtomicSQLBooleanValue():
 {
-  SQLValue a, b = null;
+//  SQLValue a, b = null;
   SQLBooleanValue v = null;
+  Token t;
 }
 {
-  ( (a=NonBooleanSQLValue() ) 
-    ( <EQ> b=NonBooleanSQLValue() { return Comparison.eq(a,b); } 
-    | <LT> b=NonBooleanSQLValue() { return Comparison.lt(a,b); }
-    | <LIKE> b=NonBooleanSQLValue() { return Comparison.like(a,b); }    ) )
+//  ( (a=NonBooleanSQLValue() ) //    ( <EQ> b=NonBooleanSQLValue() { return Comparison.eq(a,b); } //    | <LT> b=NonBooleanSQLValue() { return Comparison.lt(a,b); }//    | <LIKE> b=NonBooleanSQLValue() { return Comparison.like(a,b); }//    ) )
+  ( t=< RAW_SQL_STATEMENT > { return new RAWSQLAtom(t.image,true);} )
 | ( "(" v=SQLBooleanValue() ")" { return v; } )
 }
 
-SQLValue AtomicNonBooleanSQLValue():
-{ SQLValue v; }
-{
-( (v=SQLConstant()) 
-| (v=TupleAccess()) 
-| (v=CaseNoValue())
-// | ( "(" v=NonBooleanSQLValue()) ")" ) 
-)
-  { return v; }
-}
+//SQLValue AtomicNonBooleanSQLValue()://{ SQLValue v; }//{//( (v=SQLConstant()) //| (v=TupleAccess()) //| (v=CaseNoValue())//// | ( "(" v=NonBooleanSQLValue()) ")" ) //)//  { return v; }//}
 
-SQLValue SQLConstant():
-{ Token t; }
-{
-  t=<LITERAL>
-  { return new SQLConstant(t.image); }
-}
+//SQLValue SQLConstant()://{ Token t; }//{//  t=<LITERAL>//  { return new SQLConstant(t.image); }//}
 
-SQLValue TupleAccess():
-{ Token t, t2; }
-{
-  t=<IDENTIFIER> <DOT> t2=<IDENTIFIER> 
-  { return new TupleAccess(t.image,t2.image); }
-}
+//SQLValue TupleAccess()://{ Token t, t2; }//{//  t=<IDENTIFIER> <DOT> t2=<IDENTIFIER> //  { return new TupleAccess(t.image,t2.image); }//}
 
-SQLValue CaseNoValue():
-{ 
-  CaseNoValue cnv; 
-  SQLBooleanValue test;
-  SQLValue val;
-}
-{
-  <CASE> { cnv = new CaseNoValue(); }
-  (<WHEN> test=SQLBooleanValue() <THEN> val=NonBooleanSQLValue() {cnv.addWhen(test,val);} )+
-  (<ELSE> val=NonBooleanSQLValue() {cnv.setElse(val);} )?
-  <END>
-  { return cnv; } 
-}
+//SQLValue CaseNoValue()://{ //  CaseNoValue cnv; //  SQLBooleanValue test;//  SQLValue val;//}//{//  <CASE> { cnv = new CaseNoValue(); }//  (<WHEN> test=SQLBooleanValue() <THEN> val=NonBooleanSQLValue() {cnv.addWhen(test,val);} )+//  (<ELSE> val=NonBooleanSQLValue() {cnv.setElse(val);} )?//  <END>//  { return cnv; } //}
+

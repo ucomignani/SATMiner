@@ -48,6 +48,7 @@ import junit.framework.TestCase;
 import dag.satmining.backend.dimacs.DimacsLiteral;
 import dag.satmining.problem.satql.ast.ASTDictionnary;
 import dag.satmining.problem.satql.ast.MiningQuery;
+import dag.satmining.problem.satql.ast.SQLDelegateAtom;
 import dag.satmining.problem.satql.ast.sql.SQLTrue;
 
 /**
@@ -78,42 +79,12 @@ public class ParserTest extends TestCase {
         } catch (ParseException e) {
         }
     }
-
-    public void testValues() throws ParseException {
-        ASTDictionnary dict = new ASTDictionnary();
-        SATQLParser<DimacsLiteral> p;
-        p = mkParser("0102");
-        assertNotNull(p.MiningVal(dict));
-        try {
-            p = mkParser("'ab '' c'");
-            assertNotNull(p.MiningConstantValue(dict));
-            p.MiningVal(dict);
-            fail("did not parse full string");
-        } catch (ParseException e) {
-        }
-    }
     
     public void testCmp() throws ParseException {
         ASTDictionnary dict = new ASTDictionnary();
         SATQLParser<DimacsLiteral> p;
-        p=mkParser("123 = 'ab'");
+        p=mkParser("{123 = 'ab'}");
         assertNotNull(p.AtomicExpr(dict));
-    }
-    
-    public void testTupleValues() throws ParseException {
-        ASTDictionnary dict = new ASTDictionnary();
-        dict.getAttributeConstant("a");
-        dict.getAttributeVariable("B");
-        SATQLParser<DimacsLiteral> p;
-        p = mkParser("t.a");
-        assertNotNull(p.MiningTupleValue(dict));
-        p = mkParser("t2.B");
-        assertNotNull(p.MiningTupleValue(dict));
-        try {
-            p = mkParser("t3.c");
-            p.MiningTupleValue(dict);
-            fail("c is not known but parsing was ok");
-        } catch (ParseException e) {};
     }
     
     public void testParseMiningQuery() throws ParseException {

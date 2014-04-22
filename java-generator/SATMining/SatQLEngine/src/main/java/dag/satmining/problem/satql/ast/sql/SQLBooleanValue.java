@@ -42,17 +42,11 @@ exception statement from your version. */
  */
 package dag.satmining.problem.satql.ast.sql;
 
-import java.util.Map;
 
 /**
  * 
  * @author ecoquery
  */
-public abstract class SQLBooleanValue implements SQLRenderer {
-
-	public abstract void setupEval(Map<String, Integer> tupleIdx,
-			Map<String, Integer>[] tupleSchemas);
-
-	public abstract boolean eval(Tuple[] tuples);
+public interface SQLBooleanValue extends SQLRenderer {
 	
 }

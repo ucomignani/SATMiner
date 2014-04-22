@@ -1,0 +1,6 @@
+minisat_all_models/core/Main.o
+minisat_all_models/core/Solver.o
+minisat_all_models/core/depend.mk
+minisat_all_models/core/minisat
+minisat_all_models/utils/Options.o
+minisat_all_models/utils/System.o

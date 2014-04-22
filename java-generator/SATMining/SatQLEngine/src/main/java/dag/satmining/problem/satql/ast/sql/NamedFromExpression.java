@@ -42,15 +42,12 @@ exception statement from your version. */
  */
 package dag.satmining.problem.satql.ast.sql;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
 
 /**
  *
  * @author ecoquery
  */
-public class NamedFromExpression extends FromExpression {
+public class NamedFromExpression implements FromExpression {
 
     private final String _name;
     private final FromExpression _expr;
@@ -81,9 +78,4 @@ public class NamedFromExpression extends FromExpression {
             output.append(_name);
         }
     }
-
-	@Override
-	public TupleFetcher getTupleFetcher(Connection c) throws SQLException, IOException {
-		return _expr.getTupleFetcher(c);
-	}
 }

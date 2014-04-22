@@ -42,18 +42,6 @@ exception statement from your version. */
  */
 package dag.satmining.problem.satql;
 
-import dag.satmining.constraints.Literal;
-import dag.satmining.constraints.mining.Generator;
-import dag.satmining.constraints.mining.UsageException;
-import dag.satmining.output.Limiter;
-import dag.satmining.output.PatternConverter;
-import dag.satmining.problem.satql.ast.MiningQuery;
-import dag.satmining.problem.satql.ast.sql.BitSetFetcher;
-import dag.satmining.problem.satql.ast.sql.InMemoryNestedLoopBitSetFetcher;
-import dag.satmining.problem.satql.ast.sql.NestedLoopBitSetFetcher;
-import dag.satmining.problem.satql.ast.sql.SingleStatementBitSetFetcher;
-import dag.satmining.problem.satql.parser.ParseException;
-
 import java.io.IOException;
 import java.io.Reader;
 import java.sql.Connection;
@@ -61,9 +49,18 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
+
+import dag.satmining.constraints.Literal;
+import dag.satmining.constraints.mining.Generator;
+import dag.satmining.constraints.mining.UsageException;
+import dag.satmining.output.Limiter;
+import dag.satmining.output.PatternConverter;
+import dag.satmining.problem.satql.ast.MiningQuery;
+import dag.satmining.problem.satql.ast.sql.BitSetFetcher;
+import dag.satmining.problem.satql.ast.sql.SingleStatementBitSetFetcher;
+import dag.satmining.problem.satql.parser.ParseException;
 
 /**
  * 
@@ -109,13 +106,8 @@ public class SatQL<L extends Literal<L>> extends Generator<L> implements
             Connection connection = DriverManager.getConnection(opts
                     .getOptionValue(JDBC_OPT));
             BitSetFetcher bsr;
-            if (opts.hasOption(NESTEDLOOP_OPT)) {
-                bsr = new NestedLoopBitSetFetcher(connection);
-            } else if (opts.hasOption(NESTEDLOOP_MEM_OPT)) {
-                bsr = new InMemoryNestedLoopBitSetFetcher(connection);
-            } else {
-                bsr = new SingleStatementBitSetFetcher(connection);
-            }
+            // Possibilitity to choose BitSetFetcher here
+            bsr = new SingleStatementBitSetFetcher(connection);
             _query.setBitSetFetcher(bsr);
             addConstraint(_query);
         } catch (ParseException e) {
