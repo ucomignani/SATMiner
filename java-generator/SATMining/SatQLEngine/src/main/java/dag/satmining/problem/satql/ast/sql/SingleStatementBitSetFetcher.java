@@ -181,6 +181,7 @@ public class SingleStatementBitSetFetcher implements BitSetFetcher {
             condition.buildSQLQuery(sb);
             sb.append(" THEN 1 ELSE 0 END )");
             result.addEntry(new SQLDelegatedValue(sb.toString()), "q" + i);
+            i++;
         }
         return result;
     }
