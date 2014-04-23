@@ -50,8 +50,6 @@ import org.slf4j.LoggerFactory;
 
 import dag.satmining.problem.satql.jdbc.DriverCapabilities;
 
-// TODO: write unit tests for single and multiple statement encoding
-
 public class SingleStatementBitSetFetcher implements BitSetFetcher {
 
     private static final Logger LOG = LoggerFactory
