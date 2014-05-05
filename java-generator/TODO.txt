@@ -1,5 +1,3 @@
-- use native encoding of the boolean vector when the number of columns
-  supported by the DBMS allows it.
 - min(ax)imization, and/or top k
 - support for counting
 - multiple SCOPE statements
