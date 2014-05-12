@@ -70,8 +70,6 @@ public class SatQL<L extends Literal<L>> extends Generator<L> implements
         Limiter {
 
     private static final String NOCACHE_OPT = "nocache";
-    private static final String NESTEDLOOP_MEM_OPT = "memnloop";
-    private static final String NESTEDLOOP_OPT = "nloop";
     private static final String DRIVER_OPT = "driver";
     private static final String JDBC_OPT = "jdbc";
     private MiningQuery<L> _query;
@@ -137,13 +135,6 @@ public class SatQL<L extends Literal<L>> extends Generator<L> implements
                 .withDescription(
                         "JDBC driver class, may be required for driver loading")
                 .create(DRIVER_OPT));
-        opts.addOption(OptionBuilder.withDescription(
-                "use Java based cartesian product for tuples").create(
-                NESTEDLOOP_OPT));
-        opts.addOption(OptionBuilder
-                .withDescription(
-                        "use Java based cartesian product for tuples, keeping each relation in memory")
-                .create(NESTEDLOOP_MEM_OPT));
         opts.addOption(OptionBuilder
                 .withDescription(
                         "disable cache when producing SAT formula (use only for benchmark purpose)")
