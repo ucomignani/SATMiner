@@ -43,6 +43,7 @@ exception statement from your version.
  */
 package dag.satmining.backend.flatzinc;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
@@ -65,7 +66,7 @@ public final class ZincBackend implements ReifiedWeightedPBBuilder<ZincLiteral> 
     private int _nextStrongLiteral = 1;
     private List<ZincLiteral> _literals = new ArrayList<ZincLiteral>();
     private Collection<ZincConstraint> _constraints = new ArrayList<ZincConstraint>();
-    private int _recompteIdxFrom = Integer.MAX_VALUE;
+    private int _recomputeIdxFrom = Integer.MAX_VALUE;
     private boolean _wroteSomeOutput = false;
 
     /**
@@ -178,43 +179,42 @@ public final class ZincBackend implements ReifiedWeightedPBBuilder<ZincLiteral> 
                 _nextIntermediateLiteral--;
                 l.setIdx(_nextStrongLiteral++);
             } else {
-                _recompteIdxFrom = Math
-                        .min(_recompteIdxFrom, l.getVariableId());
+                _recomputeIdxFrom = Math
+                        .min(_recomputeIdxFrom, l.getVariableId());
             }
         }
     }
 
-    private void recompteIdx() {
-        if (_recompteIdxFrom != Integer.MAX_VALUE) {
+    private void recomputeIdx() {
+        if (_recomputeIdxFrom != Integer.MAX_VALUE) {
             if (_wroteSomeOutput) {
                 throw new IllegalStateException(
                         "cannot reindex if some output has already been written");
             }
-            int prev = _recompteIdxFrom - 1;
+            int prev = _recomputeIdxFrom - 1;
             while (prev >= 1 && _strongLiterals.get(prev)) {
                 prev--;
             }
             _nextIntermediateLiteral = prev == 0 ? 1 : _literals.get(prev)
                     .getIdx() + 1;
-            prev = _recompteIdxFrom - 1;
+            prev = _recomputeIdxFrom - 1;
             while (prev >= 1 && !_strongLiterals.get(prev)) {
                 prev--;
             }
             _nextStrongLiteral = prev == 0 ? 1
                     : _literals.get(prev).getIdx() + 1;
-            for (int cur = _recompteIdxFrom; cur < _literals.size(); ++cur) {
+            for (int cur = _recomputeIdxFrom; cur < _literals.size(); ++cur) {
                 _literals.get(cur).setIdx(
                         _strongLiterals.get(cur) ? _nextStrongLiteral++
                                 : _nextIntermediateLiteral++);
             }
-            _recompteIdxFrom = Integer.MAX_VALUE;
+            _recomputeIdxFrom = Integer.MAX_VALUE;
         }
     }
 
     @Override
     public void endProblem() throws NoSolutionException {
-        // TODO Auto-generated method stub
-
+        recomputeIdx();
     }
 
     @Override
@@ -230,8 +230,7 @@ public final class ZincBackend implements ReifiedWeightedPBBuilder<ZincLiteral> 
 
     @Override
     public SolutionWriter getCNFWriter() {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException("No builtin compiler from zinc to CNF");
     }
 
     @Override
@@ -325,4 +324,8 @@ public final class ZincBackend implements ReifiedWeightedPBBuilder<ZincLiteral> 
         _constraints.add(new ZCSum(lits, coefs, ineq, value, equivTo));
     }
 
+    private void writeZinc(PrintWriter out) {
+        // TODO: implement write to zinc output
+    }
+    
 }

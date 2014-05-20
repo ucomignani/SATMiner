@@ -57,7 +57,6 @@ public class ZCArrayBoolOr extends ZincCollectionConstraint {
      */
     public ZCArrayBoolOr(ZincLiteral equiv, ZincLiteral... lits) {
         super(equiv, lits);
-        // TODO Auto-generated constructor stub
     }
 
     /**
@@ -66,7 +65,6 @@ public class ZCArrayBoolOr extends ZincCollectionConstraint {
      */
     public ZCArrayBoolOr(ZincLiteral equiv, Collection<ZincLiteral> lits) {
         super(equiv, lits);
-        // TODO Auto-generated constructor stub
     }
 
 }
