@@ -61,6 +61,7 @@ import dag.satmining.problem.satql.ast.MiningQuery;
 import dag.satmining.problem.satql.ast.sql.BitSetFetcher;
 import dag.satmining.problem.satql.ast.sql.SingleStatementBitSetFetcher;
 import dag.satmining.problem.satql.parser.ParseException;
+import dag.satmining.utils.JDBCConnectionHelper;
 
 /**
  * 
@@ -72,6 +73,7 @@ public class SatQL<L extends Literal<L>> extends Generator<L> implements
     private static final String NOCACHE_OPT = "nocache";
     private static final String DRIVER_OPT = "driver";
     private static final String JDBC_OPT = "jdbc";
+    private static final String DRIVERJAR_OPT = "driverjar";
     private MiningQuery<L> _query;
     private Class<L> _litClazz;
 
@@ -97,12 +99,10 @@ public class SatQL<L extends Literal<L>> extends Generator<L> implements
             if (opts.hasOption(NOCACHE_OPT)) {
                 _query.enableCache(false);
             }
-            if (opts.hasOption(DRIVER_OPT)) {
-                // load the driver to enable it in jdbc urls
-                Class.forName(opts.getOptionValue(DRIVER_OPT));
-            }
-            Connection connection = DriverManager.getConnection(opts
-                    .getOptionValue(JDBC_OPT));
+            Connection connection = JDBCConnectionHelper.connect(
+                    opts.getOptionValue(DRIVERJAR_OPT),
+                    opts.getOptionValue(DRIVER_OPT),
+                    opts.getOptionValue(JDBC_OPT));
             BitSetFetcher bsr;
             // Possibilitity to choose BitSetFetcher here
             bsr = new SingleStatementBitSetFetcher(connection);
@@ -114,6 +114,10 @@ public class SatQL<L extends Literal<L>> extends Generator<L> implements
         } catch (ClassNotFoundException e) {
             throw new UsageException(e);
         } catch (SQLException e) {
+            throw new IOException(e);
+        } catch (InstantiationException e) {
+            throw new UsageException(e);
+        } catch (IllegalAccessException e) {
             throw new UsageException(e);
         }
     }
@@ -139,6 +143,13 @@ public class SatQL<L extends Literal<L>> extends Generator<L> implements
                 .withDescription(
                         "disable cache when producing SAT formula (use only for benchmark purpose)")
                 .create(NOCACHE_OPT));
+        opts.addOption(OptionBuilder
+                .hasArg()
+                .withArgName("jarfile")
+                .withDescription(
+                        "jar files to load for the JDBC connection, separated by ':'")
+                .create(DRIVERJAR_OPT));
+
         return opts;
     }
 
