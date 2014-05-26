@@ -43,10 +43,14 @@ exception statement from your version.
  */
 package dag.satmining.backend.flatzinc;
 
+import java.io.PrintWriter;
+
 /**
  * @author ecoquery
  * 
  */
 public interface ZincConstraint {
+
+    void print(PrintWriter out);
 
 }

@@ -43,6 +43,8 @@ exception statement from your version.
  */
 package dag.satmining.backend.flatzinc;
 
+import java.io.PrintWriter;
+
 import dag.satmining.constraints.Literal;
 
 /**
@@ -55,11 +57,20 @@ public final class ZincLiteral implements Literal<ZincLiteral>, Comparable<ZincL
     private int _idx;
     private final boolean _pos;
     private ZincLiteral _opposite = null; 
-
-    public ZincLiteral(int vid, int idx, boolean pos) {
+    private boolean _strong = false; 
+    static final String STRONG_POSITIVE = "sp";
+    static final String STRONG_NEGATIVE = "sn";
+    static final String INTRODUCED_POSITIVE = "ip";
+    static final String INTRODUCED_NEGATIVE = "in";
+    static final String INTRODUCED_INT_POS = "iip";
+    static final String INTRODUCED_INT_NEG = "iin";
+    
+    
+    public ZincLiteral(int vid, int idx, boolean pos, boolean isStrong) {
         this._vid = vid;
         this._idx = idx;
         this._pos = pos;
+        this._strong = isStrong;
     }
 
     public int getIdx() {
@@ -74,7 +85,7 @@ public final class ZincLiteral implements Literal<ZincLiteral>, Comparable<ZincL
     @Override
     public ZincLiteral getOpposite() {
         if (_opposite == null) {
-            _opposite = new ZincLiteral(_vid, _idx, !_pos);
+            _opposite = new ZincLiteral(_vid, _idx, !_pos, _strong);
             _opposite._opposite = this;
         }
         return _opposite;
@@ -126,4 +137,61 @@ public final class ZincLiteral implements Literal<ZincLiteral>, Comparable<ZincL
             _opposite._idx = newIdx;
         }
     }
+
+    void printB(PrintWriter out) {
+        if (_pos) {
+            if (_strong) {
+                out.print(STRONG_POSITIVE);
+            } else {
+                out.print(INTRODUCED_POSITIVE);
+            }
+        } else {
+            if (_strong) {
+                out.print(STRONG_NEGATIVE);
+            } else {
+                out.print(INTRODUCED_NEGATIVE);
+            }
+        }
+        out.print("[");
+        out.print(_idx);
+        out.print("]");
+    }
+    
+    void printI(PrintWriter out) {
+        if (_pos) {
+            out.print(INTRODUCED_INT_POS);
+        } else {
+            out.print(INTRODUCED_INT_NEG);
+        }
+        out.print("[");
+        out.print(_vid);
+        out.print("]");
+    }
+
+    public boolean isStrong(){
+        return _strong;
+    }
+    
+    public void setStrong(boolean strong) {
+        this._strong = strong;
+        if (_opposite != null) {
+            _opposite._strong = strong;
+        }
+    }
+    
+    void printOppositeConstraintB(PrintWriter out) {
+        out.print("bool_not(");
+        printB(out);
+        out.print(",");
+        _opposite.printB(out);
+        out.println(");");
+    }
+    
+    void printIntBoolConstraint(PrintWriter out) {
+        out.print("bool2int(");
+        printB(out);
+        out.print(",");
+        printI(out);
+        out.println(");");
+    }    
 }

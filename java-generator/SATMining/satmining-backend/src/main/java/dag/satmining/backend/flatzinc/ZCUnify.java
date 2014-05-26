@@ -43,11 +43,12 @@ exception statement from your version.
  */
 package dag.satmining.backend.flatzinc;
 
+import java.io.PrintWriter;
 import java.util.Collection;
 
 /**
  * @author ecoquery
- *
+ * 
  */
 public class ZCUnify extends ZincCollectionConstraint {
 
@@ -55,14 +56,25 @@ public class ZCUnify extends ZincCollectionConstraint {
      * @param lits
      */
     public ZCUnify(ZincLiteral... lits) {
-        super(null,lits);
+        super(null, lits);
     }
 
     /**
      * @param lits
      */
     public ZCUnify(Collection<ZincLiteral> lits) {
-        super(null,lits);
+        super(null, lits);
+    }
+
+    @Override
+    public void print(PrintWriter out) {
+        for (int i = 1; i < _lits.length; ++i) {
+            out.print("bool_eq(");
+            _lits[0].printB(out);
+            out.print(", ");
+            _lits[i].printB(out);
+            out.println(")");
+        }
     }
 
 }

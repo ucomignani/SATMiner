@@ -69,6 +69,8 @@ public final class ZincBackend implements ReifiedWeightedPBBuilder<ZincLiteral> 
     private int _recomputeIdxFrom = Integer.MAX_VALUE;
     private boolean _wroteSomeOutput = false;
 
+    static final String TRUE = "true";
+
     /**
      * 
      */
@@ -100,7 +102,7 @@ public final class ZincBackend implements ReifiedWeightedPBBuilder<ZincLiteral> 
     public ZincLiteral newLiteral(boolean positive, boolean strong) {
         int idx = strong ? _nextStrongLiteral++ : _nextIntermediateLiteral++;
         int vid = _nextIntermediateLiteral + _nextStrongLiteral - 2;
-        ZincLiteral l = new ZincLiteral(vid, idx, positive);
+        ZincLiteral l = new ZincLiteral(vid, idx, positive, strong);
         if (strong) {
             _strongLiterals.set(l.getVariableId());
         }
@@ -174,13 +176,14 @@ public final class ZincBackend implements ReifiedWeightedPBBuilder<ZincLiteral> 
     public void addToStrongBackdoor(ZincLiteral l) {
         if (!_strongLiterals.get(l.getVariableId())) {
             _strongLiterals.set(l.getVariableId());
+            l.setStrong(true);
             if (l.getVariableId() == _nextIntermediateLiteral
                     + _nextStrongLiteral - 2) {
                 _nextIntermediateLiteral--;
                 l.setIdx(_nextStrongLiteral++);
             } else {
-                _recomputeIdxFrom = Math
-                        .min(_recomputeIdxFrom, l.getVariableId());
+                _recomputeIdxFrom = Math.min(_recomputeIdxFrom,
+                        l.getVariableId());
             }
         }
     }
@@ -230,7 +233,8 @@ public final class ZincBackend implements ReifiedWeightedPBBuilder<ZincLiteral> 
 
     @Override
     public SolutionWriter getCNFWriter() {
-        throw new UnsupportedOperationException("No builtin compiler from zinc to CNF");
+        throw new UnsupportedOperationException(
+                "No builtin compiler from zinc to CNF");
     }
 
     @Override
@@ -325,7 +329,50 @@ public final class ZincBackend implements ReifiedWeightedPBBuilder<ZincLiteral> 
     }
 
     private void writeZinc(PrintWriter out) {
-        // TODO: implement write to zinc output
+        recomputeIdx();
+        _wroteSomeOutput = true;
+        writeHeader(out);
+        for (ZincConstraint zc : _constraints) {
+            zc.print(out);
+            out.println();
+        }
+        writeFooter(out);
     }
-    
+
+    private void writeFooter(PrintWriter out) {
+        out.println("solve satisfy");
+    }
+
+    private void writeArrayDecl(PrintWriter out, int size, String type,
+            String name, boolean introduced) {
+        out.print("array [1..");
+        out.print(size);
+        out.print("] of ");
+        out.print(type);
+        out.print(": ");
+        out.print(name);
+        if (introduced) {
+            out.println(";");
+        } else {
+            out.print(":: output_array([1..");
+            out.print(size);
+            out.println("]);");
+        }
+    }
+
+    private void writeHeader(PrintWriter out) {
+        writeArrayDecl(out, _nextStrongLiteral-1, "bool",
+                ZincLiteral.STRONG_POSITIVE, false);
+        writeArrayDecl(out, _nextStrongLiteral-1, "bool", ZincLiteral.STRONG_NEGATIVE, true);
+        writeArrayDecl(out, _nextIntermediateLiteral-1, "bool", ZincLiteral.INTRODUCED_POSITIVE, true);
+        writeArrayDecl(out, _nextIntermediateLiteral-1, "bool", ZincLiteral.INTRODUCED_NEGATIVE, true);
+        writeArrayDecl(out, _literals.size(), "int", ZincLiteral.INTRODUCED_INT_POS, true);
+        writeArrayDecl(out, _literals.size(), "int", ZincLiteral.INTRODUCED_INT_NEG, true);
+        for(ZincLiteral l : _literals) {
+            l.printOppositeConstraintB(out);
+            l.printIntBoolConstraint(out);
+            l.getOpposite().printIntBoolConstraint(out);
+        }
+    }
+
 }

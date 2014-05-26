@@ -43,6 +43,7 @@ exception statement from your version.
  */
 package dag.satmining.backend.flatzinc;
 
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -50,14 +51,15 @@ import dag.satmining.constraints.Ineq;
 
 /**
  * @author ecoquery
- *
+ * 
  */
 public class ZCSum extends ZincCollectionConstraint {
     private final int[] _coeffs;
     private final int _sum;
     private final Ineq _cmp;
 
-    public ZCSum(ZincLiteral[] lits, int[] coefs, Ineq ineq, int value, ZincLiteral equiv) {
+    public ZCSum(ZincLiteral[] lits, int[] coefs, Ineq ineq, int value,
+            ZincLiteral equiv) {
         super(equiv, lits);
         _coeffs = Arrays.copyOf(coefs, coefs.length);
         _sum = value;
@@ -65,17 +67,44 @@ public class ZCSum extends ZincCollectionConstraint {
     }
 
     public ZCSum(ZincLiteral[] lits, Ineq ineq, int value, ZincLiteral equiv) {
-        super(equiv,lits);
+        super(equiv, lits);
         _coeffs = new int[lits.length];
         Arrays.fill(_coeffs, 1);
         _sum = value;
         _cmp = ineq;
     }
 
-    public ZCSum(Collection<ZincLiteral> lits, Ineq ineq, int value, ZincLiteral equiv) {
-        this(lits.toArray(new ZincLiteral[lits.size()]),ineq,value,equiv);
+    public ZCSum(Collection<ZincLiteral> lits, Ineq ineq, int value,
+            ZincLiteral equiv) {
+        this(lits.toArray(new ZincLiteral[lits.size()]), ineq, value, equiv);
     }
-    
-    
+
+    @Override
+    public void print(PrintWriter out) {
+        if (_cmp == Ineq.EQ) {
+            out.print("int_lin_eq");
+        } else {
+            out.print("int_lin_le");
+        }
+        if (_equivTo != null) {
+            out.print("_reif");
+        }
+        out.print("(");
+        for (int i = 0; i < _lits.length; ++i) {
+            out.print(i == 0 ? "{" : ",");
+            out.print(_cmp == Ineq.GEQ ? -_coeffs[i] : _coeffs[i]);
+        }
+        for (int i = 0; i < _lits.length; ++i) {
+            out.print(i == 0 ? "}, {" : ",");
+            _lits[i].printI(out);
+        }
+        out.print("}, ");
+        out.print(_cmp == Ineq.GEQ ? -_sum : _sum);
+        if (_equivTo != null) {
+            out.print(", ");
+            _equivTo.printB(out);
+        }
+        out.println(");");
+    }
 
 }

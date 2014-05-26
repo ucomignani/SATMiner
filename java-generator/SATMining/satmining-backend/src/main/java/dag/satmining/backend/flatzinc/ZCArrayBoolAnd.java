@@ -43,11 +43,12 @@ exception statement from your version.
  */
 package dag.satmining.backend.flatzinc;
 
+import java.io.PrintWriter;
 import java.util.Collection;
 
 /**
  * @author ecoquery
- *
+ * 
  */
 public class ZCArrayBoolAnd extends ZincCollectionConstraint {
 
@@ -65,6 +66,11 @@ public class ZCArrayBoolAnd extends ZincCollectionConstraint {
      */
     public ZCArrayBoolAnd(ZincLiteral equiv, Collection<ZincLiteral> lits) {
         super(equiv, lits);
+    }
+
+    @Override
+    public void print(PrintWriter out) {
+        printWithEq(out,"array_bool_and");
     }
 
 }

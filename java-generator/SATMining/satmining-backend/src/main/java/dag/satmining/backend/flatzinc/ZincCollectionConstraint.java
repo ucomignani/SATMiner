@@ -43,8 +43,11 @@ exception statement from your version.
  */
 package dag.satmining.backend.flatzinc;
 
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collection;
+
+import static dag.satmining.backend.flatzinc.ZincBackend.TRUE;
 
 /**
  * @author ecoquery
@@ -63,6 +66,40 @@ public abstract class ZincCollectionConstraint implements ZincConstraint {
     public ZincCollectionConstraint(ZincLiteral equiv, Collection<ZincLiteral> lits) {
         this._lits = lits.toArray(new ZincLiteral[lits.size()]);
         this._equivTo = equiv;
+    }
+    
+    protected void printLitsAsArray(PrintWriter out) {
+        out.print("{");
+        _lits[0].printB(out);
+        for(int i = 1; i < _lits.length; ++i) {
+            out.print(", ");
+            _lits[i].printB(out);
+        }
+        out.print("}");
+    }
+    
+    protected void printEQLit(PrintWriter out) {
+        if (_equivTo == null) {
+            out.print(TRUE);
+        } else {
+            _equivTo.printB(out);
+        }
+    }
+    
+    protected void printWithEq(PrintWriter out, String constraintName) {
+        out.print(constraintName);
+        out.print("(");
+        printLitsAsArray(out);
+        out.print(", ");
+        printEQLit(out);
+        out.println(");");
+    }
+
+    protected void printNoEq(PrintWriter out, String constraintName) {
+        out.print(constraintName);
+        out.print("(");
+        printLitsAsArray(out);
+        out.println(");");
     }
 
 }
