@@ -1,5 +1,5 @@
-/* ReifiedWeightedPBBuilder.java
-
+/* WeightedPBBuilder.java
+ 
    Copyright (C) 2014 Emmanuel Coquery.
 
 This file is part of SATMiner
@@ -37,40 +37,34 @@ obligated to do so.  If you do not wish to do so, delete this
 exception statement from your version.
 
  */
-
-/**
- * 
- */
 package dag.satmining.constraints;
 
 import dag.satmining.NoSolutionException;
 
 /**
- * Defines the reified weighted inequalities
+ * Defines weighted pseudo boolean inequalities.
  * 
  * @author ecoquery
  * 
+ * @param <L>
+ *            the type of literals
  */
-public interface ReifiedWeightedPBBuilder<L extends Literal<L>> extends
-        WeightedPBBuilder<L>, PBBuilder<L> {
-
+public interface WeightedPBBuilder<L extends Literal<L>> extends
+        MinimalClauseBuilder<L> {
     /**
-     * Adds a reified weighted pseudo boolean inequality.
+     * Adds a weighted inequality to the problem.
      * 
      * @param lits
-     *            the literals to sum
+     *            the array of literals to sum
      * @param coefs
      *            the coefficient of each literal
      * @param ineq
-     *            the direction of the inequality
+     *            the direction on the inequality
      * @param value
-     *            the value to comapre the sum to
-     * @param equivTo
-     *            the literal equivalent to the inequality's satisfaction
+     *            the value to compare the sum to
      * @throws NoSolutionException
-     *             if the framework detects the unsatisfiability of the problem
+     *             if the framework detects unsatisfiability
      */
-    void addReifiedWPBInequality(L[] lits, int[] coefs, Ineq ineq, int value,
-            L equivTo) throws NoSolutionException;
-
+    void addWPBInequality(L[] lits, int[] coefs, Ineq ineq, int value)
+            throws NoSolutionException;
 }

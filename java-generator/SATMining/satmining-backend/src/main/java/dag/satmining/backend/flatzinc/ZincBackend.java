@@ -52,7 +52,7 @@ import java.util.List;
 import dag.satmining.NoSolutionException;
 import dag.satmining.constraints.Ineq;
 import dag.satmining.constraints.ReifiedWeightedPBBuilder;
-import dag.satmining.constraints.impl.PBReifier.WeightedPBBuilder;
+import dag.satmining.constraints.WeightedPBBuilder;
 import dag.satmining.output.SolutionWriter;
 
 /**
