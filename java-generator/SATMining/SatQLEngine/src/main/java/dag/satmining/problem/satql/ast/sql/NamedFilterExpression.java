@@ -22,7 +22,7 @@ public class NamedFilterExpression  implements FromExpression {
     public void buildSQLQueryNoName(StringBuilder output) {
         _expr.buildSQLQueryNoName(output);
     }
-
+    
     @Override
     public void buildSQLQuery(StringBuilder output) {
         _expr.buildSQLQueryNoName(output);

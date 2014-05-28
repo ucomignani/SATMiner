@@ -38,7 +38,7 @@ exception statement from your version. */
 
 package dag.satmining.problem.satql.ast.sql;
 
-public class RAWSQLQuery extends RAWSQL implements FromExpression {
+public class RAWSQLQuery extends RAWSQL implements FromExpression, QuantifierExpression {
 
     public RAWSQLQuery(String expression) {
         super(expression);
@@ -52,5 +52,9 @@ public class RAWSQLQuery extends RAWSQL implements FromExpression {
     public void buildSQLQueryNoName(StringBuilder output) {
         buildSQLQuery(output);
     }
-
+    
+    @Override
+    public void buildSQLQuery(StringBuilder output, StringBuilder filter) {
+        buildSQLQuery(output,filter);
+    }
 }

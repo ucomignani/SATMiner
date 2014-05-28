@@ -49,4 +49,5 @@ package dag.satmining.problem.satql.ast.sql;
 public interface SQLRenderer {
 
     void buildSQLQuery(StringBuilder output);
+
 }

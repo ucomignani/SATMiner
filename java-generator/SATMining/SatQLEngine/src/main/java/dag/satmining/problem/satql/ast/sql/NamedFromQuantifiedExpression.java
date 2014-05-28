@@ -2,15 +2,15 @@ package dag.satmining.problem.satql.ast.sql;
 
 import java.util.List;
 
-public class NamedFromQuantifiedExpression implements FromExpression {
+public class NamedFromQuantifiedExpression implements QuantifierExpression, FromExpression {
 	
 	    private final String _name;
-	    private final FromExpression _quant;
+	    private final QuantifierExpression _quant;
 	    private final FromExpression _expr;
 	    private final FromExpression _filter;
 	    private final boolean _isFirstQuantifier; //permet de gérer un WHERE sur le premier quantificateur
 	    
-	    public NamedFromQuantifiedExpression(String name, FromExpression quant, List<NamedFromExpression> _queries, FromExpression filter, boolean isFirstQuantifier) {
+	    public NamedFromQuantifiedExpression(String name, QuantifierExpression quant, List<NamedFromExpression> _queries, FromExpression filter, boolean isFirstQuantifier) {
 	    	this._name = name;
 	        this._quant = quant;
 	        this._expr = extractQuery(name, _queries);
@@ -31,7 +31,7 @@ public class NamedFromQuantifiedExpression implements FromExpression {
 	    	return null;
 	    }
 
-	    public FromExpression getQuant() {
+	    public QuantifierExpression getQuant() {
 	        return _quant;
 	    }
 	    
@@ -52,9 +52,15 @@ public class NamedFromQuantifiedExpression implements FromExpression {
 	    public void buildSQLQueryNoName(StringBuilder output) {
 	        _quant.buildSQLQueryNoName(output);
 	    }
-
+	   	
 	    @Override
 	    public void buildSQLQuery(StringBuilder output) {
+	    	
+	    }
+	    
+	    @Override
+	    public void buildSQLQuery(StringBuilder output, StringBuilder filter) {
+
 	    	if(this._isFirstQuantifier){ //FROM
 	    		output.append("(select");
 	    		
@@ -68,7 +74,6 @@ public class NamedFromQuantifiedExpression implements FromExpression {
 	    		output.append(" where ");
 	            _quant.buildSQLQueryNoName(output);
 	            output.append(")");
-	            //_filter.buildSQLQueryNoName(output);
 	            
 	            if (_name != null) {
 	                output.append(" ");
@@ -94,7 +99,10 @@ public class NamedFromQuantifiedExpression implements FromExpression {
 	            }
 	            output.append(" ON ");
 	            _quant.buildSQLQueryNoName(output);
+	            output.append(" AND " + filter);
 	    	}
+	    	_filter.buildSQLQueryNoName(filter);
+
 	    }
 
 }

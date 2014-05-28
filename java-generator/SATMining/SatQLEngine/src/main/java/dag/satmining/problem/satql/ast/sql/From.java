@@ -78,20 +78,16 @@ public class From implements Iterable<NamedFromExpression>, SQLRenderer {
         _queries.add(new NamedFromExpression(name, query));
     }
  
-    public void addQuantifierName(FromExpression origQuantifierQuery, FromExpression origFilterQuery, String name, boolean isFirstQuantifier) {
-    	FromExpression quantifierQuery = origQuantifierQuery;
+    public void addQuantifierName(QuantifierExpression origQuantifierQuery, FromExpression origFilterQuery, String name, boolean isFirstQuantifier) {
+    	QuantifierExpression quantifierQuery = origQuantifierQuery;
     	FromExpression filterQuery = origFilterQuery;
         if (quantifierQuery == null) {
-            if (_isMiningFrom) {
                 if (_quantifiers.isEmpty()) {
                     throw new IllegalArgumentException("Need at least one tuple quantifier");
                 } else {
                 	quantifierQuery = _quantifiers.get(_quantifiers.size() - 1);
                 }
-            } else {
-            	quantifierQuery = new Relation(name);
             }
-        }
         _quantifiers.add(new NamedFromQuantifiedExpression(name, quantifierQuery, _queries, filterQuery, isFirstQuantifier));
     }
     
@@ -106,16 +102,18 @@ public class From implements Iterable<NamedFromExpression>, SQLRenderer {
      
     @Override
     public void buildSQLQuery(StringBuilder output) {
+    	StringBuilder tupleFilter = new StringBuilder();
+    	
         boolean first = true;
         for (NamedFromQuantifiedExpression expr : _quantifiers) {
             if (first) {
                 output.append("FROM ");
-                expr.buildSQLQuery(output);
+                expr.buildSQLQuery(output, tupleFilter);
                 
                 first = false;
             } else {
                 output.append(" LEFT OUTER JOIN ");
-                expr.buildSQLQuery(output);
+                expr.buildSQLQuery(output, tupleFilter);
             }
         }      
     }
