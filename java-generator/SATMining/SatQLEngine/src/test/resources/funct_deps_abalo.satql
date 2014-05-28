@@ -1,5 +1,9 @@
 FIND X,Y OVER sex,length,diameter,height,whole_weight,meat_weight,viscera_weight,shell_weight,rings
 SCOPE abalo t1, t2
+
+FORALL t1 WHERE {1=1}:
+ATLEAST 2 PERCENT OF t2:
+
 SUCH THAT 
 (NOT (FORALL $A in X: {t1.$A = t2.$A}) OR (FORALL $B IN Y: {t1.$B = t2.$B}))
 AND EMPTY INTERSECTION (X,Y)

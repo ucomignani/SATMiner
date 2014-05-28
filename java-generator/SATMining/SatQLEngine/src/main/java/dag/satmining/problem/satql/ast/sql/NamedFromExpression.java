@@ -60,10 +60,11 @@ public class NamedFromExpression implements FromExpression {
     public FromExpression getExpr() {
         return _expr;
     }
-
+    
     public String getName() {
         return _name;
     }
+    
 
     @Override
     public void buildSQLQueryNoName(StringBuilder output) {

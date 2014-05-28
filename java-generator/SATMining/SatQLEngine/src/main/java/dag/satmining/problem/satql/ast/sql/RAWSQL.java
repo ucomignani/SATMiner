@@ -8,6 +8,7 @@ public abstract class RAWSQL implements SQLRenderer {
         if (fromParsing) {
             parsed = parsed.trim();
             // remove first ( '{' ) and last ( '}' ) characters
+            System.out.println("remove {}");
             parsed = parsed.substring(1, parsed.length() - 1);
             parsed = parsed.replace("{{", "{").replace("}}", "}");
         }

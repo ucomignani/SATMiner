@@ -51,6 +51,7 @@ import java.util.*;
 public class From implements Iterable<NamedFromExpression>, SQLRenderer {
 
     private List<NamedFromExpression> _queries = new ArrayList<NamedFromExpression>();
+    private List<NamedFromQuantifiedExpression> _quantifiers = new ArrayList<NamedFromQuantifiedExpression>();
     private boolean _isMiningFrom;
 
     public From(boolean isMiningFrom) {
@@ -76,7 +77,24 @@ public class From implements Iterable<NamedFromExpression>, SQLRenderer {
         }
         _queries.add(new NamedFromExpression(name, query));
     }
-
+ 
+    public void addQuantifierName(FromExpression origQuantifierQuery, FromExpression origFilterQuery, String name, boolean isFirstQuantifier) {
+    	FromExpression quantifierQuery = origQuantifierQuery;
+    	FromExpression filterQuery = origFilterQuery;
+        if (quantifierQuery == null) {
+            if (_isMiningFrom) {
+                if (_quantifiers.isEmpty()) {
+                    throw new IllegalArgumentException("Need at least one tuple quantifier");
+                } else {
+                	quantifierQuery = _quantifiers.get(_quantifiers.size() - 1);
+                }
+            } else {
+            	quantifierQuery = new Relation(name);
+            }
+        }
+        _quantifiers.add(new NamedFromQuantifiedExpression(name, quantifierQuery, _queries, filterQuery, isFirstQuantifier));
+    }
+    
     public List<NamedFromExpression> getFromList() {
         return _queries;
     }
@@ -85,18 +103,20 @@ public class From implements Iterable<NamedFromExpression>, SQLRenderer {
     public Iterator<NamedFromExpression> iterator() {
         return _queries.iterator();
     }
-
+     
     @Override
     public void buildSQLQuery(StringBuilder output) {
-        output.append("FROM ");
         boolean first = true;
-        for (NamedFromExpression expr : _queries) {
+        for (NamedFromQuantifiedExpression expr : _quantifiers) {
             if (first) {
+                output.append("FROM ");
+                expr.buildSQLQuery(output);
+                
                 first = false;
             } else {
-                output.append(", ");
+                output.append(" LEFT OUTER JOIN ");
+                expr.buildSQLQuery(output);
             }
-            expr.buildSQLQuery(output);
-        }
+        }      
     }
 }

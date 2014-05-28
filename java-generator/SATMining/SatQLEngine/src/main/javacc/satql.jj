@@ -74,36 +74,27 @@ TOKEN [ IGNORE_CASE ]: /* KEYWORDS */
 | < NOT: "NOT">
 | < TRUE: "TRUE" >
 | < EQ: "=" >
-//| < LT: "<" >
-//| < GT: ">" >
-//| < DOT: "." >
 | < FORALL: "F"|"FORALL" >
 | < EXISTS: "E"|"EXISTS" >
-// | < FROM: "FROM" >
+| < FORMULA: "FORMULA" >
+| < ATLEAST: "AL"|"ATLEAST" >
+| < PERCENT: "%"|"PERCENT" >
+| < OF: "OF" >
 | < SCOPE: "SCOPE" > 
 | < WHERE: "WHERE" >
-// | < SELECT: "SELECT" >
 | < FIND: "FIND" >
 | < OVER: "OVER" >
 | < SUCH: "SUCH" >
 | < THAT: "THAT" >
-// | < AS: "AS" >
 | < EMPTY: "EMPTY" >
 | < INTERSECTION: "INTERSECTION" >
 | < WITH: "WITH" >
 | < SINGLETON: "SINGLETON" >
-// | < CASE: "CASE" >
-// | < WHEN: "WHEN" >
 | < THEN: "THEN" >
-// | < ELSE: "ELSE" >
-// | < END: "END" >
 | < MINIMIZE: "MINIMIZE" >
 | < MAXIMIZE: "MAXIMIZE" >
 | < LIMIT: "LIMIT" >
 | < IF: "IF" >
-// | < LIKE: "LIKE" >
-// | < PLUS: "+" >
-// | < CONCAT: "||" >
 | < IN: "IN" >
 | < COLON: ":" >
 }
@@ -124,6 +115,7 @@ TOKEN : /* ATTRIBUTE IDENTIFIERS */
 } 
 TOKEN : /* RAW SQL STATEMENT */{  < RAW_SQL_STATEMENT: "{" (~["{","}"] | "{{" | "}}" )* "}" >}
 
+
 /** Mining Statement. */
 
 MiningQuery<L> MiningQuery():
@@ -142,7 +134,9 @@ MiningQuery<L> MiningQuery():
   ("," t=<IDENTIFIER> { query.addAttribute(t.image); } )*
   <SCOPE> FromExpr(query.getFrom()) 
   ( "," FromExpr(query.getFrom()) )*
-  (where=WhereClause() {query.setWhere(where);})?
+
+  TupleQuantifierExpr(query.getFrom(),true)
+  (TupleQuantifierExpr(query.getFrom(),false))*
   <SUCH> <THAT> expr=MiningExpr(query.getDict()) 
   { query.setSuchThat(expr); }
   ((  (<MINIMIZE> t=<IDENTIFIER> { query.minimize(t.image); } )
@@ -229,7 +223,6 @@ MiningExpression AtomicExpr(ASTDictionnary dict) :
 }
 {
   (<TRUE> {return dict.tt();})
-// | LOOKAHEAD(2) (a=MiningVal(dict) (tOp=<LIKE>|tOp=<EQ>|tOp=<GT>|tOp=<LT>) b=MiningVal(dict) {return dict.op(tOp.image,a,b);})
 | (t1=< RAW_SQL_STATEMENT > {return dict.rawSQLDelegate(t1.image);})
 | ((t1=<ATT_IDENTIFIER>|t1=< IDENTIFIER >) <EQ> (t2=<ATT_IDENTIFIER>|t2=< IDENTIFIER >) {return dict.attCmp(t1.image,t2.image);})
 | (e=Singleton(dict) {return e;})
@@ -256,15 +249,6 @@ MiningExpression EmptyIntersection(ASTDictionnary dict) :
   {return Sugar.emptyIntersection(dict,sch);}
 }
 
-//MiningValue MiningVal(ASTDictionnary dict) ://{ MiningValue a; }//{//  (a=MiningConstantValue(dict) {return a;})//| (a=MiningTupleValue(dict) {return a;})//}////MiningValue MiningConstantValue(ASTDictionnary dict) ://{ Token t; }//{//  t=<LITERAL> {return MiningValue.cst(t.image);}//}////MiningValue MiningTupleValue(ASTDictionnary dict) ://{ //  Token t; //  String tTupleName, tAttName;//}//{//  t=<IDENTIFIER> {tTupleName = t.image;}//  <DOT>//  t=<IDENTIFIER> //  {//    tAttName = t.image;//    try {//      return dict.mkTupleAttributeValue(tTupleName,tAttName);//    } catch (IllegalArgumentException e) {//      throw new ParseException(e.getMessage());//    }//  }//}
-
-//Query SQLQuery()://{//Select select;//From from = new From(false);//Where where;//}//{//    select=SelectClause() FromClause(from) where=WhereClause()//    { return new Query(select,from,where); }//}
-
-//Select SelectClause()://{ //  Select select; //  Token t = null;//  SQLValue v;//}//{//  <SELECT> {select = new Select();}//  SelectEntry(select) ("," SelectEntry(select))*//  { return select; }//}
-
-//void SelectEntry(Select select)://{ //  Token t = null;//  SQLValue v;//}//{//    ( v=NonBooleanSQLValue() ( <AS> t=<IDENTIFIER> )? { select.addEntry(v,t==null?null:t.image); } )//  | ( "*" { select.addStar(); } )//}
-
-//void FromClause(From from)://{  //}//{//  <FROM> FromExpr(from) //  ( "," FromExpr(from) )*//}
 
 void FromExpr(From from):
 {
@@ -281,17 +265,63 @@ Token t, t2 = null;
     } } )
 }
 
-Where WhereClause():
-{ SQLBooleanValue c; }
-{
-  <WHERE> c=SQLBooleanValue()
-  { return new Where(c); }
+void TupleQuantifierExpr(From from, boolean firstQuantifier):
+{ 
+  Token t,t2,t3 = null;
+  Token t4 = null;
 }
+{ 
+    (<FORALL> t=<IDENTIFIER> (<WHERE> t3=< RAW_SQL_STATEMENT >)? <COLON> (t4=< RAW_SQL_STATEMENT > < AND >)?
+    { if (t3==null) { 
+		if (t4==null) {
+        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),t.image, new RAWSQLQuery("{0=0}",true), firstQuantifier);
+     	} else {
+        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),t.image, new RAWSQLQuery(t4.image,true), firstQuantifier);
+    	}
+    } else {
+		if (t4==null) {
+        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),t.image, new RAWSQLQuery("{0=0}",true), firstQuantifier);
+     	} else {
+        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),t.image, new RAWSQLQuery(t4.image,true), firstQuantifier);
+    	}
+    }})
+| ( <ATLEAST> t=<LITERAL>(
 
-//SQLValue NonBooleanSQLValue()://{ SQLValue v; }//{//  v=OpNonBooleanSQLValue() {return v;}//}
+	(<PERCENT> <OF> t2=<IDENTIFIER> (<WHERE> t3=< RAW_SQL_STATEMENT >)? <COLON> (t4=< RAW_SQL_STATEMENT > < AND >)?
+    { if (t3==null) { 
+		if (t4==null) {
+        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),t2.image, new RAWSQLQuery("{0=0}",true), firstQuantifier);
+     	} else {
+        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),t2.image, new RAWSQLQuery(t4.image,true), firstQuantifier);
+    	}
+    } else {
+		if (t4==null) {
+        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),t2.image, new RAWSQLQuery("{0=0}",true), firstQuantifier);
+     	} else {
+        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),t2.image, new RAWSQLQuery(t4.image,true), firstQuantifier);
+    	}
+    }})
 
-//SQLValue OpNonBooleanSQLValue()://{ SQLValue v1,v2; SQLBinOpValue.Op op; }//{//  (//    v1=AtomicNonBooleanSQLValue()//  ((  (< PLUS > { op=SQLBinOpValue.Op.Plus;})//    | (< CONCAT > { op=SQLBinOpValue.Op.Concat; }))//   v2=OpNonBooleanSQLValue()//   { v1=new SQLBinOpValue(op,v1,v2); }//  )?//  )//  {//    return v1;//  }//}        
+	| (<OF> t2=<IDENTIFIER> (<WHERE> t3=< RAW_SQL_STATEMENT >)? <COLON> (t4=< RAW_SQL_STATEMENT > < AND >)?
+    { if (t3==null) { 
+		if (t4==null) {
+        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),t2.image, new RAWSQLQuery("{0=0}",true), firstQuantifier);
+     	} else {
+        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),t2.image, new RAWSQLQuery(t4.image,true), firstQuantifier);
+    	}
+    } else {
+		if (t4==null) {
+        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),t2.image, new RAWSQLQuery("{0=0}",true), firstQuantifier);
+     	} else {
+        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),t2.image, new RAWSQLQuery(t4.image,true), firstQuantifier);
+    	}
+    }})
+    )
+    )  
+ }
 
+//Where WhereClause()://{ SQLBooleanValue c; }//{//  <WHERE> c=SQLBooleanValue()//  { return new Where(c); }//}
+      
 SQLBooleanValue SQLBooleanValue():
 { SQLBooleanValue v;}
 {
@@ -318,21 +348,10 @@ SQLBooleanValue SQLAnd():
 
 SQLBooleanValue AtomicSQLBooleanValue():
 {
-//  SQLValue a, b = null;
   SQLBooleanValue v = null;
   Token t;
 }
 {
-//  ( (a=NonBooleanSQLValue() ) //    ( <EQ> b=NonBooleanSQLValue() { return Comparison.eq(a,b); } //    | <LT> b=NonBooleanSQLValue() { return Comparison.lt(a,b); }//    | <LIKE> b=NonBooleanSQLValue() { return Comparison.like(a,b); }//    ) )
   ( t=< RAW_SQL_STATEMENT > { return new RAWSQLAtom(t.image,true);} )
 | ( "(" v=SQLBooleanValue() ")" { return v; } )
 }
-
-//SQLValue AtomicNonBooleanSQLValue()://{ SQLValue v; }//{//( (v=SQLConstant()) //| (v=TupleAccess()) //| (v=CaseNoValue())//// | ( "(" v=NonBooleanSQLValue()) ")" ) //)//  { return v; }//}
-
-//SQLValue SQLConstant()://{ Token t; }//{//  t=<LITERAL>//  { return new SQLConstant(t.image); }//}
-
-//SQLValue TupleAccess()://{ Token t, t2; }//{//  t=<IDENTIFIER> <DOT> t2=<IDENTIFIER> //  { return new TupleAccess(t.image,t2.image); }//}
-
-//SQLValue CaseNoValue()://{ //  CaseNoValue cnv; //  SQLBooleanValue test;//  SQLValue val;//}//{//  <CASE> { cnv = new CaseNoValue(); }//  (<WHEN> test=SQLBooleanValue() <THEN> val=NonBooleanSQLValue() {cnv.addWhen(test,val);} )+//  (<ELSE> val=NonBooleanSQLValue() {cnv.setElse(val);} )?//  <END>//  { return cnv; } //}
-

@@ -117,7 +117,7 @@ public class MiningQueryTest extends TestCase {
 					query.getPattern(sat4jHandler.getCurrentInterpretation()));
 			nbModels++;
 		}
-		assertEquals(64, nbModels);
+		assertEquals(123, nbModels);
 	}
 
     public void testFunctionnalDependenciesSSBFSingleAtt() throws ParseException,
@@ -140,7 +140,7 @@ public class MiningQueryTest extends TestCase {
                     query.getPattern(sat4jHandler.getCurrentInterpretation()));
             nbModels++;
         }
-        assertEquals(64, nbModels);
+        assertEquals(123, nbModels);
     }
 
 	public void testFunctionnalDependenciesIfThenSSBF() throws ParseException,
