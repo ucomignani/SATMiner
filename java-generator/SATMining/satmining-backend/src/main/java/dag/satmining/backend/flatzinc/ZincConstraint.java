@@ -1,4 +1,4 @@
-/* src/test/java/fr/liris/bd/dag/linestochars/AppTest.java
+/* ZincConstraint.java
 
    Copyright (C) 2014 Emmanuel Coquery.
 
@@ -34,43 +34,23 @@ module.  An independent module is a module which is not derived from
 or based on this library.  If you modify this library, you may extend
 this exception to your version of the library, but you are not
 obligated to do so.  If you do not wish to do so, delete this
-exception statement from your version. */
+exception statement from your version.
 
-package fr.liris.bd.dag.linestochars;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+ */
 
 /**
- * Unit test for simple App.
+ * 
  */
-public class AppTest 
-    extends TestCase
-{
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
-    }
+package dag.satmining.backend.flatzinc;
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
-    }
+import java.io.PrintWriter;
 
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
-    }
+/**
+ * @author ecoquery
+ * 
+ */
+public interface ZincConstraint {
+
+    void print(PrintWriter out);
+
 }

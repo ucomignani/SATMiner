@@ -1,4 +1,4 @@
-/* DataGenerator/src/main/java/fr/liris/bd/datagen/output/ScriptSQLOutput.java
+/* ZincCollectionConstraint.java
 
    Copyright (C) 2014 Emmanuel Coquery.
 
@@ -34,59 +34,72 @@ module.  An independent module is a module which is not derived from
 or based on this library.  If you modify this library, you may extend
 this exception to your version of the library, but you are not
 obligated to do so.  If you do not wish to do so, delete this
-exception statement from your version. */
+exception statement from your version.
 
-package fr.liris.bd.datagen.output;
+ */
 
-import java.io.PrintStream;
-import java.util.List;
+/**
+ * 
+ */
+package dag.satmining.backend.flatzinc;
 
-public class ScriptSQLOutput extends AbstractSQLOutput {
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.Collection;
 
+import static dag.satmining.backend.flatzinc.ZincBackend.TRUE;
 
-    private PrintStream _output;
-    
-    public ScriptSQLOutput(PrintStream output) {
-        this._output = output;
+/**
+ * @author ecoquery
+ *
+ */
+public abstract class ZincCollectionConstraint implements ZincConstraint {
+
+    protected final ZincLiteral[] _lits;
+    protected final ZincLiteral _equivTo;
+
+    public ZincCollectionConstraint(ZincLiteral equiv, ZincLiteral ...lits) {
+        this._lits = Arrays.copyOf(lits, lits.length);
+        this._equivTo = equiv;
     }
-
-    @Override
-    public void createTable() {
-        _output.print("CREATE TABLE ");
-        _output.print(_table);
-        _output.print("(");
-        boolean started = false;
-        for(ColumnSpec s : _specs) {
-            if (started) {
-                _output.print(", ");
-            } else {
-                started = true;
-            }
-            _output.print(s.sqlColumnDescription());
+    
+    public ZincCollectionConstraint(ZincLiteral equiv, Collection<ZincLiteral> lits) {
+        this._lits = lits.toArray(new ZincLiteral[lits.size()]);
+        this._equivTo = equiv;
+    }
+    
+    protected void printLitsAsArray(PrintWriter out) {
+        out.print("{");
+        _lits[0].printB(out);
+        for(int i = 1; i < _lits.length; ++i) {
+            out.print(", ");
+            _lits[i].printB(out);
         }
-        _output.println(");");
-        _output.flush();
+        out.print("}");
     }
     
-    public void execInsert(List<Object> data) {
-        _output.print("INSERT INTO ");
-        _output.print(_table);
-        _output.print(" VALUES(");
-        boolean started = false;
-        for(Object o : data) {
-            if (started) {
-                _output.print(", ");
-            } else {
-                started = true;
-            }
-            _output.print(o.toString());
+    protected void printEQLit(PrintWriter out) {
+        if (_equivTo == null) {
+            out.print(TRUE);
+        } else {
+            _equivTo.printB(out);
         }
-        _output.println(");");        
     }
     
-    @Override
-    public void close() {
-        _output.close();
+    protected void printWithEq(PrintWriter out, String constraintName) {
+        out.print(constraintName);
+        out.print("(");
+        printLitsAsArray(out);
+        out.print(", ");
+        printEQLit(out);
+        out.println(");");
+    }
+
+    protected void printNoEq(PrintWriter out, String constraintName) {
+        out.print(constraintName);
+        out.print("(");
+        printLitsAsArray(out);
+        out.println(");");
     }
 
 }

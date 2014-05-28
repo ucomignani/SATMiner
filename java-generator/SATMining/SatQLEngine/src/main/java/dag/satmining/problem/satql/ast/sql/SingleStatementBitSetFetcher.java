@@ -69,6 +69,9 @@ public class SingleStatementBitSetFetcher implements BitSetFetcher {
     private boolean _singleForced = false;
 
     public SingleStatementBitSetFetcher(Connection connection) {
+        if (connection == null) {
+            throw new IllegalArgumentException("null connection");
+        }
         this._connection = connection;
         this._finished = false;
     }

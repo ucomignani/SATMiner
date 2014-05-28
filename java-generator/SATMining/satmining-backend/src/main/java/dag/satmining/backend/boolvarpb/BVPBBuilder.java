@@ -60,10 +60,10 @@ import boolvar.utility.QuotaException;
 import dag.satmining.NoSolutionException;
 import dag.satmining.constraints.Ineq;
 import dag.satmining.constraints.PBBuilder;
+import dag.satmining.constraints.WeightedPBBuilder;
 import dag.satmining.constraints.impl.AbstractClauseBuilder;
 import dag.satmining.constraints.impl.OneTrue;
 import dag.satmining.constraints.impl.PBReifier;
-import dag.satmining.constraints.impl.PBReifier.WeightedPBBuilder;
 import dag.satmining.output.PatternConverter;
 import dag.satmining.output.SolutionWriter;
 

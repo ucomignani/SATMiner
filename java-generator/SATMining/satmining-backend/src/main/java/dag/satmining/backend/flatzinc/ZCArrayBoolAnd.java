@@ -1,4 +1,4 @@
-/* src/test/java/fr/liris/bd/dag/linestochars/AppTest.java
+/* ZCArrayBoolAnd.java
 
    Copyright (C) 2014 Emmanuel Coquery.
 
@@ -34,43 +34,43 @@ module.  An independent module is a module which is not derived from
 or based on this library.  If you modify this library, you may extend
 this exception to your version of the library, but you are not
 obligated to do so.  If you do not wish to do so, delete this
-exception statement from your version. */
+exception statement from your version.
 
-package fr.liris.bd.dag.linestochars;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+ */
 
 /**
- * Unit test for simple App.
+ * 
  */
-public class AppTest 
-    extends TestCase
-{
+package dag.satmining.backend.flatzinc;
+
+import java.io.PrintWriter;
+import java.util.Collection;
+
+/**
+ * @author ecoquery
+ * 
+ */
+public class ZCArrayBoolAnd extends ZincCollectionConstraint {
+
     /**
-     * Create the test case
-     *
-     * @param testName name of the test case
+     * @param equiv
+     * @param lits
      */
-    public AppTest( String testName )
-    {
-        super( testName );
+    public ZCArrayBoolAnd(ZincLiteral equiv, ZincLiteral... lits) {
+        super(equiv, lits);
     }
 
     /**
-     * @return the suite of tests being tested
+     * @param equiv
+     * @param lits
      */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
+    public ZCArrayBoolAnd(ZincLiteral equiv, Collection<ZincLiteral> lits) {
+        super(equiv, lits);
     }
 
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
+    @Override
+    public void print(PrintWriter out) {
+        printWithEq(out,"array_bool_and");
     }
+
 }

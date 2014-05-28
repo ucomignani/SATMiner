@@ -1,5 +1,5 @@
-/* src/test/java/fr/liris/bd/dag/linestochars/AppTest.java
-
+/* WeightedPBBuilder.java
+ 
    Copyright (C) 2014 Emmanuel Coquery.
 
 This file is part of SATMiner
@@ -34,43 +34,37 @@ module.  An independent module is a module which is not derived from
 or based on this library.  If you modify this library, you may extend
 this exception to your version of the library, but you are not
 obligated to do so.  If you do not wish to do so, delete this
-exception statement from your version. */
+exception statement from your version.
 
-package fr.liris.bd.dag.linestochars;
+ */
+package dag.satmining.constraints;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import dag.satmining.NoSolutionException;
 
 /**
- * Unit test for simple App.
+ * Defines weighted pseudo boolean inequalities.
+ * 
+ * @author ecoquery
+ * 
+ * @param <L>
+ *            the type of literals
  */
-public class AppTest 
-    extends TestCase
-{
+public interface WeightedPBBuilder<L extends Literal<L>> extends
+        MinimalClauseBuilder<L> {
     /**
-     * Create the test case
-     *
-     * @param testName name of the test case
+     * Adds a weighted inequality to the problem.
+     * 
+     * @param lits
+     *            the array of literals to sum
+     * @param coefs
+     *            the coefficient of each literal
+     * @param ineq
+     *            the direction on the inequality
+     * @param value
+     *            the value to compare the sum to
+     * @throws NoSolutionException
+     *             if the framework detects unsatisfiability
      */
-    public AppTest( String testName )
-    {
-        super( testName );
-    }
-
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
-    }
-
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
-    }
+    void addWPBInequality(L[] lits, int[] coefs, Ineq ineq, int value)
+            throws NoSolutionException;
 }

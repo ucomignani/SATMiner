@@ -41,7 +41,7 @@ package dag.satmining.constraints.impl;
 import dag.satmining.NoSolutionException;
 import dag.satmining.constraints.Ineq;
 import dag.satmining.constraints.Literal;
-import dag.satmining.constraints.MinimalClauseBuilder;
+import dag.satmining.constraints.WeightedPBBuilder;
 
 /**
  * Allows to add reified pb constraints from non reified ones
@@ -50,12 +50,6 @@ import dag.satmining.constraints.MinimalClauseBuilder;
  * 
  */
 public class PBReifier<L extends Literal<L>> {
-
-	public static interface WeightedPBBuilder<L extends Literal<L>> extends
-			MinimalClauseBuilder<L> {
-		void addWPBInequality(L[] lits, int[] coefs, Ineq ineq, int value)
-				throws NoSolutionException;
-	}
 
 	private WeightedPBBuilder<L> _builder;
 
