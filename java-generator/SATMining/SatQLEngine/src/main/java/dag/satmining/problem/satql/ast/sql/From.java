@@ -48,7 +48,7 @@ import java.util.*;
  *
  * @author ecoquery
  */
-public class From implements Iterable<NamedFromExpression>, SQLRenderer {
+public class From implements Iterable<NamedFromQuantifiedExpression>, SQLRenderer {
 
     private List<NamedFromExpression> _queries = new ArrayList<NamedFromExpression>();
     private List<NamedFromQuantifiedExpression> _quantifiers = new ArrayList<NamedFromQuantifiedExpression>();
@@ -81,6 +81,7 @@ public class From implements Iterable<NamedFromExpression>, SQLRenderer {
     public void addQuantifierName(QuantifierExpression origQuantifierQuery, FromExpression origFilterQuery, String name, boolean isFirstQuantifier) {
     	QuantifierExpression quantifierQuery = origQuantifierQuery;
     	FromExpression filterQuery = origFilterQuery;
+    	
         if (quantifierQuery == null) {
                 if (_quantifiers.isEmpty()) {
                     throw new IllegalArgumentException("Need at least one tuple quantifier");
@@ -88,18 +89,32 @@ public class From implements Iterable<NamedFromExpression>, SQLRenderer {
                 	quantifierQuery = _quantifiers.get(_quantifiers.size() - 1);
                 }
             }
+        
         _quantifiers.add(new NamedFromQuantifiedExpression(name, quantifierQuery, _queries, filterQuery, isFirstQuantifier));
     }
     
-    public List<NamedFromExpression> getFromList() {
-        return _queries;
+    public List<NamedFromQuantifiedExpression> getFromList() {
+        return _quantifiers;
+    }
+    
+    @Override
+    public Iterator<NamedFromQuantifiedExpression> iterator() {
+        return _quantifiers.iterator();
     }
 
-    @Override
-    public Iterator<NamedFromExpression> iterator() {
-        return _queries.iterator();
+    
+    public void buildSelectQuantifierSQLQuery(StringBuilder output){
+    	for (NamedFromQuantifiedExpression expr : _quantifiers) {
+    		if(expr != _quantifiers.get(_quantifiers.size() - 1)){
+    				output.append(" , " + expr.getName() + ".row_num as RN_"+ expr.getName());
+    		} else {
+    			output.append(" , (CASE WHEN ");
+    			expr.getFilter().buildSQLQueryNoName(output);
+    			output.append(" THEN " + expr.getName() +".row_num ELSE NULL END) as RN_" + expr.getName());
+    		}
+        }      
     }
-     
+    
     @Override
     public void buildSQLQuery(StringBuilder output) {
     	StringBuilder tupleFilter = new StringBuilder();

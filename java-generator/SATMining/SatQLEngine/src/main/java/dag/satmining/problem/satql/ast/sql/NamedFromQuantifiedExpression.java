@@ -55,7 +55,7 @@ public class NamedFromQuantifiedExpression implements QuantifierExpression, From
 	   	
 	    @Override
 	    public void buildSQLQuery(StringBuilder output) {
-	    	
+
 	    }
 	    
 	    @Override
@@ -97,10 +97,12 @@ public class NamedFromQuantifiedExpression implements QuantifierExpression, From
 	                output.append(" ");
 	                output.append(_name);
 	            }
-	            output.append(" ON ");
+	            output.append(" ON (");
 	            _quant.buildSQLQueryNoName(output);
 	            output.append(" AND " + filter);
+		    	output.append(")");
 	    	}
+	    	filter.setLength(0);
 	    	_filter.buildSQLQueryNoName(filter);
 
 	    }

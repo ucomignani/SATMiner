@@ -68,6 +68,8 @@ public class Query implements FromExpression {
     private void buildSQL(StringBuilder output) {
         _select.buildSQLQuery(output);
         output.append(" ");
+        _from.buildSelectQuantifierSQLQuery(output); //tuple row numbers and last quantifier filter
+        output.append(" ");
         _from.buildSQLQuery(output);
         output.append(" ");
         _where.buildSQLQuery(output);
