@@ -274,15 +274,15 @@ void TupleQuantifierExpr(From from, boolean firstQuantifier):
     (<FORALL> t=<IDENTIFIER> (<WHERE> t3=< RAW_SQL_STATEMENT >)? <COLON> (t4=< RAW_SQL_STATEMENT > < AND >)?
     { if (t3==null) { 
 		if (t4==null) {
-        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),t.image, new RAWSQLQuery("{0=0}",true), firstQuantifier);
+        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true), t.image,firstQuantifier);
      	} else {
-        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),t.image, new RAWSQLQuery(t4.image,true), firstQuantifier);
+        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t.image,firstQuantifier);
     	}
     } else {
 		if (t4==null) {
-        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),t.image, new RAWSQLQuery("{0=0}",true), firstQuantifier);
+        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t.image,firstQuantifier);
      	} else {
-        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),t.image, new RAWSQLQuery(t4.image,true), firstQuantifier);
+        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t.image,firstQuantifier);
     	}
     }})
 | ( <ATLEAST> t=<LITERAL>(
@@ -290,34 +290,34 @@ void TupleQuantifierExpr(From from, boolean firstQuantifier):
 	(<PERCENT> <OF> t2=<IDENTIFIER> (<WHERE> t3=< RAW_SQL_STATEMENT >)? <COLON> (t4=< RAW_SQL_STATEMENT > < AND >)?
     { if (t3==null) { 
 		if (t4==null) {
-        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),t2.image, new RAWSQLQuery("{0=0}",true), firstQuantifier);
+        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true),t2.image,firstQuantifier);
      	} else {
-        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),t2.image, new RAWSQLQuery(t4.image,true), firstQuantifier);
+        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t2.image,firstQuantifier);
     	}
     } else {
 		if (t4==null) {
-        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),t2.image, new RAWSQLQuery("{0=0}",true), firstQuantifier);
+        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t2.image,firstQuantifier);
      	} else {
-        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),t2.image, new RAWSQLQuery(t4.image,true), firstQuantifier);
+        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t2.image,firstQuantifier);
     	}
     }})
 
 	| (<OF> t2=<IDENTIFIER> (<WHERE> t3=< RAW_SQL_STATEMENT >)? <COLON> (t4=< RAW_SQL_STATEMENT > < AND >)?
     { if (t3==null) { 
 		if (t4==null) {
-        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),t2.image, new RAWSQLQuery("{0=0}",true), firstQuantifier);
+        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true),t2.image,firstQuantifier);
      	} else {
-        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),t2.image, new RAWSQLQuery(t4.image,true), firstQuantifier);
+        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t2.image,firstQuantifier);
     	}
     } else {
 		if (t4==null) {
-        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),t2.image, new RAWSQLQuery("{0=0}",true), firstQuantifier);
+        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t2.image,firstQuantifier);
      	} else {
-        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),t2.image, new RAWSQLQuery(t4.image,true), firstQuantifier);
+        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t2.image,firstQuantifier);
     	}
     }})
     )
-    )  
+    ) 
  }
 
 //Where WhereClause()://{ SQLBooleanValue c; }//{//  <WHERE> c=SQLBooleanValue()//  { return new Where(c); }//}

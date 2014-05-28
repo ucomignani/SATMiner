@@ -68,6 +68,7 @@ public class NamedFromQuantifiedExpression implements FromExpression {
 	    		output.append(" where ");
 	            _quant.buildSQLQueryNoName(output);
 	            output.append(")");
+	            //_filter.buildSQLQueryNoName(output);
 	            
 	            if (_name != null) {
 	                output.append(" ");
@@ -85,6 +86,7 @@ public class NamedFromQuantifiedExpression implements FromExpression {
 	    		output.append("*, ROW_NUMBER() OVER() as row_num from ");
 	    		_expr.buildSQLQuery(output);
 	            output.append(")");
+
 	            
 	            if (_name != null) {
 	                output.append(" ");
