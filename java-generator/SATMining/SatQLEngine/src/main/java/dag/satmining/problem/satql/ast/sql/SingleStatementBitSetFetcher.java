@@ -42,7 +42,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.BitSet;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -63,8 +62,9 @@ public class SingleStatementBitSetFetcher implements BitSetFetcher {
     private Select _select;
     private ResultSet _cursor;
     private boolean _finished;
-    private BitSet _current;
+    private BitSetWithRowNumbers _current;
     private int _nbCond;
+    private int _nbQuantifiers;
     private boolean _singleAttribute = true;
     private boolean _singleForced = false;
 
@@ -103,18 +103,18 @@ public class SingleStatementBitSetFetcher implements BitSetFetcher {
     }
 
     @Override
-    public BitSet getBitSet() throws SQLException {
+    public BitSetWithRowNumbers getBitSet() throws SQLException {
         if (_current == null) {
-            if (_singleAttribute) {
-                _current = fromSingle(_cursor, _nbCond);
-            } else {
-                _current = fromMultiple(_cursor, _nbCond);
-            }
+          //  if (_singleAttribute) {
+          //     _current = fromSingle(_cursor, _nbCond);
+          //} else {
+                _current = fromMultiple(_cursor, _nbCond, _nbQuantifiers);
+          //}
         }
         return _current;
     }
 
-    private static BitSet fromSingle(ResultSet rs, int nbCond)
+    /*private static BitSet fromSingle(ResultSet rs, int nbCond)
             throws SQLException {
         BitSet res = new BitSet();
         String data = rs.getString(1);
@@ -124,17 +124,22 @@ public class SingleStatementBitSetFetcher implements BitSetFetcher {
             }
         }
         return res;
-    }
+    }*/
 
-    private static BitSet fromMultiple(ResultSet rs, int nbCond)
+    private static BitSetWithRowNumbers fromMultiple(ResultSet rs, int nbCond, int nbQuantifiers)
             throws SQLException {
-        BitSet res = new BitSet();
+        BitSetWithRowNumbers res = new BitSetWithRowNumbers();
+        int nbAttTot = nbCond + nbQuantifiers;
+        
         for (int i = 0; i < nbCond; ++i) {
             if (rs.getBoolean(i + 1)) {
-                res.set(i);
-                ;
+                res.getBitSet().set(i);
             }
         }
+        for (int j = nbCond; j < nbAttTot; ++j) {
+        	res.getRowNumbersList().add(rs.getInt(j + 1));
+        }
+        
         return res;
     }
 
@@ -189,6 +194,11 @@ public class SingleStatementBitSetFetcher implements BitSetFetcher {
         return result;
     }
 
+    @Override
+    public void setNbQuantifiers(int nbQuantifiers) {
+    	_nbQuantifiers = nbQuantifiers;
+    }
+    
     @Override
     public void setFrom(From from) {
         _from = from;

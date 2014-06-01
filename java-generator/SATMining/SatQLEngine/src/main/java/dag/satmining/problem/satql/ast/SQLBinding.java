@@ -62,6 +62,7 @@ import dag.satmining.problem.satql.ast.intermediate.BFormula;
 import dag.satmining.problem.satql.ast.intermediate.BNeg;
 import dag.satmining.problem.satql.ast.intermediate.LiteralOrValue;
 import dag.satmining.problem.satql.ast.sql.BitSetFetcher;
+import dag.satmining.problem.satql.ast.sql.BitSetWithRowNumbers;
 import dag.satmining.problem.satql.ast.sql.SQLBooleanValue;
 
 /**
@@ -78,6 +79,8 @@ public class SQLBinding {
     private final List<SQLBooleanValue> _selectStatements = new ArrayList<SQLBooleanValue>();
     private final ASTDictionnary _dict;
     private final boolean _doCache;
+	private final QuantifierMap _quantifierMap = new QuantifierMap();
+
 
     public SQLBinding(
             MiningExpression e,
@@ -160,8 +163,14 @@ public class SQLBinding {
         int nbTupleComb = 0;
         BFormula.cacheHits = 0;
         int nbCachedTuples = 0;
+                
         while (bsr.next()) { // for all tuple combination
-            BitSet data = bsr.getBitSet();
+            BitSetWithRowNumbers bswrn = bsr.getBitSet();
+        	BitSet data = bswrn.getBitSet();
+        	
+        	_quantifierMap.addBitSet(1, bswrn);
+        	LOG.debug("taille niveau 1 hashmap: " + _quantifierMap.getQuantifierMap().size());
+        	
             nbTupleComb++;
             int oldCacheHits = BFormula.cacheHits;
             for (cfg = 0; cfg < nbConfigs; cfg++) {

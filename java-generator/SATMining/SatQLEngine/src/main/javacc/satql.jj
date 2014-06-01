@@ -274,15 +274,15 @@ void TupleQuantifierExpr(From from, boolean firstQuantifier):
     (<FORALL> t=<IDENTIFIER> (<WHERE> t3=< RAW_SQL_STATEMENT >)? <COLON> (t4=< RAW_SQL_STATEMENT > < AND >)?
     { if (t3==null) { 
 		if (t4==null) {
-        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true), t.image,firstQuantifier);
+        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true), t.image,firstQuantifier,new Integer("-1"),false);
      	} else {
-        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t.image,firstQuantifier);
+        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t.image,firstQuantifier,new Integer("-1"),false);
     	}
     } else {
 		if (t4==null) {
-        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t.image,firstQuantifier);
+        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t.image,firstQuantifier,new Integer("-1"),false);
      	} else {
-        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t.image,firstQuantifier);
+        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t.image,firstQuantifier,new Integer("-1"),false);
     	}
     }})
 | ( <ATLEAST> t=<LITERAL>(
@@ -290,30 +290,30 @@ void TupleQuantifierExpr(From from, boolean firstQuantifier):
 	(<PERCENT> <OF> t2=<IDENTIFIER> (<WHERE> t3=< RAW_SQL_STATEMENT >)? <COLON> (t4=< RAW_SQL_STATEMENT > < AND >)?
     { if (t3==null) { 
 		if (t4==null) {
-        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true),t2.image,firstQuantifier);
+        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true),t2.image,firstQuantifier,new Integer(t.image),true);
      	} else {
-        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t2.image,firstQuantifier);
+        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t2.image,firstQuantifier,new Integer(t.image),true);
     	}
     } else {
 		if (t4==null) {
-        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t2.image,firstQuantifier);
+        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t2.image,firstQuantifier,new Integer(t.image),true);
      	} else {
-        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t2.image,firstQuantifier);
+        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t2.image,firstQuantifier,new Integer(t.image),true);
     	}
     }})
 
 	| (<OF> t2=<IDENTIFIER> (<WHERE> t3=< RAW_SQL_STATEMENT >)? <COLON> (t4=< RAW_SQL_STATEMENT > < AND >)?
     { if (t3==null) { 
 		if (t4==null) {
-        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true),t2.image,firstQuantifier);
+        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true),t2.image,firstQuantifier,new Integer(t.image),false);
      	} else {
-        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t2.image,firstQuantifier);
+        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t2.image,firstQuantifier,new Integer(t.image),false);
     	}
     } else {
 		if (t4==null) {
-        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t2.image,firstQuantifier);
+        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t2.image,firstQuantifier,new Integer(t.image),false);
      	} else {
-        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t2.image,firstQuantifier);
+        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t2.image,firstQuantifier,new Integer(t.image),false);
     	}
     }})
     )

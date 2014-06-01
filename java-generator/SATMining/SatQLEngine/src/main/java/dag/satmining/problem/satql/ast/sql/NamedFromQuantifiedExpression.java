@@ -8,17 +8,22 @@ public class NamedFromQuantifiedExpression implements QuantifierExpression, From
 	    private final QuantifierExpression _quant;
 	    private final FromExpression _expr;
 	    private final FromExpression _filter;
-	    private final boolean _isFirstQuantifier; //permet de gérer un WHERE sur le premier quantificateur
+	    private final boolean _isFirstQuantifier;
+	    private final int _nQuantifierValue; // -1 if universal quantifier
+	    private final boolean _isPercentQuantifier;
 	    
-	    public NamedFromQuantifiedExpression(String name, QuantifierExpression quant, List<NamedFromExpression> _queries, FromExpression filter, boolean isFirstQuantifier) {
+	    public NamedFromQuantifiedExpression(String name, QuantifierExpression quant, List<NamedFromExpression> _queries, FromExpression filter, boolean isFirstQuantifier, int nQuantifierValue, boolean isPercentQuantifier) {
 	    	this._name = name;
 	        this._quant = quant;
 	        this._expr = extractQuery(name, _queries);
 	        this._filter = filter;
 	        this._isFirstQuantifier = isFirstQuantifier;
+	        this._nQuantifierValue = nQuantifierValue;
+	        this._isPercentQuantifier = isPercentQuantifier;
+	        
 	        if (_expr == null) {
                 throw new IllegalArgumentException("No SCOPE for " + this._name);
-            }
+            } 
 	    }
 	    
 	    private NamedFromExpression extractQuery(String name, List<NamedFromExpression> _queries)

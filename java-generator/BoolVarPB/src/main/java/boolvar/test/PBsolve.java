@@ -93,8 +93,8 @@ public class PBsolve {
 	 * @param nbconstr the number of contraints
 	 */
 	protected void metaData(int nbvar, int nbconstr) {
-		// System.out.println("[nbvar=" + nbvar + "]");
-		// System.out.println("[nbconstr=" + nbconstr + "]");
+		 //System.out.println("[nbvar=" + nbvar + "]");
+		 //System.out.println("[nbconstr=" + nbconstr + "]");
 		usedVars = new Variable[nbvar + 1];
 		for (int i = 1; i <= nbvar; i++)
 			usedVars[i] = new Variable();

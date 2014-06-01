@@ -78,7 +78,7 @@ public class From implements Iterable<NamedFromQuantifiedExpression>, SQLRendere
         _queries.add(new NamedFromExpression(name, query));
     }
  
-    public void addQuantifierName(QuantifierExpression origQuantifierQuery, FromExpression origFilterQuery, String name, boolean isFirstQuantifier) {
+    public void addQuantifierName(QuantifierExpression origQuantifierQuery, FromExpression origFilterQuery, String name, boolean isFirstQuantifier, int nQuantifierValue, boolean isPercentQuantifier) {
     	QuantifierExpression quantifierQuery = origQuantifierQuery;
     	FromExpression filterQuery = origFilterQuery;
     	
@@ -90,10 +90,10 @@ public class From implements Iterable<NamedFromQuantifiedExpression>, SQLRendere
                 }
             }
         
-        _quantifiers.add(new NamedFromQuantifiedExpression(name, quantifierQuery, _queries, filterQuery, isFirstQuantifier));
+        _quantifiers.add(new NamedFromQuantifiedExpression(name, quantifierQuery, _queries, filterQuery, isFirstQuantifier, nQuantifierValue, isPercentQuantifier));
     }
     
-    public List<NamedFromQuantifiedExpression> getFromList() {
+    public List<NamedFromQuantifiedExpression> getQuantifierList() {
         return _quantifiers;
     }
     

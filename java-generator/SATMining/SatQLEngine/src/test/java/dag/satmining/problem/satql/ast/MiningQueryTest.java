@@ -120,7 +120,7 @@ public class MiningQueryTest extends TestCase {
 		assertEquals(123, nbModels);
 	}
 
-    public void testFunctionnalDependenciesSSBFSingleAtt() throws ParseException,
+    /*public void testFunctionnalDependenciesSSBFSingleAtt() throws ParseException,
             NoSolutionException {
         MiningQuery<DimacsLiteral> query = MiningQuery.parse(
                 DimacsLiteral.class, new InputStreamReader(getClass()
@@ -141,7 +141,7 @@ public class MiningQueryTest extends TestCase {
             nbModels++;
         }
         assertEquals(123, nbModels);
-    }
+    }*/
 
 	public void testFunctionnalDependenciesIfThenSSBF() throws ParseException,
 			NoSolutionException {
