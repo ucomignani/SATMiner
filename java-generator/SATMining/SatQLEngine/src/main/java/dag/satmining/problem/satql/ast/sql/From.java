@@ -97,6 +97,18 @@ public class From implements Iterable<NamedFromQuantifiedExpression>, SQLRendere
         return _quantifiers;
     }
     
+    public List<QuantifierGeneralInformations> getNValueList() {
+    	ArrayList<QuantifierGeneralInformations> quantifiersNValue = new ArrayList<QuantifierGeneralInformations>();
+    	
+    	for(NamedFromQuantifiedExpression expr: _quantifiers){
+    	quantifiersNValue.add(new QuantifierGeneralInformations((expr.getNQuantifierValue() == -1),
+    															expr.getIsPercentQuantifier(),
+    															expr.getNQuantifierValue()));
+    	}
+    	
+    	return quantifiersNValue;
+    }
+    
     @Override
     public Iterator<NamedFromQuantifiedExpression> iterator() {
         return _quantifiers.iterator();

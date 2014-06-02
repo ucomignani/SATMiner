@@ -52,6 +52,12 @@ public class NamedFromQuantifiedExpression implements QuantifierExpression, From
 	        return _name;
 	    }
 	    
+	    public int getNQuantifierValue(){
+	    	return _nQuantifierValue; 
+	    }
+	    public boolean getIsPercentQuantifier(){
+	    	return _isPercentQuantifier;
+	    }
 
 	    @Override
 	    public void buildSQLQueryNoName(StringBuilder output) {

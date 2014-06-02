@@ -64,7 +64,7 @@ public interface ReifiedWeightedPBBuilder<L extends Literal<L>> extends
      * @param ineq
      *            the direction of the inequality
      * @param value
-     *            the value to comapre the sum to
+     *            the value to compare the sum to
      * @param equivTo
      *            the literal equivalent to the inequality's satisfaction
      * @throws NoSolutionException

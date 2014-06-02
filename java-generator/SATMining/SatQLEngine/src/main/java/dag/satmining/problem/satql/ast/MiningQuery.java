@@ -58,6 +58,7 @@ import dag.satmining.backend.Interpretation;
 import dag.satmining.constraints.Constraint;
 import dag.satmining.constraints.Literal;
 import dag.satmining.constraints.PBBuilder;
+import dag.satmining.constraints.ReifiedWeightedPBBuilder;
 import dag.satmining.output.PatternConverter;
 import dag.satmining.problem.satql.ast.sql.BitSetFetcher;
 import dag.satmining.problem.satql.ast.sql.From;
@@ -65,6 +66,7 @@ import dag.satmining.problem.satql.ast.sql.FromExpression;
 import dag.satmining.problem.satql.ast.sql.SQLBooleanValue;
 import dag.satmining.problem.satql.ast.sql.SQLTrue;
 import dag.satmining.problem.satql.ast.sql.Where;
+import dag.satmining.problem.satql.ast.sql.QuantifierGeneralInformations;
 import dag.satmining.problem.satql.parser.ParseException;
 import dag.satmining.problem.satql.parser.SATQLParser;
 
@@ -182,7 +184,31 @@ public class MiningQuery<L extends Literal<L>> implements Constraint<L>, Pattern
 			throw new NoSolutionException(e);
 		}
 	}
+	
+	public void addWeightedClauses(ReifiedWeightedPBBuilder<L> satWeightedHandler) throws NoSolutionException {
+		try {
+			buildWeightedPBDomain(satWeightedHandler);
+			_suchThat = _suchThat.pushDown();
+			SQLBinding sqlBinding = new SQLBinding(_suchThat, _attributes,
+					getDomainMap(), _dict, _doCache);
+			List<SQLBooleanValue> subFormulasToEvaluate = sqlBinding
+					.getSelectStatements();
+			_bsr.setSelect(subFormulasToEvaluate);
+			_bsr.setFrom(_from);
+			_bsr.setNbQuantifiers(_from.getQuantifierList().size());
+			_bsr.setWhere(_where);
+			
+			List<QuantifierGeneralInformations> quantifiersNValue = _from.getNValueList();
 
+			sqlBinding
+					.runEvaluation(satWeightedHandler, quantifiersNValue, _bsr, _toMinimize, _toMaximize);
+		} catch (SQLException ex) {
+			throw new NoSolutionException(ex);
+		} catch (IOException e) {
+			throw new NoSolutionException(e);
+		}
+	}
+	
 	private void buildDomain(PBBuilder<L> satHandler) throws NoSolutionException {
 		_domain = satHandler.lMatrix(getSchemaVariables().size(),_attributes.size());
 		for (int sv = 0; sv < _domain.length; sv++) {
@@ -193,7 +219,18 @@ public class MiningQuery<L extends Literal<L>> implements Constraint<L>, Pattern
 			satHandler.addClause(_domain[sv]);
 		}
 	}
-
+	
+	private void buildWeightedPBDomain(ReifiedWeightedPBBuilder<L> satHandler) throws NoSolutionException {
+		_domain = satHandler.lMatrix(getSchemaVariables().size(),_attributes.size());
+		for (int sv = 0; sv < _domain.length; sv++) {
+			for (int att = 0; att < _attributes.size(); att++) {
+				_domain[sv][att] = satHandler.newStrongLiteral();
+			}
+			// non empty sets only
+			satHandler.addClause(_domain[sv]);
+		}
+	}
+	
 	private Map<SchemaVariable, Map<AttributeConstant, Integer>> getMapFromDomain() {
 		Map<SchemaVariable, Map<AttributeConstant, Integer>> result = new HashMap<SchemaVariable, Map<AttributeConstant, Integer>>();
 		for (int sv = 0; sv < _domain.length; sv++) {
