@@ -43,8 +43,6 @@ exception statement from your version.
  */
 package dag.satmining.constraints.impl;
 
-import java.lang.reflect.Array;
-
 import dag.satmining.NoSolutionException;
 import dag.satmining.constraints.Ineq;
 import dag.satmining.constraints.Literal;

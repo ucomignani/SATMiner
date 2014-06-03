@@ -99,6 +99,109 @@ public class MiningQueryTest extends TestCase {
 		c.close();
 	}
 
+	public void testSimpleForall() throws ParseException,
+	NoSolutionException {
+		MiningQuery<DimacsLiteral> query = MiningQuery.parse(
+				DimacsLiteral.class, new InputStreamReader(getClass()
+						.getResourceAsStream("/quantifier_forall.satql")));
+		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
+		LOG.debug("before parser");
+		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
+		LOG.debug("made parser");
+		query.addWeightedClauses(sat4jHandler);
+		LOG.debug("added clauses");
+		sat4jHandler.endProblem();
+		int nbModels = 0;
+		while (sat4jHandler.getNext()) {
+			LOG.debug("found: {}",
+					query.getPattern(sat4jHandler.getCurrentInterpretation()));
+			nbModels++;
+		}
+		assertEquals(4, nbModels);
+	}	
+	
+	public void testSimpleAtLeast() throws ParseException,
+	NoSolutionException {
+		MiningQuery<DimacsLiteral> query = MiningQuery.parse(
+				DimacsLiteral.class, new InputStreamReader(getClass()
+						.getResourceAsStream("/quantifier_atleast.satql")));
+		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
+		LOG.debug("before parser");
+		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
+		LOG.debug("made parser");
+		query.addWeightedClauses(sat4jHandler);
+		LOG.debug("added clauses");
+		sat4jHandler.endProblem();
+		int nbModels = 0;
+		while (sat4jHandler.getNext()) {
+			LOG.debug("found: {}",
+					query.getPattern(sat4jHandler.getCurrentInterpretation()));
+			nbModels++;
+		}
+		assertEquals(16, nbModels);
+	}
+	
+	public void testSimplePercent() throws ParseException,
+	NoSolutionException {
+		MiningQuery<DimacsLiteral> query = MiningQuery.parse(
+				DimacsLiteral.class, new InputStreamReader(getClass()
+						.getResourceAsStream("/quantifier_percent.satql")));
+		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
+		LOG.debug("before parser");
+		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
+		LOG.debug("made parser");
+		query.addWeightedClauses(sat4jHandler);
+		LOG.debug("added clauses");
+		sat4jHandler.endProblem();
+		int nbModels = 0;
+		while (sat4jHandler.getNext()) {
+			LOG.debug("found: {}",
+					query.getPattern(sat4jHandler.getCurrentInterpretation()));
+			nbModels++;
+		}
+		assertEquals(26, nbModels);
+	}
+	
+	//verifie si l'arrondi se fait bien a l'entier superieur
+	public void testSimplePercentRound() throws ParseException, 
+	NoSolutionException {
+		MiningQuery<DimacsLiteral> query = MiningQuery.parse(
+				DimacsLiteral.class, new InputStreamReader(getClass()
+						.getResourceAsStream("/quantifier_percent_round.satql")));
+		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
+		LOG.debug("before parser");
+		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
+		LOG.debug("made parser");
+		query.addWeightedClauses(sat4jHandler);
+		LOG.debug("added clauses");
+		sat4jHandler.endProblem();
+		int nbModels = 0;
+		while (sat4jHandler.getNext()) {
+			LOG.debug("found: {}",
+					query.getPattern(sat4jHandler.getCurrentInterpretation()));
+			nbModels++;
+		}
+		assertEquals(1, nbModels);
+	}
+	
+	public void testFunctionnalDependenciesMinXSingYLimit5() throws ParseException,
+	NoSolutionException {
+MiningQuery<DimacsLiteral> query = MiningQuery.parse(DimacsLiteral.class, new InputStreamReader(getClass()
+		.getResourceAsStream("/funct_deps_min_x_singleton_y_limit_5.satql")));
+query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
+sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
+query.addWeightedClauses(sat4jHandler);
+sat4jHandler.setLimit(query.getLimit());
+sat4jHandler.endProblem();
+int nbModels = 0;
+while(sat4jHandler.getNext()) {
+	LOG.debug("found: {}", query.getPattern(sat4jHandler.getCurrentInterpretation()));
+	nbModels++;
+}
+assertEquals(5, nbModels);
+}
+	
+	/*
 	public void testFunctionnalDependenciesSSBF() throws ParseException,
 			NoSolutionException {
 		MiningQuery<DimacsLiteral> query = MiningQuery.parse(
@@ -157,23 +260,6 @@ public class MiningQueryTest extends TestCase {
 		assertEquals(13, nbModels);
 	}
 
-	public void testFunctionnalDependenciesMinXSingYLimit5() throws ParseException,
-			NoSolutionException {
-		MiningQuery<DimacsLiteral> query = MiningQuery.parse(DimacsLiteral.class, new InputStreamReader(getClass()
-				.getResourceAsStream("/funct_deps_min_x_singleton_y_limit_5.satql")));
-		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
-		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
-		query.addWeightedClauses(sat4jHandler);
-		sat4jHandler.setLimit(query.getLimit());
-		sat4jHandler.endProblem();
-		int nbModels = 0;
-		while(sat4jHandler.getNext()) {
-			LOG.debug("found: {}", query.getPattern(sat4jHandler.getCurrentInterpretation()));
-			nbModels++;
-		}
-		assertEquals(5, nbModels);
-	}
-
 	public void testFunctionnalDependenciesWithSingleton()
 			throws ParseException, NoSolutionException {
 		MiningQuery<DimacsLiteral> query = MiningQuery.parse(DimacsLiteral.class, new InputStreamReader(getClass()
@@ -188,5 +274,5 @@ public class MiningQueryTest extends TestCase {
 			nbModels++;
 		}
 		assertEquals(39, nbModels);
-	}
+	}*/
 }

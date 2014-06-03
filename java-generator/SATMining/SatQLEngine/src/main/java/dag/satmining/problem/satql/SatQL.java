@@ -45,7 +45,6 @@ package dag.satmining.problem.satql;
 import java.io.IOException;
 import java.io.Reader;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import org.apache.commons.cli.CommandLine;

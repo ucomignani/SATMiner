@@ -1,40 +1,10 @@
 FIND X,Y OVER g1,g2,g3,g4,g5
-SCOPE r t1, t2
-
-FORALL t1 WHERE {t1.id LIKE '3'}: {1=1} AND
-ATLEAST 2 OF t2 WHERE {t1.g1 = t2.g1}: {2=2} AND
-
-SUCH THAT ((FORALL $A IN X: FORALL $B IN Y: {t1.$A = t2.$B}))
-AND EMPTY INTERSECTION (X,Y);
-
-
-
-
-FIND X,Y OVER g1,g2,g3,g4,g5
 SCOPE r t1, t2, t3, t4
 
 FORALL t1: {1=1} AND
-ATLEAST 2 OF t2 WHERE {t1.g1 = t2.g1}: {2=2} AND
-ATLEAST 2 OF t3: {t2.g1 = t3.g1} AND 
+ATLEAST 51 Percent OF t2 WHERE {t1.g1 = t2.g1}: {2=2} AND
+
 
 SUCH THAT (NOT (FORALL $A IN X: {t1.$A = t2.$A}) OR (FORALL $B IN Y: {t1.$B = t2.$B}))
 AND EMPTY INTERSECTION (X,Y);
 
-FIND X,Y OVER g1,g2,g3,g4,g5
-SCOPE r t1, t2, t3, t4
-
-FORALL t1: {1=1} AND
-ATLEAST 2 OF t2 WHERE {t1.g1 = t2.g1}: {2=2} AND
-ATLEAST 2 OF t3 WHERE {t2.g1 = t3.g1}: 
-
-SUCH THAT (NOT (FORALL $A IN X: {t1.$A = t2.$A}) OR (FORALL $B IN Y: {t1.$B = t2.$B}))
-AND EMPTY INTERSECTION (X,Y);
-
-FIND X,Y OVER g1,g2,g3,g4,g5
-SCOPE r t1, t2
-
-FORALL t1: {1=1} AND
-ATLEAST 2 OF t2 WHERE {t1.g1 = t2.g1}: {2=2} AND
-
-SUCH THAT (NOT (FORALL $A IN X: {t1.$A = t2.$A}) OR (FORALL $B IN Y: {t1.$B = t2.$B}))
-AND EMPTY INTERSECTION (X,Y);

@@ -225,37 +225,13 @@ public class SQLBinding {
         // CacheEnabler enables cache only for data independant formulas if _doCache is false   
         _mainExpression.acceptPrefix(new CacheEnabler()); 
         LOG.debug("Generating intermediate formulas");
-        int nbConfigs = 1 + _attributes.size()
-                * (toMinimize.size() + toMaximize.size());
-        ForceAttributeSchema[] minMaxCfg = new ForceAttributeSchema[nbConfigs];
-        minMaxCfg[0] = new ForceAttributeSchema(null, null, true);
-        int cfg = 0;
-        for (SchemaVariable sv : toMinimize) {
-            for (AttributeConstant att : _attributes) {
-                minMaxCfg[++cfg] = new ForceAttributeSchema(att, sv, false);
-            }
-        }
-        for (SchemaVariable sv : toMaximize) {
-            for (AttributeConstant att : _attributes) {
-                minMaxCfg[++cfg] = new ForceAttributeSchema(att, sv, true);
-            }
-        }
-        BFormula[] intermediateFormulas = new BFormula[nbConfigs];
-        @SuppressWarnings("unchecked")
-        Set<LiteralOrValue>[] minMaxLitSets = new Set[nbConfigs];
-
-        QuantifierMap quantifierMap = new QuantifierMap();
-
+        ForceAttributeSchema minMaxCfg = new ForceAttributeSchema(null, null, true);
         
-        for (cfg = 0; cfg < nbConfigs; cfg++) {
-            minMaxLitSets[cfg] = new HashSet<LiteralOrValue>();
-            ForceAttributeSchema fas = minMaxCfg[cfg];
-            intermediateFormulas[cfg] = _mainExpression.getIntermediateFormula(
-                    new AttributeValuation(_dict), _attributes, fas, _domain);
-            if (cfg > 0) {
-                intermediateFormulas[cfg] = new BNeg(intermediateFormulas[cfg]);
-            }
-        }
+        BFormula intermediateFormulas = _mainExpression.getIntermediateFormula(
+        		new AttributeValuation(_dict), _attributes, minMaxCfg, _domain);
+        
+        QuantifierMap<L> quantifierMap = new QuantifierMap<L>();
+
         LOG.debug("Running query for generating SAT problem ...");
         int nbTupleComb = 0;
         BFormula.cacheHits = 0;
@@ -263,10 +239,7 @@ public class SQLBinding {
                 
         while (bsr.next()) { // for all tuple combination
             BitSetWithRowNumbers bitSetWithRowNumbers = bsr.getBitSet();
-
-        	BitSet data = bitSetWithRowNumbers.getBitSet();
-    	
-        	LiteralOrValue insertedLiteralOrValue = intermediateFormulas[0].getRepresentation(handler, bitSetWithRowNumbers.getBitSet());
+        	LiteralOrValue insertedLiteralOrValue = intermediateFormulas.getRepresentation(handler, bitSetWithRowNumbers.getBitSet());
         	L insertedLiteral = insertedLiteralOrValue.getLiteral(handler);
         	
         	quantifierMap.addLiteral(1, bitSetWithRowNumbers, insertedLiteral);
@@ -274,10 +247,7 @@ public class SQLBinding {
         	
         	nbTupleComb++;
             int oldCacheHits = BFormula.cacheHits;
-            for (cfg = 0; cfg < nbConfigs; cfg++) {
-                minMaxLitSets[cfg].add(intermediateFormulas[cfg].getRepresentation(handler, data));
-                
-            }
+
             if (oldCacheHits != BFormula.cacheHits) {
                 nbCachedTuples++;
             }
@@ -285,40 +255,13 @@ public class SQLBinding {
         LOG.info(
                 "Generated formula from {} tuple combinations, {} cache hits ({} full hits) on {} combinations",
                 new Object[] { nbTupleComb, BFormula.cacheHits,
-                        intermediateFormulas[0].getCacheHits(), nbCachedTuples });
+                        intermediateFormulas.getCacheHits(), nbCachedTuples });
         
 		L res = handler.newLiteral(true, false);
     	quantifierMap.createFormula(handler, quantifierInformationsList, res);
-    	LOG.info("Res final: " + res.toString());
+    	LOG.info("Literal a la racine: " + res.toString());
           
     	handler.addClause(res);
-    	
-       /* if (minMaxLitSets[0].contains(LiteralOrValue.FALSE)) {
-            throw new NoSolutionException(
-                    "Formula is always false for some tuple combinaition");
-        } else {
-            minMaxLitSets[0].remove(LiteralOrValue.TRUE);
-            for (LiteralOrValue lv : minMaxLitSets[0]) {
-                handler.addClause(lv.getLiteral(handler));
-            }
-        }
-        for (cfg = 1; cfg < nbConfigs; cfg++) {
-            ForceAttributeSchema fas = minMaxCfg[cfg];
-            Set<LiteralOrValue> lvs = minMaxLitSets[cfg];
-            lvs.remove(LiteralOrValue.FALSE);
-            L repr = handler.fromDimacs(_domain.get(fas.getSchemaVariable())
-                    .get(fas.getAttribute()));
-            if (lvs.contains(LiteralOrValue.TRUE)) {
-                // nothing to do, the implication is trivially satisfied
-            } else {
-                Collection<L> clause = new ArrayList<L>();
-                clause.add(fas.isInSet() ? repr : repr.getOpposite());
-                for (LiteralOrValue lv : lvs) {
-                    clause.add(lv.getLiteral(handler));
-                }
-               handler.addClause(clause);
-            }
-        }*/
     }
     
     public List<SQLBooleanValue> getSelectStatements() {
