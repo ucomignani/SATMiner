@@ -78,6 +78,7 @@ TOKEN [ IGNORE_CASE ]: /* KEYWORDS */
 | < EXISTS: "E"|"EXISTS" >
 | < FORMULA: "FORMULA" >
 | < ATLEAST: "AL"|"ATLEAST" >
+| < ATMOST: "AM"|"ATMOST" >
 | < PERCENT: "%"|"PERCENT" >
 | < OF: "OF" >
 | < SCOPE: "SCOPE" > 
@@ -99,7 +100,17 @@ TOKEN [ IGNORE_CASE ]: /* KEYWORDS */
 | < COLON: ":" >
 }
 
-TOKEN : /* LITERALS */{  < LITERAL:        <DECIMAL_LITERAL>       | <STRING_LITERAL>  >|  < #DECIMAL_LITERAL: (["0"-"9"]("."["0"-"9"])?)+ >|  < #STRING_LITERAL: "'" ("''"|~["'"])* "'" >}
+TOKEN : /* LITERALS */
+{
+  < LITERAL:
+        <DECIMAL_LITERAL> 
+      | <STRING_LITERAL>
+  >
+|
+  < #DECIMAL_LITERAL: (["0"-"9"]("."["0"-"9"])?)+ >
+|
+  < #STRING_LITERAL: "'" ("''"|~["'"])* "'" >
+}
 
 TOKEN : /* IDENTIFIERS */
 {
@@ -111,9 +122,14 @@ TOKEN : /* IDENTIFIERS */
 }
 
 TOKEN : /* ATTRIBUTE IDENTIFIERS */
-{  < ATT_IDENTIFIER: "$" < IDENTIFIER > >
+{
+  < ATT_IDENTIFIER: "$" < IDENTIFIER > >
 } 
-TOKEN : /* RAW SQL STATEMENT */{  < RAW_SQL_STATEMENT: "{" (~["{","}"] | "{{" | "}}" )* "}" >}
+
+TOKEN : /* RAW SQL STATEMENT */
+{
+  < RAW_SQL_STATEMENT: "{" (~["{","}"] | "{{" | "}}" )* "}" >
+}
 
 
 /** Mining Statement. */
@@ -146,7 +162,8 @@ MiningQuery<L> MiningQuery():
     ( (<MINIMIZE> t=<IDENTIFIER> { query.minimize(t.image); } )
     | (<MAXIMIZE> t=<IDENTIFIER> { query.maximize(t.image); } ) )
   )*)?
-  (    <LIMIT> t=<LITERAL> { query.setLimit(Long.parseLong(t.image)); }
+  (
+    <LIMIT> t=<LITERAL> { query.setLimit(Long.parseLong(t.image)); }
     )?
   ";"
   { return query; }
@@ -269,58 +286,112 @@ void TupleQuantifierExpr(From from, boolean firstQuantifier):
 { 
   Token t,t2,t3 = null;
   Token t4 = null;
+  Token t_couple = null;
 }
 { 
-    (<FORALL> t=<IDENTIFIER> (<WHERE> t3=< RAW_SQL_STATEMENT >)? <COLON> (t4=< RAW_SQL_STATEMENT > < AND >)?
+    (<FORALL> (t=<IDENTIFIER> | "("t=<IDENTIFIER> "," t_couple=<IDENTIFIER>")") (<WHERE> t3=< RAW_SQL_STATEMENT >)? <COLON> (t4=< RAW_SQL_STATEMENT > < AND >)?
     { if (t3==null) { 
 		if (t4==null) {
-        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true), t.image,firstQuantifier,new Integer("-1"),false);
+			if (t_couple==null) {
+    	    	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true), t.image,null,firstQuantifier,new Integer("-1"),false);
+     		} else {
+        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true), t.image,t_couple.image,firstQuantifier,new Integer("-1"),false);
+			}
      	} else {
-        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t.image,firstQuantifier,new Integer("-1"),false);
+			if (t_couple==null) {
+    	    	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t.image,null,firstQuantifier,new Integer("-1"),false);
+     		} else {
+        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t.image,t_couple.image,firstQuantifier,new Integer("-1"),false);
+			}
     	}
     } else {
 		if (t4==null) {
-        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t.image,firstQuantifier,new Integer("-1"),false);
+			if (t_couple==null) {
+        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t.image,null,firstQuantifier,new Integer("-1"),false);
+     		} else {
+        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t.image,t_couple.image,firstQuantifier,new Integer("-1"),false);
+			}
      	} else {
-        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t.image,firstQuantifier,new Integer("-1"),false);
+			if (t_couple==null) {
+        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t.image,null,firstQuantifier,new Integer("-1"),false);
+     		} else {
+        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t.image,t_couple.image,firstQuantifier,new Integer("-1"),false);
+			}
     	}
     }})
 | ( <ATLEAST> t=<LITERAL>(
 
-	(<PERCENT> <OF> t2=<IDENTIFIER> (<WHERE> t3=< RAW_SQL_STATEMENT >)? <COLON> (t4=< RAW_SQL_STATEMENT > < AND >)?
+	(<PERCENT> <OF> (t2=<IDENTIFIER> | "("t2=<IDENTIFIER> "," t_couple=<IDENTIFIER>")") (<WHERE> t3=< RAW_SQL_STATEMENT >)? <COLON> (t4=< RAW_SQL_STATEMENT > < AND >)?
     { if (t3==null) { 
 		if (t4==null) {
-        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true),t2.image,firstQuantifier,new Integer(t.image),true);
+			if (t_couple==null) {
+        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true),t2.image,null,firstQuantifier,new Integer(t.image),true);
+     		} else {
+        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true),t2.image,t_couple.image,firstQuantifier,new Integer(t.image),true);
+			}
      	} else {
-        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t2.image,firstQuantifier,new Integer(t.image),true);
+			if (t_couple==null) {
+        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t2.image,null,firstQuantifier,new Integer(t.image),true);
+     		} else {
+        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t2.image,t_couple.image,firstQuantifier,new Integer(t.image),true);
+			}
     	}
     } else {
 		if (t4==null) {
-        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t2.image,firstQuantifier,new Integer(t.image),true);
+			if (t_couple==null) {
+        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t2.image,null,firstQuantifier,new Integer(t.image),true);
+     		} else {
+        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t2.image,t_couple.image,firstQuantifier,new Integer(t.image),true);
+			}
      	} else {
-        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t2.image,firstQuantifier,new Integer(t.image),true);
+			if (t_couple==null) {
+        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t2.image,null,firstQuantifier,new Integer(t.image),true);
+     		} else {
+        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t2.image,t_couple.image,firstQuantifier,new Integer(t.image),true);
+			}
     	}
     }})
 
-	| (<OF> t2=<IDENTIFIER> (<WHERE> t3=< RAW_SQL_STATEMENT >)? <COLON> (t4=< RAW_SQL_STATEMENT > < AND >)?
+	| (<OF> (t2=<IDENTIFIER> | "("t2=<IDENTIFIER> "," t_couple=<IDENTIFIER>")") (<WHERE> t3=< RAW_SQL_STATEMENT >)? <COLON> (t4=< RAW_SQL_STATEMENT > < AND >)?
     { if (t3==null) { 
 		if (t4==null) {
-        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true),t2.image,firstQuantifier,new Integer(t.image),false);
+			if (t_couple==null) {
+        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true),t2.image,null,firstQuantifier,new Integer(t.image),false);
+     		} else {
+        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true),t2.image,t_couple.image,firstQuantifier,new Integer(t.image),false);
+			}
      	} else {
-        	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t2.image,firstQuantifier,new Integer(t.image),false);
+			if (t_couple==null) {
+        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t2.image,null,firstQuantifier,new Integer(t.image),false);
+     		} else {
+        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t2.image,t_couple.image,firstQuantifier,new Integer(t.image),false);
+			}
     	}
     } else {
 		if (t4==null) {
-        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t2.image,firstQuantifier,new Integer(t.image),false);
+			if (t_couple==null) {
+        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t2.image,null,firstQuantifier,new Integer(t.image),false);
+     		} else {
+        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t2.image,t_couple.image,firstQuantifier,new Integer(t.image),false);
+			}
      	} else {
-        	from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t2.image,firstQuantifier,new Integer(t.image),false);
+			if (t_couple==null) {
+        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t2.image,null,firstQuantifier,new Integer(t.image),false);
+     		} else {
+        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t2.image,t_couple.image,firstQuantifier,new Integer(t.image),false);
+			}
     	}
     }})
     )
     ) 
  }
 
-//Where WhereClause()://{ SQLBooleanValue c; }//{//  <WHERE> c=SQLBooleanValue()//  { return new Where(c); }//}
+//Where WhereClause():
+//{ SQLBooleanValue c; }
+//{
+//  <WHERE> c=SQLBooleanValue()
+//  { return new Where(c); }
+//}
       
 SQLBooleanValue SQLBooleanValue():
 { SQLBooleanValue v;}

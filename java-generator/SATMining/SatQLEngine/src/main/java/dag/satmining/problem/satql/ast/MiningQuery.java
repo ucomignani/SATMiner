@@ -198,10 +198,10 @@ public class MiningQuery<L extends Literal<L>> implements Constraint<L>, Pattern
 			_bsr.setNbQuantifiers(_from.getQuantifierList().size());
 			_bsr.setWhere(_where);
 			
-			List<QuantifierGeneralInformations> quantifiersNValue = _from.getNValueList();
+			List<QuantifierGeneralInformations> quantifierGeneralInformations = _from.getQuantifierGeneralInformationsList();
 
 			sqlBinding
-					.runEvaluation(satWeightedHandler, quantifiersNValue, _bsr, _toMinimize, _toMaximize);
+					.runEvaluation(satWeightedHandler, quantifierGeneralInformations, _bsr, _toMinimize, _toMaximize);
 		} catch (SQLException ex) {
 			throw new NoSolutionException(ex);
 		} catch (IOException e) {

@@ -137,7 +137,7 @@ public class SingleStatementBitSetFetcher implements BitSetFetcher {
             }
         }
         for (int j = nbCond; j < nbAttTot; ++j) {
-        	res.getRowNumbersList().add(rs.getInt(j + 1));
+        	res.getRowNumbersList().add(rs.getString(j + 1));
         }
         
         return res;

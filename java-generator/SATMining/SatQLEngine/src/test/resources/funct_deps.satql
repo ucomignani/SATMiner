@@ -6,5 +6,6 @@ ATLEAST 51 Percent OF t2 WHERE {t1.g1 = t2.g1}: {2=2} AND
 
 
 SUCH THAT (NOT (FORALL $A IN X: {t1.$A = t2.$A}) OR (FORALL $B IN Y: {t1.$B = t2.$B}))
-AND EMPTY INTERSECTION (X,Y);
+AND EMPTY INTERSECTION (X,Y)
+;
 

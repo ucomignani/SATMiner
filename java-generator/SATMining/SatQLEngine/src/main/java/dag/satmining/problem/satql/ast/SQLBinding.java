@@ -242,7 +242,7 @@ public class SQLBinding {
         	LiteralOrValue insertedLiteralOrValue = intermediateFormulas.getRepresentation(handler, bitSetWithRowNumbers.getBitSet());
         	L insertedLiteral = insertedLiteralOrValue.getLiteral(handler);
         	
-        	quantifierMap.addLiteral(1, bitSetWithRowNumbers, insertedLiteral);
+        	quantifierMap.addLiteral(1, bitSetWithRowNumbers.getRowNumbersList(), insertedLiteral);
         	LOG.debug("taille niveau 1 hashmap: " + quantifierMap.getQuantifierMap().size());
         	
         	nbTupleComb++;

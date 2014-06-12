@@ -200,6 +200,69 @@ while(sat4jHandler.getNext()) {
 }
 assertEquals(5, nbModels);
 }
+
+	public void testSimpleCouplesNonTerm() throws ParseException,
+	NoSolutionException {
+		MiningQuery<DimacsLiteral> query = MiningQuery.parse(
+				DimacsLiteral.class, new InputStreamReader(getClass()
+						.getResourceAsStream("/quantifier_couple_non_term.satql")));
+		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
+		LOG.debug("before parser");
+		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
+		LOG.debug("made parser");
+		query.addWeightedClauses(sat4jHandler);
+		LOG.debug("added clauses");
+		sat4jHandler.endProblem();
+		int nbModels = 0;
+		while (sat4jHandler.getNext()) {
+			LOG.debug("found: {}",
+					query.getPattern(sat4jHandler.getCurrentInterpretation()));
+			nbModels++;
+		}
+		assertEquals(10, nbModels);
+	}	
+	
+	public void testSimpleCouplesTerm() throws ParseException,
+	NoSolutionException {
+		MiningQuery<DimacsLiteral> query = MiningQuery.parse(
+				DimacsLiteral.class, new InputStreamReader(getClass()
+						.getResourceAsStream("/quantifier_couple_term.satql")));
+		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
+		LOG.debug("before parser");
+		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
+		LOG.debug("made parser");
+		query.addWeightedClauses(sat4jHandler);
+		LOG.debug("added clauses");
+		sat4jHandler.endProblem();
+		int nbModels = 0;
+		while (sat4jHandler.getNext()) {
+			LOG.debug("found: {}",
+					query.getPattern(sat4jHandler.getCurrentInterpretation()));
+			nbModels++;
+		}
+		assertEquals(26, nbModels);
+	}	
+	
+	public void testSimpleCouplesFrom() throws ParseException,
+	NoSolutionException {
+		MiningQuery<DimacsLiteral> query = MiningQuery.parse(
+				DimacsLiteral.class, new InputStreamReader(getClass()
+						.getResourceAsStream("/quantifier_couple_from.satql")));
+		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
+		LOG.debug("before parser");
+		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
+		LOG.debug("made parser");
+		query.addWeightedClauses(sat4jHandler);
+		LOG.debug("added clauses");
+		sat4jHandler.endProblem();
+		int nbModels = 0;
+		while (sat4jHandler.getNext()) {
+			LOG.debug("found: {}",
+					query.getPattern(sat4jHandler.getCurrentInterpretation()));
+			nbModels++;
+		}
+		assertEquals(19, nbModels);
+	}	
 	
 	/*
 	public void testFunctionnalDependenciesSSBF() throws ParseException,
