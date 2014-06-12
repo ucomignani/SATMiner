@@ -183,23 +183,6 @@ public class MiningQueryTest extends TestCase {
 		}
 		assertEquals(1, nbModels);
 	}
-	
-	public void testFunctionnalDependenciesMinXSingYLimit5() throws ParseException,
-	NoSolutionException {
-MiningQuery<DimacsLiteral> query = MiningQuery.parse(DimacsLiteral.class, new InputStreamReader(getClass()
-		.getResourceAsStream("/funct_deps_min_x_singleton_y_limit_5.satql")));
-query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
-sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
-query.addWeightedClauses(sat4jHandler);
-sat4jHandler.setLimit(query.getLimit());
-sat4jHandler.endProblem();
-int nbModels = 0;
-while(sat4jHandler.getNext()) {
-	LOG.debug("found: {}", query.getPattern(sat4jHandler.getCurrentInterpretation()));
-	nbModels++;
-}
-assertEquals(5, nbModels);
-}
 
 	public void testSimpleCouplesNonTerm() throws ParseException,
 	NoSolutionException {
@@ -263,8 +246,70 @@ assertEquals(5, nbModels);
 		}
 		assertEquals(19, nbModels);
 	}	
-	
+
 	/*
+	public void testSimpleNUpletFrom() throws ParseException,
+	NoSolutionException {
+		MiningQuery<DimacsLiteral> query = MiningQuery.parse(
+				DimacsLiteral.class, new InputStreamReader(getClass()
+						.getResourceAsStream("/quantifier_nuplet_from.satql")));
+		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
+		LOG.debug("before parser");
+		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
+		LOG.debug("made parser");
+		query.addWeightedClauses(sat4jHandler);
+		LOG.debug("added clauses");
+		sat4jHandler.endProblem();
+		int nbModels = 0;
+		while (sat4jHandler.getNext()) {
+			LOG.debug("found: {}",
+					query.getPattern(sat4jHandler.getCurrentInterpretation()));
+			nbModels++;
+		}
+		assertEquals(19, nbModels);
+	}	
+*/
+
+	public void testSimpleNUpletNonTerm() throws ParseException,
+	NoSolutionException {
+		MiningQuery<DimacsLiteral> query = MiningQuery.parse(
+				DimacsLiteral.class, new InputStreamReader(getClass()
+						.getResourceAsStream("/quantifier_nuplet_non_term.satql")));
+		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
+		LOG.debug("before parser");
+		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
+		LOG.debug("made parser");
+		query.addWeightedClauses(sat4jHandler);
+		LOG.debug("added clauses");
+		sat4jHandler.endProblem();
+		int nbModels = 0;
+		while (sat4jHandler.getNext()) {
+			LOG.debug("found: {}",
+					query.getPattern(sat4jHandler.getCurrentInterpretation()));
+			nbModels++;
+		}
+		assertEquals(10, nbModels);
+	}	
+
+//================================= tests d'origine ========================================
+	
+	public void testFunctionnalDependenciesMinXSingYLimit5() throws ParseException,
+	NoSolutionException {
+MiningQuery<DimacsLiteral> query = MiningQuery.parse(DimacsLiteral.class, new InputStreamReader(getClass()
+		.getResourceAsStream("/funct_deps_min_x_singleton_y_limit_5.satql")));
+query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
+sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
+query.addWeightedClauses(sat4jHandler);
+sat4jHandler.setLimit(query.getLimit());
+sat4jHandler.endProblem();
+int nbModels = 0;
+while(sat4jHandler.getNext()) {
+	LOG.debug("found: {}", query.getPattern(sat4jHandler.getCurrentInterpretation()));
+	nbModels++;
+}
+assertEquals(5, nbModels);
+}
+
 	public void testFunctionnalDependenciesSSBF() throws ParseException,
 			NoSolutionException {
 		MiningQuery<DimacsLiteral> query = MiningQuery.parse(
@@ -283,7 +328,7 @@ assertEquals(5, nbModels);
 					query.getPattern(sat4jHandler.getCurrentInterpretation()));
 			nbModels++;
 		}
-		assertEquals(123, nbModels);
+		assertEquals(64, nbModels);
 	}
 
 	public void testFunctionnalDependenciesIfThenSSBF() throws ParseException,
@@ -307,7 +352,8 @@ assertEquals(5, nbModels);
 		assertEquals(64, nbModels);
 	}
 
-	public void testFunctionnalDependenciesMinXSingY() throws ParseException,
+	//Besoin du minimize pour être fonctionnel
+/*	public void testFunctionnalDependenciesMinXSingY() throws ParseException,
 			NoSolutionException {
 		MiningQuery<DimacsLiteral> query = MiningQuery.parse(DimacsLiteral.class, new InputStreamReader(getClass()
 				.getResourceAsStream("/funct_deps_min_x_singleton_y.satql")));
@@ -322,7 +368,8 @@ assertEquals(5, nbModels);
 		}
 		assertEquals(13, nbModels);
 	}
-
+*/
+	
 	public void testFunctionnalDependenciesWithSingleton()
 			throws ParseException, NoSolutionException {
 		MiningQuery<DimacsLiteral> query = MiningQuery.parse(DimacsLiteral.class, new InputStreamReader(getClass()
@@ -337,5 +384,5 @@ assertEquals(5, nbModels);
 			nbModels++;
 		}
 		assertEquals(39, nbModels);
-	}*/
+	}
 }

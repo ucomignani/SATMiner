@@ -78,7 +78,7 @@ public class From implements Iterable<NamedFromQuantifiedExpression>, SQLRendere
         _queries.add(new NamedFromExpression(name, query));
     }
  
-    public void addQuantifierName(QuantifierExpression origQuantifierQuery, FromExpression origFilterQuery, String name, String nameCouple, boolean isFirstQuantifier, int nQuantifierValue, boolean isPercentQuantifier) {
+    public void addQuantifierName(QuantifierExpression origQuantifierQuery, FromExpression origFilterQuery, String name, ArrayList<String> namesNUplet, boolean isFirstQuantifier, int nQuantifierValue, boolean isPercentQuantifier) {
     	QuantifierExpression quantifierQuery = origQuantifierQuery;
     	FromExpression filterQuery = origFilterQuery;
     	
@@ -90,7 +90,7 @@ public class From implements Iterable<NamedFromQuantifiedExpression>, SQLRendere
                 }
             }
         
-        _quantifiers.add(new NamedFromQuantifiedExpression(name, nameCouple, quantifierQuery, _queries, filterQuery, isFirstQuantifier, nQuantifierValue, isPercentQuantifier));
+        _quantifiers.add(new NamedFromQuantifiedExpression(name, namesNUplet, quantifierQuery, _queries, filterQuery, isFirstQuantifier, nQuantifierValue, isPercentQuantifier));
     }
     
     public List<NamedFromQuantifiedExpression> getQuantifierList() {
@@ -117,21 +117,40 @@ public class From implements Iterable<NamedFromQuantifiedExpression>, SQLRendere
     
     public void buildSelectQuantifierSQLQuery(StringBuilder output){
     	for (NamedFromQuantifiedExpression expr : _quantifiers) {
+    		
+			List<String> namesNUplet = expr.getnamesNUplet();
+
     		if(expr != _quantifiers.get(_quantifiers.size() - 1)){
-    			if(expr.getNameCouple() == null){
+
+    			if(namesNUplet == null){
     				output.append(" , " + expr.getName() + ".row_num as RN_"+ expr.getName());
     			} else {
-	    			output.append(" , (TRIM(CAST(" + expr.getName() + ".row_num AS CHAR(10))) || 'x' || TRIM(CAST(" + expr.getNameCouple() +".row_num AS CHAR(10)))) as RN_" + expr.getName() + "x" + expr.getNameCouple());	    			
-	    		}
+	    			output.append(" , (TRIM(CAST(" + expr.getName() + ".row_num AS CHAR(10))) ");
+	    			
+	    			for(String name : namesNUplet) {
+		    			output.append("|| 'x' || TRIM(CAST(" + name +".row_num AS CHAR(10)))");	    			
+	    			}
+	    			output.append(") as RN_" + expr.getName()); //on se contente de concatener le nom de la premiere variable de tuple car ce nom sera unique
+	    													  //du fait que l'on ne peut utiliser une telle variable qu'une fois par requête
+
+    			}
     		} else {
-    			if(expr.getNameCouple() == null){
+    			
+    			if(namesNUplet == null){
     				output.append(" , (CASE WHEN ");
 	    			expr.getFilter().buildSQLQueryNoName(output);
 	    			output.append(" THEN " + expr.getName() +".row_num ELSE NULL END) as RN_" + expr.getName());
 	    		} else {
 	    			output.append(" , (CASE WHEN ");
-	    			expr.getFilter().buildSQLQueryNoName(output);
-	    			output.append(" THEN (TRIM(CAST(" + expr.getName() + ".row_num AS CHAR(10))) || 'x' || TRIM(CAST(" + expr.getNameCouple() +".row_num AS CHAR(10)))) ELSE NULL END) as RN_" + expr.getName() + "x" + expr.getNameCouple());	    			
+	    			expr.getFilter().buildSQLQueryNoName(output);	
+	    			output.append(" THEN (TRIM(CAST(" + expr.getName() + ".row_num AS CHAR(10))) ");
+	    			
+	    			for(String name : namesNUplet) {
+		    			output.append("|| 'x' || TRIM(CAST(" + name +".row_num AS CHAR(10)))");	    			
+	    			}
+	    			output.append(") ELSE NULL END) as RN_" + expr.getName()); //on se contente de concatener le nom de la premiere variable de tuple car ce nom sera unique
+	    													  //du fait que l'on ne peut utiliser une telle variable qu'une fois par requête
+
 	    		}
     		}
         }      
