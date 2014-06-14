@@ -47,6 +47,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 import dag.satmining.NoSolutionException;
@@ -326,6 +327,36 @@ public final class ZincBackend implements ReifiedWeightedPBBuilder<ZincLiteral> 
             Ineq ineq, int value, ZincLiteral equivTo)
             throws NoSolutionException {
         _constraints.add(new ZCSum(lits, coefs, ineq, value, equivTo));
+    }
+    
+    @Override
+    public void addUniversalQuantifier(HashMap<ZincLiteral,Integer> literalMap, 
+    		int nValue, ZincLiteral equivalentTo) throws NoSolutionException{
+    	ZincLiteral[] lits = literalMap.keySet().toArray(lArray(literalMap.keySet().size()));
+
+    	int[] coefs = new int[literalMap.size()];
+    	int i = 0;
+    	for(ZincLiteral lit: lits){
+    		coefs[i] = literalMap.get(lit);
+    		i++;
+    	}
+    	addReifiedWPBInequality(lits, coefs, Ineq.GEQ, nValue, equivalentTo);
+    }
+ 
+    @Override    
+    public void addAtLeastQuantifier(HashMap<ZincLiteral,Integer> literalMap, 
+    		int nValue, ZincLiteral equivalentTo) throws NoSolutionException{
+    	ZincLiteral[] lits = literalMap.keySet().toArray(lArray(literalMap.keySet().size()));
+
+		int[] coefs = new int[literalMap.size()];
+		int i = 0;
+		for(ZincLiteral lit: lits){
+			coefs[i] = literalMap.get(lit);
+			i++;
+
+		}
+
+		addReifiedWPBInequality(lits, coefs, Ineq.GEQ, nValue, equivalentTo);
     }
 
     private void writeZinc(PrintWriter out) {
