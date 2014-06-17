@@ -39,7 +39,6 @@ exception statement from your version. */
 package dag.satmining.backend.pb.gen;
 
 import static java.lang.Math.min;
-
 import static dag.satmining.constraints.formula.Formula.and;
 import static dag.satmining.constraints.formula.Formula.or;
 import static dag.satmining.constraints.formula.Formula.not;
@@ -183,5 +182,19 @@ public class NaivePBFactory<L extends Literal<L>> extends
 			litsT[i++] = l;
 		}
 		return litsT;
+	}
+
+	@Override
+	public void addReifiedWPBInequality(L[] lits, int[] coefs, Ineq ineq,
+			int value, L equivTo) throws NoSolutionException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addWPBInequality(L[] lits, int[] coefs, Ineq ineq, int value)
+			throws NoSolutionException {
+		// TODO Auto-generated method stub
+		
 	}
 }

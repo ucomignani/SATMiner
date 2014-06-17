@@ -108,7 +108,7 @@ public class MiningQueryTest extends TestCase {
 		LOG.debug("before parser");
 		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
 		LOG.debug("made parser");
-		query.addWeightedClauses(sat4jHandler);
+		query.addClauses(sat4jHandler);
 		LOG.debug("added clauses");
 		sat4jHandler.endProblem();
 		int nbModels = 0;
@@ -129,7 +129,7 @@ public class MiningQueryTest extends TestCase {
 		LOG.debug("before parser");
 		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
 		LOG.debug("made parser");
-		query.addWeightedClauses(sat4jHandler);
+		query.addClauses(sat4jHandler);
 		LOG.debug("added clauses");
 		sat4jHandler.endProblem();
 		int nbModels = 0;
@@ -150,7 +150,7 @@ public class MiningQueryTest extends TestCase {
 		LOG.debug("before parser");
 		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
 		LOG.debug("made parser");
-		query.addWeightedClauses(sat4jHandler);
+		query.addClauses(sat4jHandler);
 		LOG.debug("added clauses");
 		sat4jHandler.endProblem();
 		int nbModels = 0;
@@ -172,7 +172,7 @@ public class MiningQueryTest extends TestCase {
 		LOG.debug("before parser");
 		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
 		LOG.debug("made parser");
-		query.addWeightedClauses(sat4jHandler);
+		query.addClauses(sat4jHandler);
 		LOG.debug("added clauses");
 		sat4jHandler.endProblem();
 		int nbModels = 0;
@@ -193,7 +193,7 @@ public class MiningQueryTest extends TestCase {
 		LOG.debug("before parser");
 		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
 		LOG.debug("made parser");
-		query.addWeightedClauses(sat4jHandler);
+		query.addClauses(sat4jHandler);
 		LOG.debug("added clauses");
 		sat4jHandler.endProblem();
 		int nbModels = 0;
@@ -214,7 +214,7 @@ public class MiningQueryTest extends TestCase {
 		LOG.debug("before parser");
 		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
 		LOG.debug("made parser");
-		query.addWeightedClauses(sat4jHandler);
+		query.addClauses(sat4jHandler);
 		LOG.debug("added clauses");
 		sat4jHandler.endProblem();
 		int nbModels = 0;
@@ -235,7 +235,7 @@ public class MiningQueryTest extends TestCase {
 		LOG.debug("before parser");
 		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
 		LOG.debug("made parser");
-		query.addWeightedClauses(sat4jHandler);
+		query.addClauses(sat4jHandler);
 		LOG.debug("added clauses");
 		sat4jHandler.endProblem();
 		int nbModels = 0;
@@ -257,7 +257,7 @@ public class MiningQueryTest extends TestCase {
 		LOG.debug("before parser");
 		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
 		LOG.debug("made parser");
-		query.addWeightedClauses(sat4jHandler);
+		query.addClauses(sat4jHandler);
 		LOG.debug("added clauses");
 		sat4jHandler.endProblem();
 		int nbModels = 0;
@@ -279,7 +279,7 @@ public class MiningQueryTest extends TestCase {
 		LOG.debug("before parser");
 		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
 		LOG.debug("made parser");
-		query.addWeightedClauses(sat4jHandler);
+		query.addClauses(sat4jHandler);
 		LOG.debug("added clauses");
 		sat4jHandler.endProblem();
 		int nbModels = 0;
@@ -299,7 +299,7 @@ MiningQuery<DimacsLiteral> query = MiningQuery.parse(DimacsLiteral.class, new In
 		.getResourceAsStream("/funct_deps_min_x_singleton_y_limit_5.satql")));
 query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
 sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
-query.addWeightedClauses(sat4jHandler);
+query.addClauses(sat4jHandler);
 sat4jHandler.setLimit(query.getLimit());
 sat4jHandler.endProblem();
 int nbModels = 0;
@@ -319,7 +319,7 @@ assertEquals(5, nbModels);
 		LOG.debug("before parser");
 		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
 		LOG.debug("made parser");
-		query.addWeightedClauses(sat4jHandler);
+		query.addClauses(sat4jHandler);
 		LOG.debug("added clauses");
 		sat4jHandler.endProblem();
 		int nbModels = 0;
@@ -340,7 +340,7 @@ assertEquals(5, nbModels);
 		LOG.debug("before parser");
 		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
 		LOG.debug("made parser");
-		query.addWeightedClauses(sat4jHandler);
+		query.addClauses(sat4jHandler);
 		LOG.debug("added clauses");
 		sat4jHandler.endProblem();
 		int nbModels = 0;
@@ -359,7 +359,7 @@ assertEquals(5, nbModels);
 				.getResourceAsStream("/funct_deps_min_x_singleton_y.satql")));
 		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
 		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
-		query.addWeightedClauses(sat4jHandler);
+		query.addClauses(sat4jHandler);
 		sat4jHandler.endProblem();
 		int nbModels = 0;
 		while(sat4jHandler.getNext()) {
@@ -376,7 +376,7 @@ assertEquals(5, nbModels);
 				.getResourceAsStream("/funct_deps_y_singleton.satql")));
 		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
 		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
-		query.addWeightedClauses(sat4jHandler);
+		query.addClauses(sat4jHandler);
 		sat4jHandler.endProblem();
 		int nbModels = 0;
 		while(sat4jHandler.getNext()) {

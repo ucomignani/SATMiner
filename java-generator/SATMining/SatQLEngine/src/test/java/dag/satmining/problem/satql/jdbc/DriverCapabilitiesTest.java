@@ -43,7 +43,6 @@ import java.sql.Driver;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.derby.jdbc.EmbeddedDriver;
@@ -134,7 +133,7 @@ public class DriverCapabilitiesTest extends TestCase {
         runBoolTest(d.connect("jdbc:sqlite:target/test-sqlite",
                 new Properties()));
     }
-    
+   
     public void testPGBool() throws SQLException {
         runBoolTest(pgConnect());
     }

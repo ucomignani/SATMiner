@@ -43,8 +43,6 @@ exception statement from your version.
  */
 package dag.satmining.constraints;
 
-import java.util.HashMap;
-
 import dag.satmining.NoSolutionException;
 
 /**
@@ -74,8 +72,4 @@ public interface ReifiedWeightedPBBuilder<L extends Literal<L>> extends
      */
     void addReifiedWPBInequality(L[] lits, int[] coefs, Ineq ineq, int value,
             L equivTo) throws NoSolutionException;
-
-    void addUniversalQuantifier(HashMap<L,Integer> literalMap, int nValue, L equivalentTo) throws NoSolutionException;
-    
-    void addAtLeastQuantifier(HashMap<L,Integer> literalMap, int nValue, L equivalentTo) throws NoSolutionException;
 }

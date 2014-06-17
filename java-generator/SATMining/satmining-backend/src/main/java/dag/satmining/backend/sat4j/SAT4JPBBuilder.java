@@ -40,7 +40,6 @@ package dag.satmining.backend.sat4j;
 
 import java.util.BitSet;
 import java.util.Collection;
-import java.util.HashMap;
 
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.learning.MiniSATLearning;
@@ -347,33 +346,5 @@ public class SAT4JPBBuilder extends AbstractClauseBuilder<DimacsLiteral>
             Ineq ineq, int value, DimacsLiteral equivTo)
             throws NoSolutionException {
         _wpbReifier.addReifiedWPBInequality(lits, coefs, ineq, value, equivTo);
-    }
-    
-    @Override
-    public void addUniversalQuantifier(HashMap<DimacsLiteral,Integer> literalMap, 
-    		int nValue, DimacsLiteral equivalentTo) throws NoSolutionException{
-    	DimacsLiteral[] lits = literalMap.keySet().toArray(lArray(literalMap.keySet().size()));
-
-    	int[] coefs = new int[literalMap.size()];
-    	int i = 0;
-    	for(DimacsLiteral lit: lits){
-    		coefs[i] = literalMap.get(lit);
-    		i++;
-    	}
-    	addReifiedWPBInequality(lits, coefs, Ineq.GEQ, nValue, equivalentTo);
-    }
- 
-    @Override    
-    public void addAtLeastQuantifier(HashMap<DimacsLiteral,Integer> literalMap, 
-    		int nValue, DimacsLiteral equivalentTo) throws NoSolutionException{
-    	DimacsLiteral[] lits = literalMap.keySet().toArray(lArray(literalMap.keySet().size()));
-
-		int[] coefs = new int[literalMap.size()];
-		int i = 0;
-		for(DimacsLiteral lit: lits){
-			coefs[i] = literalMap.get(lit);
-			i++;
-		}
-		addReifiedWPBInequality(lits, coefs, Ineq.GEQ, nValue, equivalentTo);
     }
 }

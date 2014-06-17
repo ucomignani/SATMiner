@@ -47,7 +47,7 @@ import java.util.List;
 
 import dag.satmining.NoSolutionException;
 import dag.satmining.constraints.Literal;
-import dag.satmining.constraints.PBBuilder;
+import dag.satmining.constraints.ReifiedWeightedPBBuilder;
 import dag.satmining.constraints.mining.AbstractSupport;
 
 /**
@@ -66,7 +66,7 @@ public class GSSupport<E,L extends Literal<L>> extends AbstractSupport<L> {
     }
     
     @Override
-    protected void addMatchAt(int patternPos, PBBuilder<L> h) throws NoSolutionException {
+    protected void addMatchAt(int patternPos, ReifiedWeightedPBBuilder<L> h) throws NoSolutionException {
         int firstForcedJok = Math.min(_data.size()-patternPos, _domain.size());
         List<L> letterMatchers = new ArrayList<L>(_domain.size());
         for(int i = 0; i < firstForcedJok; i++) {

@@ -49,7 +49,7 @@ import dag.satmining.NoSolutionException;
 import dag.satmining.backend.Interpretation;
 import dag.satmining.constraints.Constraint;
 import dag.satmining.constraints.Literal;
-import dag.satmining.constraints.PBBuilder;
+import dag.satmining.constraints.ReifiedWeightedPBBuilder;
 import dag.satmining.output.PatternConverter;
 import dag.satmining.utils.ArrayContainer;
 import dag.satmining.utils.MatrixCollection;
@@ -110,7 +110,7 @@ public class SPDomain<L extends Literal<L>> implements Constraint<L>, PatternCon
      * @param patternSize the size of the pattern.
      * @throws NoSolutionException
      */
-	private void buildDomain(PBBuilder<L> h) throws NoSolutionException {
+	private void buildDomain(ReifiedWeightedPBBuilder<L> h) throws NoSolutionException {
         _variables = h.lMatrix(_patternSize,_joker + 1);
         for (int i = 0; i < _patternSize; i++) {
             for (int j = 0; j < _joker + 1; j++) {
@@ -119,7 +119,7 @@ public class SPDomain<L extends Literal<L>> implements Constraint<L>, PatternCon
         }
     }
 
-	private void addIsInTrail(PBBuilder<L> h) throws NoSolutionException {
+	private void addIsInTrail(ReifiedWeightedPBBuilder<L> h) throws NoSolutionException {
         _isInTrail = h.lArray(_variables.length);
         int last = _variables.length - 1;
         // case of the last position in the pattern
@@ -145,7 +145,7 @@ public class SPDomain<L extends Literal<L>> implements Constraint<L>, PatternCon
     }
 
     @Override
-    public final void addClauses(PBBuilder<L> h)
+    public final void addClauses(ReifiedWeightedPBBuilder<L> h)
             throws NoSolutionException {
         LOG.debug("Creating domain ...");
         buildDomain(h);
@@ -206,7 +206,7 @@ public class SPDomain<L extends Literal<L>> implements Constraint<L>, PatternCon
      * @throws NoSolutionException if the SAT handler detects that there is no
      * solution
      */
-    public final void addForbidSequence(CharSequence s, PBBuilder<L> satHandler)
+    public final void addForbidSequence(CharSequence s, ReifiedWeightedPBBuilder<L> satHandler)
             throws NoSolutionException {
         int[] values = new int[getPatternMaxSize()];
         int i = 0;
@@ -234,7 +234,7 @@ public class SPDomain<L extends Literal<L>> implements Constraint<L>, PatternCon
      * @param seq the sequence in terms of letter ids.
      * @return true if the constraint could be added.
      */
-    public final void addForbidSequence(int[] seq, PBBuilder<L> satHandler)
+    public final void addForbidSequence(int[] seq, ReifiedWeightedPBBuilder<L> satHandler)
             throws NoSolutionException {
         if (seq.length != getPatternMaxSize()) {
             throw new IllegalArgumentException(
@@ -254,7 +254,7 @@ public class SPDomain<L extends Literal<L>> implements Constraint<L>, PatternCon
      *
      * @return true if the constraint could be added.
      */
-	private void addFirstNotJoker(PBBuilder<L> satHandler)
+	private void addFirstNotJoker(ReifiedWeightedPBBuilder<L> satHandler)
             throws NoSolutionException {
         satHandler.addClause(_variables[0][_joker].getOpposite());
     }

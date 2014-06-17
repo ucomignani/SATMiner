@@ -54,7 +54,7 @@ public interface Constraint<L extends Literal<L>> {
 	 * @param satHandler
 	 *            the object to which to add clauses.
 	 */
-	public abstract void addClauses(PBBuilder<L> satHandler)
+	public abstract void addClauses(ReifiedWeightedPBBuilder<L> satHandler)
 			throws NoSolutionException;
 
 }

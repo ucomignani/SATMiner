@@ -74,7 +74,7 @@ import dag.satmining.backend.pb.gen.NaivePBFactory;
 import dag.satmining.backend.sat4j.SAT4JPBBuilder;
 import dag.satmining.constraints.ClauseBuilder;
 import dag.satmining.constraints.Literal;
-import dag.satmining.constraints.PBBuilder;
+import dag.satmining.constraints.ReifiedWeightedPBBuilder;
 import dag.satmining.constraints.mining.Generator;
 import dag.satmining.constraints.mining.UsageException;
 import dag.satmining.output.Limitable;
@@ -120,7 +120,7 @@ public class Main<L extends Literal<L>> implements Runnable {
     private static final String LIMIT_OPT = "limit";
 
     // Internal variables
-    private PBBuilder<L> _builder;
+    private ReifiedWeightedPBBuilder<L> _builder;
     private Generator<L> _generator;
     private CommandLine _cmd;
     private Class<L> _litClazz;
@@ -135,12 +135,12 @@ public class Main<L extends Literal<L>> implements Runnable {
     private long _minisatTimeout = -1L;
 
     /**
-     * Builds a PB-SAT miner using the provided {@link PBBuilder} as core
+     * Builds a PB-SAT miner using the provided {@link ReifiedWeightedPBBuilder} as core
      * backend.
      * 
      * @param internalBuilder
      */
-    public Main(Class<L> litClazz, PBBuilder<L> internalBuilder,
+    public Main(Class<L> litClazz, ReifiedWeightedPBBuilder<L> internalBuilder,
             ModelReader modelReader) {
         this._builder = internalBuilder;
         this._litClazz = litClazz;
@@ -420,7 +420,7 @@ public class Main<L extends Literal<L>> implements Runnable {
         }
     }
 
-    private static <L extends Literal<L>> PBBuilder<L> defaultEncoding(
+    private static <L extends Literal<L>> ReifiedWeightedPBBuilder<L> defaultEncoding(
             ClauseBuilder<L> builder) {
         return new CardNetworksPBFactory<L>(builder);
     }

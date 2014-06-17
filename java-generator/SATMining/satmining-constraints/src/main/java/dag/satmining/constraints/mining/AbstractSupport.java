@@ -41,7 +41,7 @@ package dag.satmining.constraints.mining;
 import dag.satmining.NoSolutionException;
 import dag.satmining.constraints.Constraint;
 import dag.satmining.constraints.Literal;
-import dag.satmining.constraints.PBBuilder;
+import dag.satmining.constraints.ReifiedWeightedPBBuilder;
 
 /**
  * Represents the notion of support in a mining problem.
@@ -75,7 +75,7 @@ public abstract class AbstractSupport<L extends Literal<L>> implements
 	/**
 	 * Initializes the variables for this constraint.
 	 */
-	private void initLiterals(PBBuilder<L> sat) {
+	private void initLiterals(ReifiedWeightedPBBuilder<L> sat) {
 		_positionLiterals = sat.lArray(_size);
 		for (int pos = 0; pos < _positionLiterals.length; pos++) {
 			_positionLiterals[pos] = sat.newLiteral();
@@ -83,7 +83,7 @@ public abstract class AbstractSupport<L extends Literal<L>> implements
 	}
 
 	@Override
-	public void addClauses(PBBuilder<L> sat) throws NoSolutionException {
+	public void addClauses(ReifiedWeightedPBBuilder<L> sat) throws NoSolutionException {
 		initLiterals(sat);
 		for (int patternPos = 0; patternPos < _positionLiterals.length; patternPos++) {
 			addMatchAt(patternPos, sat);
@@ -98,7 +98,7 @@ public abstract class AbstractSupport<L extends Literal<L>> implements
 	 * @param satHandler
 	 *            the handler for adding clauses.
 	 */
-	protected abstract void addMatchAt(int patternPos, PBBuilder<L> satHandler)
+	protected abstract void addMatchAt(int patternPos, ReifiedWeightedPBBuilder<L> satHandler)
 			throws NoSolutionException;
 
 	/**

@@ -49,7 +49,7 @@ import org.apache.commons.cli.Options;
 import dag.satmining.NoSolutionException;
 import dag.satmining.constraints.Constraint;
 import dag.satmining.constraints.Literal;
-import dag.satmining.constraints.PBBuilder;
+import dag.satmining.constraints.ReifiedWeightedPBBuilder;
 import dag.satmining.output.PatternConverter;
 
 /**
@@ -84,7 +84,7 @@ public abstract class Generator<L extends Literal<L>> {
 	 * @param sat
 	 * @throws NoSolutionException
 	 */
-	public final void buildModel(PBBuilder<L> sat) throws NoSolutionException {
+	public final void buildModel(ReifiedWeightedPBBuilder<L> sat) throws NoSolutionException {
 		for(Constraint<L> constraint : _constraints) {
 			constraint.addClauses(sat);
 		}

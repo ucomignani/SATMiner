@@ -40,7 +40,7 @@ package dag.satmining.constraints.mining;
 
 import dag.satmining.constraints.Constraint;
 import dag.satmining.constraints.Literal;
-import dag.satmining.constraints.PBBuilder;
+import dag.satmining.constraints.ReifiedWeightedPBBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -66,7 +66,7 @@ public class Container<L extends Literal<L>> implements Constraint<L> {
 	}
 
 	@Override
-	public final void addClauses(PBBuilder<L> sat) throws NoSolutionException {
+	public final void addClauses(ReifiedWeightedPBBuilder<L> sat) throws NoSolutionException {
 		for (Constraint<L> constraint : _constraints) {
 			constraint.addClauses(sat);
 		}

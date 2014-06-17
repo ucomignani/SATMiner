@@ -48,7 +48,7 @@ import java.util.List;
 
 import dag.satmining.NoSolutionException;
 import dag.satmining.constraints.Literal;
-import dag.satmining.constraints.PBBuilder;
+import dag.satmining.constraints.ReifiedWeightedPBBuilder;
 import dag.satmining.constraints.mining.AbstractSupport;
 
 /**
@@ -67,7 +67,7 @@ public class IPSupport<L extends Literal<L>> extends AbstractSupport<L> {
     }
     
     @Override
-    protected void addMatchAt(int patternPos, PBBuilder<L> satHandler) throws NoSolutionException {
+    protected void addMatchAt(int patternPos, ReifiedWeightedPBBuilder<L> satHandler) throws NoSolutionException {
         List<L> lits = new ArrayList<L>();
         BitSet tr = _data.get(patternPos);
         for(int i = 0; i < _domain.size(); i++) {

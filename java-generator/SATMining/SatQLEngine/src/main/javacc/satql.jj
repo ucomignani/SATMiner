@@ -282,110 +282,136 @@ Token t, t2 = null;
     } } )
 }
 
-void TupleQuantifierExpr(From from, boolean firstQuantifier):
+void TupleQuantifierExpr(From from, boolean isFirstQuantifier):
 { 
   Token t,t2,t3 = null;
   Token t4 = null;
   ArrayList<String> namesNUplet = new ArrayList<String>(); 
 }
 { 
-    (<FORALL> (t=<IDENTIFIER> | "("t=<IDENTIFIER> ("," AjoutNamesNUplet(namesNUplet))+")") (<WHERE> t3=< RAW_SQL_STATEMENT >)? <COLON> (t4=< RAW_SQL_STATEMENT > < AND >)?
-    { if (t3==null) { 
-		if (t4==null) {
-			if (namesNUplet.size()==0) {
-    	    	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true), t.image,null,firstQuantifier,new Integer("-1"),false);
-     		} else {
-        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true), t.image,namesNUplet,firstQuantifier,new Integer("-1"),false);
-			}
-     	} else {
-			if (namesNUplet.size()==0) {
-    	    	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t.image,null,firstQuantifier,new Integer("-1"),false);
-     		} else {
-        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t.image,namesNUplet,firstQuantifier,new Integer("-1"),false);
-			}
-    	}
-    } else {
-		if (t4==null) {
-			if (namesNUplet.size()==0) {
-        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t.image,null,firstQuantifier,new Integer("-1"),false);
-     		} else {
-        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t.image,namesNUplet,firstQuantifier,new Integer("-1"),false);
-			}
-     	} else {
-			if (namesNUplet.size()==0) {
-        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t.image,null,firstQuantifier,new Integer("-1"),false);
-     		} else {
-        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t.image,namesNUplet,firstQuantifier,new Integer("-1"),false);
-			}
-    	}
-    }})
-| ( <ATLEAST> t=<LITERAL>(
+    (<FORALL> ForallQuantifier(from, isFirstQuantifier))
+| ( <ATLEAST> t=<LITERAL>
+		(<PERCENT> AtleastPercentQuantifier(from, isFirstQuantifier, t)
+		| (AtleastNQuantifier(from, isFirstQuantifier, t))))
+}
 
-	(<PERCENT> <OF> (t2=<IDENTIFIER> | "("t2=<IDENTIFIER> ("," AjoutNamesNUplet(namesNUplet))+")") (<WHERE> t3=< RAW_SQL_STATEMENT >)? <COLON> (t4=< RAW_SQL_STATEMENT > < AND >)?
+void ForallQuantifier(From from, boolean isFirstQuantifier):
+{ 
+  Token t,t2,t3 = null;
+  Token t4 = null;
+  ArrayList<String> namesNUplet = new ArrayList<String>(); 
+}
+{ 
+    (t=<IDENTIFIER> | "("t=<IDENTIFIER> ("," AjoutNamesNUplet(namesNUplet))+")") (<WHERE> t3=< RAW_SQL_STATEMENT >)? <COLON> (t4=< RAW_SQL_STATEMENT > < AND >)?
     { if (t3==null) { 
 		if (t4==null) {
 			if (namesNUplet.size()==0) {
-        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true),t2.image,null,firstQuantifier,new Integer(t.image),true);
+    	    	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true), t.image,null,isFirstQuantifier,new Integer("-1"),false);
      		} else {
-        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true),t2.image,namesNUplet,firstQuantifier,new Integer(t.image),true);
+        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true), t.image,namesNUplet,isFirstQuantifier,new Integer("-1"),false);
 			}
      	} else {
 			if (namesNUplet.size()==0) {
-        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t2.image,null,firstQuantifier,new Integer(t.image),true);
+    	    	from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t.image,null,isFirstQuantifier,new Integer("-1"),false);
      		} else {
-        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t2.image,namesNUplet,firstQuantifier,new Integer(t.image),true);
+        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t.image,namesNUplet,isFirstQuantifier,new Integer("-1"),false);
 			}
     	}
     } else {
 		if (t4==null) {
 			if (namesNUplet.size()==0) {
-        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t2.image,null,firstQuantifier,new Integer(t.image),true);
+        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t.image,null,isFirstQuantifier,new Integer("-1"),false);
      		} else {
-        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t2.image,namesNUplet,firstQuantifier,new Integer(t.image),true);
+        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t.image,namesNUplet,isFirstQuantifier,new Integer("-1"),false);
 			}
      	} else {
 			if (namesNUplet.size()==0) {
-        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t2.image,null,firstQuantifier,new Integer(t.image),true);
+        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t.image,null,isFirstQuantifier,new Integer("-1"),false);
      		} else {
-        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t2.image,namesNUplet,firstQuantifier,new Integer(t.image),true);
+        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t.image,namesNUplet,isFirstQuantifier,new Integer("-1"),false);
 			}
     	}
-    }})
-
-	| (<OF> (t2=<IDENTIFIER> | "("t2=<IDENTIFIER> ("," AjoutNamesNUplet(namesNUplet))+")") (<WHERE> t3=< RAW_SQL_STATEMENT >)? <COLON> (t4=< RAW_SQL_STATEMENT > < AND >)?
-    { if (t3==null) { 
-		if (t4==null) {
-			if (namesNUplet.size()==0) {
-        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true),t2.image,null,firstQuantifier,new Integer(t.image),false);
-     		} else {
-        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true),t2.image,namesNUplet,firstQuantifier,new Integer(t.image),false);
-			}
-     	} else {
-			if (namesNUplet.size()==0) {
-        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t2.image,null,firstQuantifier,new Integer(t.image),false);
-     		} else {
-        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t2.image,namesNUplet,firstQuantifier,new Integer(t.image),false);
-			}
-    	}
-    } else {
-		if (t4==null) {
-			if (namesNUplet.size()==0) {
-        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t2.image,null,firstQuantifier,new Integer(t.image),false);
-     		} else {
-        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t2.image,namesNUplet,firstQuantifier,new Integer(t.image),false);
-			}
-     	} else {
-			if (namesNUplet.size()==0) {
-        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t2.image,null,firstQuantifier,new Integer(t.image),false);
-     		} else {
-        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t2.image,namesNUplet,firstQuantifier,new Integer(t.image),false);
-			}
-    	}
-    }})
-    )
-    ) 
+    }} 
  }
 
+void AtleastPercentQuantifier(From from, boolean isFirstQuantifier, Token nValue):
+{ 
+  Token t,t2,t3 = null;
+  Token t4 = null;
+  ArrayList<String> namesNUplet = new ArrayList<String>(); 
+}
+{ 
+ (<OF> (t2=<IDENTIFIER> | "("t2=<IDENTIFIER> ("," AjoutNamesNUplet(namesNUplet))+")") (<WHERE> t3=< RAW_SQL_STATEMENT >)? <COLON> (t4=< RAW_SQL_STATEMENT > < AND >)?
+    { if (t3==null) { 
+		if (t4==null) {
+			if (namesNUplet.size()==0) {
+        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true),t2.image,null,isFirstQuantifier,new Integer(nValue.image),true);
+     		} else {
+        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true),t2.image,namesNUplet,isFirstQuantifier,new Integer(nValue.image),true);
+			}
+     	} else {
+			if (namesNUplet.size()==0) {
+        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t2.image,null,isFirstQuantifier,new Integer(nValue.image),true);
+     		} else {
+        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t2.image,namesNUplet,isFirstQuantifier,new Integer(nValue.image),true);
+			}
+    	}
+    } else {
+		if (t4==null) {
+			if (namesNUplet.size()==0) {
+        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t2.image,null,isFirstQuantifier,new Integer(nValue.image),true);
+     		} else {
+        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t2.image,namesNUplet,isFirstQuantifier,new Integer(nValue.image),true);
+			}
+     	} else {
+			if (namesNUplet.size()==0) {
+        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t2.image,null,isFirstQuantifier,new Integer(nValue.image),true);
+     		} else {
+        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t2.image,namesNUplet,isFirstQuantifier,new Integer(nValue.image),true);
+			}
+    	}
+    }})
+  }
+
+ void AtleastNQuantifier(From from, boolean isFirstQuantifier, Token nValue):
+{ 
+  Token t,t2,t3 = null;
+  Token t4 = null;
+  ArrayList<String> namesNUplet = new ArrayList<String>(); 
+}
+{ 
+ (<OF> (t2=<IDENTIFIER> | "("t2=<IDENTIFIER> ("," AjoutNamesNUplet(namesNUplet))+")") (<WHERE> t3=< RAW_SQL_STATEMENT >)? <COLON> (t4=< RAW_SQL_STATEMENT > < AND >)?
+    { if (t3==null) { 
+		if (t4==null) {
+			if (namesNUplet.size()==0) {
+        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true),t2.image,null,isFirstQuantifier,new Integer(nValue.image),false);
+     		} else {
+        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery("{0=0}",true),t2.image,namesNUplet,isFirstQuantifier,new Integer(nValue.image),false);
+			}
+     	} else {
+			if (namesNUplet.size()==0) {
+        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t2.image,null,isFirstQuantifier,new Integer(nValue.image),false);
+     		} else {
+        		from.addQuantifierName(new RAWSQLQuery("{0=0}",true),new RAWSQLQuery(t4.image,true),t2.image,namesNUplet,isFirstQuantifier,new Integer(nValue.image),false);
+			}
+    	}
+    } else {
+		if (t4==null) {
+			if (namesNUplet.size()==0) {
+        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t2.image,null,isFirstQuantifier,new Integer(nValue.image),false);
+     		} else {
+        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery("{0=0}",true),t2.image,namesNUplet,isFirstQuantifier,new Integer(nValue.image),false);
+			}
+     	} else {
+			if (namesNUplet.size()==0) {
+        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t2.image,null,isFirstQuantifier,new Integer(nValue.image),false);
+     		} else {
+        		from.addQuantifierName(new RAWSQLQuery(t3.image,true),new RAWSQLQuery(t4.image,true),t2.image,namesNUplet,isFirstQuantifier,new Integer(nValue.image),false);
+			}
+    	}
+    }})
+  }
+  
 void AjoutNamesNUplet(ArrayList<String > namesNUplet):
 {  Token t = null;
 }
@@ -393,12 +419,6 @@ void AjoutNamesNUplet(ArrayList<String > namesNUplet):
 	{		namesNUplet.add(t.image);
 	}
 }
-//Where WhereClause():
-//{ SQLBooleanValue c; }
-//{
-//  <WHERE> c=SQLBooleanValue()
-//  { return new Where(c); }
-//}
       
 SQLBooleanValue SQLBooleanValue():
 { SQLBooleanValue v;}

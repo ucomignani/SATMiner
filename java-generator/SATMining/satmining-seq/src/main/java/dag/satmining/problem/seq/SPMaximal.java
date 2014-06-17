@@ -52,7 +52,7 @@ import dag.satmining.NoSolutionException;
 import dag.satmining.constraints.Constraint;
 import dag.satmining.constraints.Ineq;
 import dag.satmining.constraints.Literal;
-import dag.satmining.constraints.PBBuilder;
+import dag.satmining.constraints.ReifiedWeightedPBBuilder;
 
 /**
  *
@@ -72,7 +72,7 @@ public class SPMaximal<L extends Literal<L>> implements Constraint<L> {
     }
 
     @Override
-    public void addClauses(PBBuilder<L> satHandler) throws NoSolutionException {
+    public void addClauses(ReifiedWeightedPBBuilder<L> satHandler) throws NoSolutionException {
 //        for (int c = 0; c < _domain.getJoker(); ++c) {
 //            for (int i = 0; i < _domain.getPatternMaxSize(); ++i) {
 //                LOG.debug("sumLetterAtPos({},{})", c, i);
@@ -91,7 +91,7 @@ public class SPMaximal<L extends Literal<L>> implements Constraint<L> {
         }
     }
 
-	private void constraintJoker(int pos, PBBuilder<L> satHandler) throws NoSolutionException {
+	private void constraintJoker(int pos, ReifiedWeightedPBBuilder<L> satHandler) throws NoSolutionException {
 		L[] conj = satHandler.lArray(_domain.getJoker());
         for (int c = 0; c < _domain.getJoker(); ++c) {
             conj[c] = satHandler.newStrongLiteral();
@@ -139,7 +139,7 @@ public class SPMaximal<L extends Literal<L>> implements Constraint<L> {
         }
     }*/
 
-    private void notShiftSumLetter(int letter, int shift, PBBuilder<L> satHandler) throws NoSolutionException {
+    private void notShiftSumLetter(int letter, int shift, ReifiedWeightedPBBuilder<L> satHandler) throws NoSolutionException {
         List<L> toSum = new ArrayList<L>();
         for (int k = shift; k < _support.size(); ++k) {
             if (_support.getLetterAt(k - shift) == letter) {

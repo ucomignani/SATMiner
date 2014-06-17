@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
 import dag.satmining.NoSolutionException;
 import dag.satmining.constraints.Constraint;
 import dag.satmining.constraints.Literal;
-import dag.satmining.constraints.PBBuilder;
+import dag.satmining.constraints.ReifiedWeightedPBBuilder;
 import dk.brics.automaton.Automaton;
 import dk.brics.automaton.RegExp;
 import dk.brics.automaton.State;
@@ -114,7 +114,7 @@ public class SPRegExp<L extends Literal<L>> implements Constraint<L> {
     }
 
 	@Override
-    public void addClauses(PBBuilder<L> satHandler) throws NoSolutionException {
+    public void addClauses(ReifiedWeightedPBBuilder<L> satHandler) throws NoSolutionException {
         RecogLits r = new RecogLits(satHandler);
         for (int i = 0; i < _domain.getPatternMaxSize(); i++) {
             for (State s : _automaton.getStates()) {
@@ -150,7 +150,7 @@ public class SPRegExp<L extends Literal<L>> implements Constraint<L> {
         private Map<State, L>[] _recog;
 
         @SuppressWarnings("unchecked")
-		public RecogLits(PBBuilder<L> f) {
+		public RecogLits(ReifiedWeightedPBBuilder<L> f) {
             _recog = new Map[_domain.getPatternMaxSize()];
             for (int i = 0; i < _domain.getPatternMaxSize(); i++) {
                 _recog[i] = new TreeMap<State, L>();

@@ -55,10 +55,9 @@ import org.slf4j.LoggerFactory;
 
 import dag.satmining.NoSolutionException;
 import dag.satmining.backend.Interpretation;
-import dag.satmining.constraints.Constraint;
 import dag.satmining.constraints.Literal;
-import dag.satmining.constraints.PBBuilder;
 import dag.satmining.constraints.ReifiedWeightedPBBuilder;
+import dag.satmining.constraints.Constraint;
 import dag.satmining.output.PatternConverter;
 import dag.satmining.problem.satql.ast.sql.BitSetFetcher;
 import dag.satmining.problem.satql.ast.sql.From;
@@ -163,7 +162,7 @@ public class MiningQuery<L extends Literal<L>> implements Constraint<L>, Pattern
 		_suchThat = _dict.and(_suchThat, Sugar.singleton(_dict, sv));
 	}
 
-	@Override
+	/* @Override
 	public void addClauses(PBBuilder<L> satHandler) throws NoSolutionException {
 		try {
 			buildDomain(satHandler);
@@ -184,10 +183,11 @@ public class MiningQuery<L extends Literal<L>> implements Constraint<L>, Pattern
 			throw new NoSolutionException(e);
 		}
 	}
+	*/
 	
-	public void addWeightedClauses(ReifiedWeightedPBBuilder<L> satWeightedHandler) throws NoSolutionException {
+	public void addClauses(ReifiedWeightedPBBuilder<L> satWeightedHandler) throws NoSolutionException {
 		try {
-			buildWeightedPBDomain(satWeightedHandler);
+			buildPBDomain(satWeightedHandler);
 			_suchThat = _suchThat.pushDown();
 			SQLBinding sqlBinding = new SQLBinding(_suchThat, _attributes,
 					getDomainMap(), _dict, _doCache);
@@ -208,19 +208,8 @@ public class MiningQuery<L extends Literal<L>> implements Constraint<L>, Pattern
 			throw new NoSolutionException(e);
 		}
 	}
-	
-	private void buildDomain(PBBuilder<L> satHandler) throws NoSolutionException {
-		_domain = satHandler.lMatrix(getSchemaVariables().size(),_attributes.size());
-		for (int sv = 0; sv < _domain.length; sv++) {
-			for (int att = 0; att < _attributes.size(); att++) {
-				_domain[sv][att] = satHandler.newStrongLiteral();
-			}
-			// non empty sets only
-			satHandler.addClause(_domain[sv]);
-		}
-	}
-	
-	private void buildWeightedPBDomain(ReifiedWeightedPBBuilder<L> satHandler) throws NoSolutionException {
+
+	private void buildPBDomain(ReifiedWeightedPBBuilder<L> satHandler) throws NoSolutionException {
 		_domain = satHandler.lMatrix(getSchemaVariables().size(),_attributes.size());
 		for (int sv = 0; sv < _domain.length; sv++) {
 			for (int att = 0; att < _attributes.size(); att++) {

@@ -49,7 +49,7 @@ import dag.satmining.NoSolutionException;
 import dag.satmining.backend.Interpretation;
 import dag.satmining.constraints.Constraint;
 import dag.satmining.constraints.Literal;
-import dag.satmining.constraints.PBBuilder;
+import dag.satmining.constraints.ReifiedWeightedPBBuilder;
 import dag.satmining.output.PatternConverter;
 
 /**
@@ -67,7 +67,7 @@ public class IPDomain<L extends Literal<L>> implements PatternConverter, Constra
         this._nbItems = nbItems;
     }
     
-	private void initVariablesArrays(PBBuilder<L> h) throws NoSolutionException {
+	private void initVariablesArrays(ReifiedWeightedPBBuilder<L> h) throws NoSolutionException {
         LOG.debug("entering initVariablesArrays");
         _items = h.lArray(_nbItems);
         for(int i = 0; i < _nbItems; i++) {
@@ -78,7 +78,7 @@ public class IPDomain<L extends Literal<L>> implements PatternConverter, Constra
     }
     
     @Override
-    public void addClauses(PBBuilder<L> satHandler) throws NoSolutionException {
+    public void addClauses(ReifiedWeightedPBBuilder<L> satHandler) throws NoSolutionException {
         initVariablesArrays(satHandler);
     }
 

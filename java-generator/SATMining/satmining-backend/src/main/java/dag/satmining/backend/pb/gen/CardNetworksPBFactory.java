@@ -300,4 +300,18 @@ public class CardNetworksPBFactory<L extends Literal<L>> extends
 		}
 	}
 
+	@Override
+	public void addReifiedWPBInequality(L[] lits, int[] coefs, Ineq ineq,
+			int value, L equivTo) throws NoSolutionException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addWPBInequality(L[] lits, int[] coefs, Ineq ineq, int value)
+			throws NoSolutionException {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

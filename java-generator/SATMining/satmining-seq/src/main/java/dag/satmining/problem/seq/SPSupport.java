@@ -40,7 +40,7 @@ package dag.satmining.problem.seq;
 
 import dag.satmining.NoSolutionException;
 import dag.satmining.constraints.Literal;
-import dag.satmining.constraints.PBBuilder;
+import dag.satmining.constraints.ReifiedWeightedPBBuilder;
 import dag.satmining.constraints.mining.AbstractSupport;
 
 /**
@@ -83,7 +83,7 @@ public class SPSupport<L extends Literal<L>> extends AbstractSupport<L> {
      * @throws NoSolutionException if the SAT handler discovers that there is no solutions
      */
 	private L literalForPatternMatchAt(int patternPos,
-            int posInPattern, PBBuilder<L> h) throws NoSolutionException {
+            int posInPattern, ReifiedWeightedPBBuilder<L> h) throws NoSolutionException {
         int absPos = patternPos + posInPattern;
         if (absPos >= _intContent.length) {
             // out of content, letter should be the joker
@@ -100,7 +100,7 @@ public class SPSupport<L extends Literal<L>> extends AbstractSupport<L> {
     }
 
     @Override
-    protected void addMatchAt(int patternPosition, PBBuilder<L> satHandler) throws NoSolutionException {
+    protected void addMatchAt(int patternPosition, ReifiedWeightedPBBuilder<L> satHandler) throws NoSolutionException {
         int patternSize = _domain.getPatternMaxSize();
 		L[] conj = satHandler.lArray(patternSize);
         for (int posInPattern = 0; posInPattern < patternSize; posInPattern++) {

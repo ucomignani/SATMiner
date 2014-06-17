@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
 import dag.satmining.NoSolutionException;
 import dag.satmining.constraints.Constraint;
 import dag.satmining.constraints.Literal;
-import dag.satmining.constraints.PBBuilder;
+import dag.satmining.constraints.ReifiedWeightedPBBuilder;
 
 /**
  * 
@@ -69,7 +69,7 @@ public class SPClosed<L extends Literal<L>> implements Constraint<L> {
 	}
 
 	@Override
-	public void addClauses(PBBuilder<L> satHandler) throws NoSolutionException {
+	public void addClauses(ReifiedWeightedPBBuilder<L> satHandler) throws NoSolutionException {
 		// no replacing of chars by jokers
 		for (int c = 0; c < _domain.getJoker(); ++c) { // for all letters except
 														// the joker
@@ -106,7 +106,7 @@ public class SPClosed<L extends Literal<L>> implements Constraint<L> {
 	 *            the handler for adding clauses
 	 */
 	private void addLetterPositionClosed(int letter, int i,
-			PBBuilder<L> satHandler) throws NoSolutionException {
+			ReifiedWeightedPBBuilder<L> satHandler) throws NoSolutionException {
 		List<L> conj = new ArrayList<L>();
 		for (int k = 0; k < _support.size(); ++k) {
 			if (_support.size() <= i + k
@@ -134,7 +134,7 @@ public class SPClosed<L extends Literal<L>> implements Constraint<L> {
 	 * @throws NoSolutionException
 	 */
 	private void addLetterShiftMismatch(int letter, int shift,
-			PBBuilder<L> satHandler) throws NoSolutionException {
+			ReifiedWeightedPBBuilder<L> satHandler) throws NoSolutionException {
 		List<L> lits = new ArrayList<L>();
 		for (int k = 0; k < _support.size(); ++k) {
 			if (k - shift < 0 || _support.getLetterAt(k - shift) != letter) {

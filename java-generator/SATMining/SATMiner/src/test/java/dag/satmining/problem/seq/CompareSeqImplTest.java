@@ -63,7 +63,7 @@ import dag.satmining.backend.dimacs.DimacsLiteral;
 import dag.satmining.backend.dimacs.FileDimacsBackend;
 import dag.satmining.backend.minisat.MinisatModelReader;
 import dag.satmining.backend.pb.gen.CardNetworksPBFactory;
-import dag.satmining.constraints.PBBuilder;
+import dag.satmining.constraints.ReifiedWeightedPBBuilder;
 import dag.satmining.constraints.mining.Generator;
 import dag.satmining.constraints.mining.UsageException;
 import dag.satmining.output.FileModelOutput;
@@ -88,7 +88,7 @@ public class CompareSeqImplTest extends TestCase {
 		File cnfFile = File.createTempFile("satminer_junit_", ".cnf");
 		cnfFile.deleteOnExit();
 		LOG.info("Output CNF to {}", cnfFile);
-		PBBuilder<DimacsLiteral> handler = new CardNetworksPBFactory<DimacsLiteral>(
+		ReifiedWeightedPBBuilder<DimacsLiteral> handler = new CardNetworksPBFactory<DimacsLiteral>(
 				new FileDimacsBackend(cnfFile));
 		File rawOutput = File.createTempFile("satminer_junit_seq_", ".txt");
 		LOG.info("Output patterns to {}", rawOutput);

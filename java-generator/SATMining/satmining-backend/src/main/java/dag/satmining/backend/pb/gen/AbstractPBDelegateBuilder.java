@@ -43,10 +43,10 @@ import java.util.Collection;
 import dag.satmining.NoSolutionException;
 import dag.satmining.constraints.ClauseBuilder;
 import dag.satmining.constraints.Literal;
-import dag.satmining.constraints.PBBuilder;
+import dag.satmining.constraints.ReifiedWeightedPBBuilder;
 import dag.satmining.output.SolutionWriter;
 
-public abstract class AbstractPBDelegateBuilder<L extends Literal<L>> implements PBBuilder<L>{
+public abstract class AbstractPBDelegateBuilder<L extends Literal<L>> implements ReifiedWeightedPBBuilder<L>{
 
 	protected ClauseBuilder<L> _builder;
 	

@@ -48,7 +48,7 @@ import java.util.List;
 import dag.satmining.NoSolutionException;
 import dag.satmining.constraints.Constraint;
 import dag.satmining.constraints.Literal;
-import dag.satmining.constraints.PBBuilder;
+import dag.satmining.constraints.ReifiedWeightedPBBuilder;
 
 /**
  * Implements the constraint that no more than l jokers can be found 
@@ -73,7 +73,7 @@ public class SPMaxConsecutiveJokers<L extends Literal<L>> implements Constraint<
     }
     
     @Override
-    public void addClauses(PBBuilder<L> satHandler) throws NoSolutionException {
+    public void addClauses(ReifiedWeightedPBBuilder<L> satHandler) throws NoSolutionException {
         for(int i = 0; i < _domain.getPatternMaxSize()-_maxJoks; i++) {
             List<L> lits = new ArrayList<L>();
             lits.add(_domain.isInTrail(i));

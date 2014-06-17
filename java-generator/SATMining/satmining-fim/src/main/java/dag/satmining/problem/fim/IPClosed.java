@@ -49,7 +49,7 @@ import java.util.List;
 import dag.satmining.NoSolutionException;
 import dag.satmining.constraints.Constraint;
 import dag.satmining.constraints.Literal;
-import dag.satmining.constraints.PBBuilder;
+import dag.satmining.constraints.ReifiedWeightedPBBuilder;
 
 /**
  * 
@@ -66,7 +66,7 @@ public class IPClosed<L extends Literal<L>> implements Constraint<L> {
 	}
 
 	@Override
-	public void addClauses(PBBuilder<L> h) throws NoSolutionException {
+	public void addClauses(ReifiedWeightedPBBuilder<L> h) throws NoSolutionException {
 		@SuppressWarnings("unchecked")
 		List<L>[] trNoMatches = new List[_domain.size()];
 		for (int item = 0; item < _domain.size(); item++) {

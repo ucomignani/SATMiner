@@ -105,26 +105,10 @@ public class SingleStatementBitSetFetcher implements BitSetFetcher {
     @Override
     public BitSetWithRowNumbers getBitSet() throws SQLException {
         if (_current == null) {
-          //  if (_singleAttribute) {
-          //     _current = fromSingle(_cursor, _nbCond);
-          //} else {
                 _current = fromMultiple(_cursor, _nbCond, _nbQuantifiers);
-          //}
         }
         return _current;
     }
-
-    /*private static BitSet fromSingle(ResultSet rs, int nbCond)
-            throws SQLException {
-        BitSet res = new BitSet();
-        String data = rs.getString(1);
-        for (int i = 0; i < nbCond; i++) {
-            if (data.charAt(i) == TRUE_C) {
-                res.set(i);
-            }
-        }
-        return res;
-    }*/
 
     private static BitSetWithRowNumbers fromMultiple(ResultSet rs, int nbCond, int nbQuantifiers)
             throws SQLException {

@@ -49,7 +49,7 @@ import dag.satmining.NoSolutionException;
 import dag.satmining.backend.Interpretation;
 import dag.satmining.constraints.Constraint;
 import dag.satmining.constraints.Literal;
-import dag.satmining.constraints.PBBuilder;
+import dag.satmining.constraints.ReifiedWeightedPBBuilder;
 import dag.satmining.output.PatternConverter;
 
 /**
@@ -72,14 +72,14 @@ public class GSDomain<E,L extends Literal<L>> implements Constraint<L>, PatternC
         this._size = patternMaxSize;
     }
     
-    private void buildDomain(PBBuilder<L> satHandler) throws NoSolutionException {
+    private void buildDomain(ReifiedWeightedPBBuilder<L> satHandler) throws NoSolutionException {
         _domain = new ArrayList<LetterLiteral<E,L>>(_size);
         for (int i = 0; i < _size; i++) {
             _domain.add(_lFactory.newLetterVariable(satHandler));
         }
     }
 
-	public void addClauses(PBBuilder<L> satHandler) throws NoSolutionException {
+	public void addClauses(ReifiedWeightedPBBuilder<L> satHandler) throws NoSolutionException {
         buildDomain(satHandler);
         L firstIsJoker = _domain.get(0).equivToJoker(satHandler);
         // The first element of the sequence pattern cannot be the joker.

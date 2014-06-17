@@ -58,7 +58,7 @@ public class NamedFromQuantifiedExpression implements QuantifierExpression, From
 	public String getName() {
 		return _name;
 	}
-	
+
 	public ArrayList<String> getnamesNUplet() {
 		return _namesNUplet;
 	}
@@ -82,129 +82,144 @@ public class NamedFromQuantifiedExpression implements QuantifierExpression, From
 
 	@Override
 	public void buildSQLQuery(StringBuilder output, StringBuilder filter) {
-		
-		FromExpression exprNUplet;
-		String name;
 
 		if(this._isFirstQuantifier){ //FROM
 
-			if(_namesNUplet == null){
-
-				output.append("(select");
-
-				if (_name != null) {
-					output.append(" " + _name + ".");
-				}
-
-				output.append("*, ROW_NUMBER() OVER() as row_num from ");
-				_expr.buildSQLQuery(output);
-				output.append(" where ");
-				_quant.buildSQLQueryNoName(output);
-				output.append(")");
-
-				if (_name != null) {
-					output.append(" ");
-					output.append(_name);
-				}
-
-			} else {//gestion des couples de variables de tuples	    		
-				output.append("((select");
-
-				if (_name != null) {
-					output.append(" ");
-					output.append(_name);
-					output.append(".");
-				}
-				output.append("*, ROW_NUMBER() OVER() as row_num from ");
-				_expr.buildSQLQuery(output);
-
-
-				output.append(")");
-
-				if (_name != null) {
-					output.append(" ");
-					output.append(_name);
-				}
-
-				for(int i=0; i<_namesNUplet.size()-1;i++){ //pour les n-1 premieres variables donc avec ON (0=0)
-				name = _namesNUplet.get(i);
-				output.append(" INNER JOIN (select " + name + ".*, ROW_NUMBER() OVER() as row_num from ");
-				exprNUplet = extractQuery(name, _queries);	  
-				exprNUplet.buildSQLQuery(output);
-				output.append(") " + name + " ON (0=0)");
-				}
-				
-				//dernière variable: ON avec la contrainte
-				name = _namesNUplet.get(_namesNUplet.size()-1);
-				output.append(" INNER JOIN (select " + name + ".*, ROW_NUMBER() OVER() as row_num from ");
-				exprNUplet = extractQuery(name, _queries);	  
-				exprNUplet.buildSQLQuery(output);
-				output.append(") " + name + " ON ");
-				_quant.buildSQLQueryNoName(output);
-				output.append(")");
-			}
+			if(_namesNUplet == null)
+				buildFromSimpleSQLQuery(output, filter);
+			else 	    		
+				buildFromNUpletSQLQuery(output, filter);
 
 		} else { //LEFT OUTER JOIN
-
-			if(_namesNUplet == null){
-				
-				output.append("(select");
-
-				if (_name != null) {
-					output.append(" ");
-					output.append(_name);
-					output.append(".");
-				}
-
-				output.append("*, ROW_NUMBER() OVER() as row_num from ");
-				_expr.buildSQLQuery(output);
-				output.append(")");
-
-
-				if (_name != null) {
-					output.append(" ");
-					output.append(_name);
-				}
-
-				output.append(" ON (");
-				_quant.buildSQLQueryNoName(output);
-				output.append(" AND " + filter);
-				output.append(")");
-
-			} else {//gestion des n-uplets de variables de tuples	    		
-					
-				output.append("((select");
-
-				if (_name != null) {
-					output.append(" " + _name + ".");
-				}
-
-				output.append("*, ROW_NUMBER() OVER() as row_num from ");
-				_expr.buildSQLQuery(output);
-				output.append(")");
-
-
-				if (_name != null) {
-					output.append(" " + _name);
-				}
-
-				
-				for(String nameCrossJoin: _namesNUplet){
-				output.append(" CROSS JOIN (select " + nameCrossJoin + ".*, ROW_NUMBER() OVER() as row_num from ");
-				exprNUplet = extractQuery(nameCrossJoin, _queries);	  
-				exprNUplet.buildSQLQuery(output);
-				output.append(") " + nameCrossJoin + ")");
-				}
-				
-				output.append(" ON (");
-				_quant.buildSQLQueryNoName(output);
-				output.append(" AND " + filter);
-				output.append(")");
-			}
+			
+			if(_namesNUplet == null)
+				buildLeftOuterJoinSimpleSQLQuery(output, filter);				
+			else 	    		
+				buildLeftOuterJoinNUpletSQLQuery(output, filter);	
 
 		}
 		filter.setLength(0);
 		_filter.buildSQLQueryNoName(filter);
+	}
 
+	public void buildFromSimpleSQLQuery(StringBuilder output, StringBuilder filter) {
+
+		output.append("(select");
+
+		if (_name != null) {
+			output.append(" " + _name + ".");
+		}
+
+		output.append("*, ROW_NUMBER() OVER() as row_num from ");
+		_expr.buildSQLQuery(output);
+		output.append(" where ");
+		_quant.buildSQLQueryNoName(output);
+		output.append(")");
+
+		if (_name != null) {
+			output.append(" ");
+			output.append(_name);
+		}
+	}
+
+	public void buildFromNUpletSQLQuery(StringBuilder output, StringBuilder filter) {
+
+		FromExpression exprNUplet;
+		String name;
+
+		output.append("((select");
+
+		if (_name != null) {
+			output.append(" ");
+			output.append(_name);
+			output.append(".");
+		}
+		output.append("*, ROW_NUMBER() OVER() as row_num from ");
+		_expr.buildSQLQuery(output);
+
+
+		output.append(")");
+
+		if (_name != null) {
+			output.append(" ");
+			output.append(_name);
+		}
+
+		for(int i=0; i<_namesNUplet.size()-1;i++){ //pour les n-1 premieres variables donc avec ON (0=0)
+			name = _namesNUplet.get(i);
+			output.append(" INNER JOIN (select " + name + ".*, ROW_NUMBER() OVER() as row_num from ");
+			exprNUplet = extractQuery(name, _queries);	  
+			exprNUplet.buildSQLQuery(output);
+			output.append(") " + name + " ON (0=0)");
+		}
+
+		//dernière variable: ON avec la contrainte
+		name = _namesNUplet.get(_namesNUplet.size()-1);
+		output.append(" INNER JOIN (select " + name + ".*, ROW_NUMBER() OVER() as row_num from ");
+		exprNUplet = extractQuery(name, _queries);	  
+		exprNUplet.buildSQLQuery(output);
+		output.append(") " + name + " ON ");
+		_quant.buildSQLQueryNoName(output);
+		output.append(")");
+
+	}
+
+	public void buildLeftOuterJoinSimpleSQLQuery(StringBuilder output, StringBuilder filter) {
+
+		output.append("(select");
+
+		if (_name != null) {
+			output.append(" ");
+			output.append(_name);
+			output.append(".");
+		}
+
+		output.append("*, ROW_NUMBER() OVER() as row_num from ");
+		_expr.buildSQLQuery(output);
+		output.append(")");
+
+
+		if (_name != null) {
+			output.append(" ");
+			output.append(_name);
+		}
+
+		output.append(" ON (");
+		_quant.buildSQLQueryNoName(output);
+		output.append(" AND " + filter);
+		output.append(")");
+	}
+
+	public void buildLeftOuterJoinNUpletSQLQuery(StringBuilder output, StringBuilder filter) {
+
+		FromExpression exprNUplet;
+
+		output.append("((select");
+
+		if (_name != null) {
+			output.append(" " + _name + ".");
+		}
+
+		output.append("*, ROW_NUMBER() OVER() as row_num from ");
+		_expr.buildSQLQuery(output);
+		output.append(")");
+
+
+		if (_name != null) {
+			output.append(" " + _name);
+		}
+
+
+		for(String nameCrossJoin: _namesNUplet){
+			output.append(" CROSS JOIN (select " + nameCrossJoin + ".*, ROW_NUMBER() OVER() as row_num from ");
+			exprNUplet = extractQuery(nameCrossJoin, _queries);	  
+			exprNUplet.buildSQLQuery(output);
+			output.append(") " + nameCrossJoin + ")");
+		}
+
+		output.append(" ON (");
+		_quant.buildSQLQueryNoName(output);
+		output.append(" AND " + filter);
+		output.append(")");
 	}
 }

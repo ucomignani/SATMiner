@@ -52,7 +52,7 @@ import dag.satmining.NoSolutionException;
 import dag.satmining.constraints.Constraint;
 import dag.satmining.constraints.Ineq;
 import dag.satmining.constraints.Literal;
-import dag.satmining.constraints.PBBuilder;
+import dag.satmining.constraints.ReifiedWeightedPBBuilder;
 
 /**
  * 
@@ -73,7 +73,7 @@ public class IPMaximal<L extends Literal<L>> implements Constraint<L> {
 	}
 
 	@Override
-	public void addClauses(PBBuilder<L> h) throws NoSolutionException {
+	public void addClauses(ReifiedWeightedPBBuilder<L> h) throws NoSolutionException {
 		for (int item = 0; item < _domain.size(); item++) {
 			List<L> trToCount = new ArrayList<L>();
 			for (int tr = 0; tr < _support.size(); tr++) {

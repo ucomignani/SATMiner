@@ -42,7 +42,7 @@ import dag.satmining.constraints.Constraint;
 import dag.satmining.NoSolutionException;
 import dag.satmining.constraints.Ineq;
 import dag.satmining.constraints.Literal;
-import dag.satmining.constraints.PBBuilder;
+import dag.satmining.constraints.ReifiedWeightedPBBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,7 +87,7 @@ public class MinFrequency<L extends Literal<L>> implements Constraint<L> {
 	}
 
 	@Override
-	public final void addClauses(PBBuilder<L> satHandler)
+	public final void addClauses(ReifiedWeightedPBBuilder<L> satHandler)
 			throws NoSolutionException {
 		L[] literals = satHandler.lArray(_contentLength);
 		for (int i = 0; i < _contentLength; i++) {

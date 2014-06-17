@@ -48,7 +48,6 @@ import junit.framework.TestCase;
 import dag.satmining.backend.dimacs.DimacsLiteral;
 import dag.satmining.problem.satql.ast.ASTDictionnary;
 import dag.satmining.problem.satql.ast.MiningQuery;
-import dag.satmining.problem.satql.ast.SQLDelegateAtom;
 import dag.satmining.problem.satql.ast.sql.SQLTrue;
 
 /**

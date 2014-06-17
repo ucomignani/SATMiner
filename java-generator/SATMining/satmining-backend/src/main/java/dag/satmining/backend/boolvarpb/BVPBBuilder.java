@@ -60,6 +60,7 @@ import boolvar.utility.QuotaException;
 import dag.satmining.NoSolutionException;
 import dag.satmining.constraints.Ineq;
 import dag.satmining.constraints.PBBuilder;
+import dag.satmining.constraints.ReifiedWeightedPBBuilder;
 import dag.satmining.constraints.WeightedPBBuilder;
 import dag.satmining.constraints.impl.AbstractClauseBuilder;
 import dag.satmining.constraints.impl.OneTrue;
@@ -68,7 +69,7 @@ import dag.satmining.output.PatternConverter;
 import dag.satmining.output.SolutionWriter;
 
 public class BVPBBuilder extends AbstractClauseBuilder<BVLiteral> implements
-		PBBuilder<BVLiteral>, WeightedPBBuilder<BVLiteral>, Constraint,
+		PBBuilder<BVLiteral>, WeightedPBBuilder<BVLiteral>, ReifiedWeightedPBBuilder<BVLiteral>, Constraint,
 		SolutionWriter {
 
 	private BitSet _strongBackdoor;
@@ -312,4 +313,10 @@ public class BVPBBuilder extends AbstractClauseBuilder<BVLiteral> implements
 		_vars = null;
 	}
 
+	@Override
+	public void addReifiedWPBInequality(BVLiteral[] lits, int[] coefs,
+			Ineq ineq, int value, BVLiteral equivTo) throws NoSolutionException {
+		// TODO Auto-generated method stub
+		
+	}
 }
