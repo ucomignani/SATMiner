@@ -40,6 +40,7 @@ package dag.satmining.problem.satql.ast.sql;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public interface BitSetFetcher {
@@ -48,7 +49,8 @@ public interface BitSetFetcher {
 	BitSetWithRowNumbers getBitSet() throws SQLException, IOException;
 	void setSelect(List<SQLBooleanValue> conditionsToTest);
 	void setFrom(From from);
-    public void setNbQuantifiers(int nbQuantifiers);
+    public void setNbTuplesVariables(int nbQuantifiers);
+    public void setSizeNUplets(List<NamedFromQuantifiedExpression> _quantifiers);    
 	void setWhere(Where where);
 	
 }

@@ -50,127 +50,106 @@ import java.util.*;
  */
 public class From implements Iterable<NamedFromQuantifiedExpression>, SQLRenderer {
 
-    private List<NamedFromExpression> _queries = new ArrayList<NamedFromExpression>();
-    private List<NamedFromQuantifiedExpression> _quantifiers = new ArrayList<NamedFromQuantifiedExpression>();
-    private boolean _isMiningFrom;
+	private List<NamedFromExpression> _queries = new ArrayList<NamedFromExpression>();
+	private List<NamedFromQuantifiedExpression> _quantifiers = new ArrayList<NamedFromQuantifiedExpression>();
+	private boolean _isMiningFrom;
 
-    public From(boolean isMiningFrom) {
-        this._isMiningFrom = isMiningFrom;
-    }
+	public From(boolean isMiningFrom) {
+		this._isMiningFrom = isMiningFrom;
+	}
 
-    public void addName(String name) {
-        addQueryName(null, name);
-    }
+	public void addName(String name) {
+		addQueryName(null, name);
+	}
 
-    public void addQueryName(FromExpression origQuery, String name) {
-    	FromExpression query = origQuery;
-        if (query == null) {
-            if (_isMiningFrom) {
-                if (_queries.isEmpty()) {
-                    throw new IllegalArgumentException("The first query cannot be null");
-                } else {
-                    query = _queries.get(_queries.size() - 1);
-                }
-            } else {
-                query = new Relation(name);
-            }
-        }
-        _queries.add(new NamedFromExpression(name, query));
-    }
- 
-    public void addQuantifierName(QuantifierExpression origQuantifierQuery, FromExpression origFilterQuery, String name, ArrayList<String> namesNUplet, boolean isFirstQuantifier, int nQuantifierValue, boolean isPercentQuantifier) {
-    	QuantifierExpression quantifierQuery = origQuantifierQuery;
-    	FromExpression filterQuery = origFilterQuery;
-    	
-        if (quantifierQuery == null) {
-                if (_quantifiers.isEmpty()) {
-                    throw new IllegalArgumentException("Need at least one tuple quantifier");
-                } else {
-                	quantifierQuery = _quantifiers.get(_quantifiers.size() - 1);
-                }
-            }
-        
-        _quantifiers.add(new NamedFromQuantifiedExpression(name, namesNUplet, quantifierQuery, _queries, filterQuery, isFirstQuantifier, nQuantifierValue, isPercentQuantifier));
-    }
-    
-    public List<NamedFromQuantifiedExpression> getQuantifierList() {
-        return _quantifiers;
-    }
-    
-    public List<QuantifierGeneralInformations> getQuantifierGeneralInformationsList() {
-    	ArrayList<QuantifierGeneralInformations> quantifierGeneralInformations = new ArrayList<QuantifierGeneralInformations>();
-    	
-    	for(NamedFromQuantifiedExpression expr: _quantifiers){
-    		quantifierGeneralInformations.add(new QuantifierGeneralInformations((expr.getNQuantifierValue() == -1),
-    															expr.getIsPercentQuantifier(),
-    															expr.getNQuantifierValue()));
-    	}
-    	
-    	return quantifierGeneralInformations;
-    }
-    
-    @Override
-    public Iterator<NamedFromQuantifiedExpression> iterator() {
-        return _quantifiers.iterator();
-    }
+	public void addQueryName(FromExpression origQuery, String name) {
+		FromExpression query = origQuery;
+		if (query == null) {
+			if (_isMiningFrom) {
+				if (_queries.isEmpty()) {
+					throw new IllegalArgumentException("The first query cannot be null");
+				} else {
+					query = _queries.get(_queries.size() - 1);
+				}
+			} else {
+				query = new Relation(name);
+			}
+		}
+		_queries.add(new NamedFromExpression(name, query));
+	}
 
-    
-    public void buildSelectQuantifierSQLQuery(StringBuilder output){
-    	for (NamedFromQuantifiedExpression expr : _quantifiers) {
-    		
-			List<String> namesNUplet = expr.getnamesNUplet();
+	public void addQuantifierName(QuantifierExpression origQuantifierQuery, FromExpression origFilterQuery, ArrayList<String> namesNUplet, boolean isFirstQuantifier, int nQuantifierValue, boolean isPercentQuantifier) {
+		QuantifierExpression quantifierQuery = origQuantifierQuery;
+		FromExpression filterQuery = origFilterQuery;
 
-    		if(expr != _quantifiers.get(_quantifiers.size() - 1)){
+		if (quantifierQuery == null) {
+			if (_quantifiers.isEmpty()) {
+				throw new IllegalArgumentException("Need at least one tuple quantifier");
+			} else {
+				quantifierQuery = _quantifiers.get(_quantifiers.size() - 1);
+			}
+		}
 
-    			if(namesNUplet == null){
-    				output.append(" , " + expr.getName() + ".row_num as RN_"+ expr.getName());
-    			} else {
-	    			output.append(" , (TRIM(CAST(" + expr.getName() + ".row_num AS CHAR(10))) ");
-	    			
-	    			for(String name : namesNUplet) {
-		    			output.append("|| 'x' || TRIM(CAST(" + name +".row_num AS CHAR(10)))");	    			
-	    			}
-	    			output.append(") as RN_" + expr.getName()); //on se contente de concatener le nom de la premiere variable de tuple car ce nom sera unique
-	    													  //du fait que l'on ne peut utiliser une telle variable qu'une fois par requête
+		_quantifiers.add(new NamedFromQuantifiedExpression(namesNUplet, quantifierQuery, _queries, filterQuery, isFirstQuantifier, nQuantifierValue, isPercentQuantifier));
+	}
 
-    			}
-    		} else {
-    			
-    			if(namesNUplet == null){
-    				output.append(" , (CASE WHEN ");
-	    			expr.getFilter().buildSQLQueryNoName(output);
-	    			output.append(" THEN " + expr.getName() +".row_num ELSE NULL END) as RN_" + expr.getName());
-	    		} else {
-	    			output.append(" , (CASE WHEN ");
-	    			expr.getFilter().buildSQLQueryNoName(output);	
-	    			output.append(" THEN (TRIM(CAST(" + expr.getName() + ".row_num AS CHAR(10))) ");
-	    			
-	    			for(String name : namesNUplet) {
-		    			output.append("|| 'x' || TRIM(CAST(" + name +".row_num AS CHAR(10)))");	    			
-	    			}
-	    			output.append(") ELSE NULL END) as RN_" + expr.getName()); //on se contente de concatener le nom de la premiere variable de tuple car ce nom sera unique
-	    													  //du fait que l'on ne peut utiliser une telle variable qu'une fois par requête
+	public List<NamedFromQuantifiedExpression> getQuantifierList() {
+		return _quantifiers;
+	}
 
-	    		}
-    		}
-        }      
-    }
-    
-    @Override
-    public void buildSQLQuery(StringBuilder output) {
-    	StringBuilder tupleFilter = new StringBuilder();
-    	
-        boolean first = true;
-        for (NamedFromQuantifiedExpression expr : _quantifiers) {
-            if (first) {
-                output.append("FROM ");
-                expr.buildSQLQuery(output, tupleFilter);
-                
-                first = false;
-            } else {
-                output.append(" LEFT OUTER JOIN ");
-                expr.buildSQLQuery(output, tupleFilter);
-            }
-        }      
-    }
+	public List<QuantifierGeneralInformations> getQuantifierGeneralInformationsList() {
+		ArrayList<QuantifierGeneralInformations> quantifierGeneralInformations = new ArrayList<QuantifierGeneralInformations>();
+
+		for(NamedFromQuantifiedExpression expr: _quantifiers){
+			quantifierGeneralInformations.add(new QuantifierGeneralInformations((expr.getNQuantifierValue() == -1),
+					expr.getIsPercentQuantifier(),
+					expr.getNQuantifierValue()));
+		}
+
+		return quantifierGeneralInformations;
+	}
+
+	@Override
+	public Iterator<NamedFromQuantifiedExpression> iterator() {
+		return _quantifiers.iterator();
+	}
+
+
+	public void buildSelectQuantifierSQLQuery(StringBuilder output){
+		for (NamedFromQuantifiedExpression expr : _quantifiers) {
+
+			if(expr != _quantifiers.get(_quantifiers.size() - 1)){
+
+				for(String name : expr.getNamesNUplet()) {
+					output.append(", " + name +".row_num AS RN_" + name);	    			
+				}
+
+			} else {
+				for(String name : expr.getNamesNUplet()) {
+					output.append(" , (CASE WHEN ");
+					expr.getFilter().buildSQLQueryNoName(output);	
+					output.append(" THEN " + name + ".row_num ");
+					output.append(" ELSE NULL END) as RN_" + name); 
+				}
+			}
+		}
+	}      
+
+	@Override
+	public void buildSQLQuery(StringBuilder output) {
+		StringBuilder tupleFilter = new StringBuilder();
+
+		boolean first = true;
+		for (NamedFromQuantifiedExpression expr : _quantifiers) {
+			if (first) {
+				output.append("FROM ");
+				expr.buildSQLQuery(output, tupleFilter);
+
+				first = false;
+			} else {
+				output.append(" LEFT OUTER JOIN ");
+				expr.buildSQLQuery(output, tupleFilter);
+			}
+		}      
+	}
 }

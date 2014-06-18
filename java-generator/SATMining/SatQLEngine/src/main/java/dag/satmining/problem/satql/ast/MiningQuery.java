@@ -195,7 +195,8 @@ public class MiningQuery<L extends Literal<L>> implements Constraint<L>, Pattern
 					.getSelectStatements();
 			_bsr.setSelect(subFormulasToEvaluate);
 			_bsr.setFrom(_from);
-			_bsr.setNbQuantifiers(_from.getQuantifierList().size());
+			_bsr.setNbTuplesVariables(_from.getQuantifierList().size());
+			_bsr.setSizeNUplets(_from.getQuantifierList());
 			_bsr.setWhere(_where);
 			
 			List<QuantifierGeneralInformations> quantifierGeneralInformations = _from.getQuantifierGeneralInformationsList();

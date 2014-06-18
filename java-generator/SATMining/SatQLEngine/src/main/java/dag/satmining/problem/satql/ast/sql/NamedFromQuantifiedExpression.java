@@ -3,9 +3,17 @@ package dag.satmining.problem.satql.ast.sql;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import dag.satmining.problem.satql.ast.MiningExpressionTest;
+
 public class NamedFromQuantifiedExpression implements QuantifierExpression, FromExpression {
 
-	private final String _name;
+	
+	private static final Logger LOG = LoggerFactory
+			.getLogger(MiningExpressionTest.class);
+	
 	private final ArrayList<String> _namesNUplet;
 	private final QuantifierExpression _quant;
 	private final FromExpression _expr;
@@ -15,13 +23,12 @@ public class NamedFromQuantifiedExpression implements QuantifierExpression, From
 	private final int _nQuantifierValue; // -1 if universal quantifier
 	private final boolean _isPercentQuantifier;
 
-	public NamedFromQuantifiedExpression(String name, ArrayList<String> namesNUplet, 
+	public NamedFromQuantifiedExpression(ArrayList<String> namesNUplet, 
 			QuantifierExpression quant, List<NamedFromExpression> queries, FromExpression filter, 
-			boolean isFirstQuantifier, int nQuantifierValue, boolean isPercentQuantifier) {
-		this._name = name;
+			boolean isFirstQuantifier, int nQuantifierValue, boolean isPercentQuantifier) {		
 		this._namesNUplet = namesNUplet;	    	
 		this._quant = quant;
-		this._expr = extractQuery(name, queries);
+		this._expr = extractQuery(_namesNUplet.get(0), queries);
 		this._queries = queries;
 		this._filter = filter;
 		this._isFirstQuantifier = isFirstQuantifier;
@@ -29,7 +36,7 @@ public class NamedFromQuantifiedExpression implements QuantifierExpression, From
 		this._isPercentQuantifier = isPercentQuantifier;
 
 		if (_expr == null) {
-			throw new IllegalArgumentException("No SCOPE for " + this._name);
+			throw new IllegalArgumentException("No SCOPE for " + this._namesNUplet.get(0));
 		} 
 	}
 
@@ -55,11 +62,7 @@ public class NamedFromQuantifiedExpression implements QuantifierExpression, From
 		return _filter;
 	}
 
-	public String getName() {
-		return _name;
-	}
-
-	public ArrayList<String> getnamesNUplet() {
+	public ArrayList<String> getNamesNUplet() {
 		return _namesNUplet;
 	}
 
@@ -85,18 +88,14 @@ public class NamedFromQuantifiedExpression implements QuantifierExpression, From
 
 		if(this._isFirstQuantifier){ //FROM
 
-			if(_namesNUplet == null)
+			if(_namesNUplet.size() == 1)
 				buildFromSimpleSQLQuery(output, filter);
 			else 	    		
 				buildFromNUpletSQLQuery(output, filter);
 
 		} else { //LEFT OUTER JOIN
-			
-			if(_namesNUplet == null)
-				buildLeftOuterJoinSimpleSQLQuery(output, filter);				
-			else 	    		
-				buildLeftOuterJoinNUpletSQLQuery(output, filter);	
-
+   		
+			buildLeftOuterJoinNUpletSQLQuery(output, filter);	
 		}
 		filter.setLength(0);
 		_filter.buildSQLQueryNoName(filter);
@@ -106,8 +105,8 @@ public class NamedFromQuantifiedExpression implements QuantifierExpression, From
 
 		output.append("(select");
 
-		if (_name != null) {
-			output.append(" " + _name + ".");
+		if (_namesNUplet.get(0) != null) {
+			output.append(" " + _namesNUplet.get(0) + ".");
 		}
 
 		output.append("*, ROW_NUMBER() OVER() as row_num from ");
@@ -116,9 +115,9 @@ public class NamedFromQuantifiedExpression implements QuantifierExpression, From
 		_quant.buildSQLQueryNoName(output);
 		output.append(")");
 
-		if (_name != null) {
+		if (_namesNUplet.get(0) != null) {
 			output.append(" ");
-			output.append(_name);
+			output.append(_namesNUplet.get(0));
 		}
 	}
 
@@ -129,9 +128,9 @@ public class NamedFromQuantifiedExpression implements QuantifierExpression, From
 
 		output.append("((select");
 
-		if (_name != null) {
+		if (_namesNUplet.get(0) != null) {
 			output.append(" ");
-			output.append(_name);
+			output.append(_namesNUplet.get(0));
 			output.append(".");
 		}
 		output.append("*, ROW_NUMBER() OVER() as row_num from ");
@@ -140,17 +139,17 @@ public class NamedFromQuantifiedExpression implements QuantifierExpression, From
 
 		output.append(")");
 
-		if (_name != null) {
+		if (_namesNUplet.get(0) != null) {
 			output.append(" ");
-			output.append(_name);
+			output.append(_namesNUplet.get(0));
 		}
 
-		for(int i=0; i<_namesNUplet.size()-1;i++){ //pour les n-1 premieres variables donc avec ON (0=0)
+		for(int i=1; i<_namesNUplet.size()-1;i++){ //pour les n-1 premieres variables donc avec ON (0=0)
 			name = _namesNUplet.get(i);
-			output.append(" INNER JOIN (select " + name + ".*, ROW_NUMBER() OVER() as row_num from ");
+			output.append(" CROSS JOIN (select " + name + ".*, ROW_NUMBER() OVER() as row_num from ");
 			exprNUplet = extractQuery(name, _queries);	  
 			exprNUplet.buildSQLQuery(output);
-			output.append(") " + name + " ON (0=0)");
+			output.append(") " + name);
 		}
 
 		//dernière variable: ON avec la contrainte
@@ -164,40 +163,14 @@ public class NamedFromQuantifiedExpression implements QuantifierExpression, From
 
 	}
 
-	public void buildLeftOuterJoinSimpleSQLQuery(StringBuilder output, StringBuilder filter) {
-
-		output.append("(select");
-
-		if (_name != null) {
-			output.append(" ");
-			output.append(_name);
-			output.append(".");
-		}
-
-		output.append("*, ROW_NUMBER() OVER() as row_num from ");
-		_expr.buildSQLQuery(output);
-		output.append(")");
-
-
-		if (_name != null) {
-			output.append(" ");
-			output.append(_name);
-		}
-
-		output.append(" ON (");
-		_quant.buildSQLQueryNoName(output);
-		output.append(" AND " + filter);
-		output.append(")");
-	}
-
 	public void buildLeftOuterJoinNUpletSQLQuery(StringBuilder output, StringBuilder filter) {
 
 		FromExpression exprNUplet;
 
 		output.append("((select");
 
-		if (_name != null) {
-			output.append(" " + _name + ".");
+		if (_namesNUplet.get(0) != null) {
+			output.append(" " + _namesNUplet.get(0) + ".");
 		}
 
 		output.append("*, ROW_NUMBER() OVER() as row_num from ");
@@ -205,19 +178,19 @@ public class NamedFromQuantifiedExpression implements QuantifierExpression, From
 		output.append(")");
 
 
-		if (_name != null) {
-			output.append(" " + _name);
+		if (_namesNUplet.get(0) != null) {
+			output.append(" " + _namesNUplet.get(0));
 		}
 
 
-		for(String nameCrossJoin: _namesNUplet){
-			output.append(" CROSS JOIN (select " + nameCrossJoin + ".*, ROW_NUMBER() OVER() as row_num from ");
-			exprNUplet = extractQuery(nameCrossJoin, _queries);	  
+		for(int i=1; i<_namesNUplet.size();i++){
+			output.append(" CROSS JOIN (select " + _namesNUplet.get(i) + ".*, ROW_NUMBER() OVER() as row_num from ");
+			exprNUplet = extractQuery(_namesNUplet.get(i), _queries);	  
 			exprNUplet.buildSQLQuery(output);
-			output.append(") " + nameCrossJoin + ")");
+			output.append(") " + _namesNUplet.get(i));
 		}
 
-		output.append(" ON (");
+		output.append(") ON (");
 		_quant.buildSQLQueryNoName(output);
 		output.append(" AND " + filter);
 		output.append(")");
