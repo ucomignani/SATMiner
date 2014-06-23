@@ -133,11 +133,11 @@ public class DriverCapabilitiesTest extends TestCase {
         runBoolTest(d.connect("jdbc:sqlite:target/test-sqlite",
                 new Properties()));
     }
-  /* 
+   
     public void testPGBool() throws SQLException {
         runBoolTest(pgConnect());
     }
-*/
+
     //
     //
     //
