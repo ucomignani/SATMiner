@@ -1,0 +1,9 @@
+FIND X,Y OVER g1,g2,g3,g4,g5
+SCOPE {select * from r where id LIKE '4'} t1, t2, t3,t4
+
+FORALL (t1,t2,t3) WHERE {1=1}:{1=1} AND
+ATLEAST 50 PERCENT OF t4 WHERE {1=1}: {1=1} AND
+
+SUCH THAT
+FORALL $A IN X: FORALL $B IN Y: {t1.$A = t2.$B AND NOT t3.$A LIKE '0'}
+;

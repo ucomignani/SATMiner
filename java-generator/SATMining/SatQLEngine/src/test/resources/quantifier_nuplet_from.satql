@@ -1,0 +1,8 @@
+FIND X,Y OVER g1,g2,g3,g4,g5
+SCOPE {select * from r} t1, t2, t3
+
+ATLEAST 70 PERCENT OF (t1,t2,t3): 
+
+SUCH THAT
+FORALL $A IN X: FORALL $B IN Y: ({t1.$A = t2.$B} OR {t1.$A = t3.$B})
+;
