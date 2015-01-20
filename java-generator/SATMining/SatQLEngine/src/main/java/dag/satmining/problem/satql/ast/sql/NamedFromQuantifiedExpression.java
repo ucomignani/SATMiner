@@ -49,8 +49,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import dag.satmining.problem.satql.ast.MiningExpressionTest;
-
 /**
  *
  * @author ucomignani
@@ -59,7 +57,7 @@ public class NamedFromQuantifiedExpression implements QuantifierExpression, From
 
 	
 	private static final Logger LOG = LoggerFactory
-			.getLogger(MiningExpressionTest.class);
+			.getLogger(NamedFromQuantifiedExpression.class);
 	
 	private final ArrayList<String> _namesNUplet;
 	private final QuantifierExpression _quant;
