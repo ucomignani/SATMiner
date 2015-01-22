@@ -97,7 +97,7 @@ public class OutputTest extends TestCase {
 		outputFile.close();
 		assertEquals(LIMIT_VALUE, cpt);
 	}
-
+	
 	public final void testSolutionOutput() throws Exception {
 		String[] args = { "-f", "5", "-m", "3", "-genseq", "15", "3", "-sat4j" };
 		SAT4JPBBuilder sat4j = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);

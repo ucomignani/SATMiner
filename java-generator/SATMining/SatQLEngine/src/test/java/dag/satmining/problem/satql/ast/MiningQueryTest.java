@@ -57,6 +57,7 @@ import org.slf4j.LoggerFactory;
 import dag.satmining.NoSolutionException;
 import dag.satmining.backend.dimacs.DimacsLiteral;
 import dag.satmining.backend.sat4j.SAT4JPBBuilder;
+import dag.satmining.backend.sat4j.SAT4JPBBuilderPRAND;
 import dag.satmining.problem.satql.ast.sql.SingleStatementBitSetFetcher;
 import dag.satmining.problem.satql.parser.ParseException;
 import dag.satmining.utils.SQLScript;
@@ -74,6 +75,7 @@ public class MiningQueryTest extends TestCase {
 	Connection c;
 	EmbeddedDataSource ds;
 	SAT4JPBBuilder sat4jHandler;
+	SAT4JPBBuilderPRAND sat4jHandlerPRAND;
 
 	public MiningQueryTest() throws SQLException {
 		ds = new EmbeddedDataSource();
@@ -381,6 +383,22 @@ assertEquals(5, nbModels);
 		int nbModels = 0;
 		while(sat4jHandler.getNext()) {
 			LOG.debug("found: {}", query.getPattern(sat4jHandler.getCurrentInterpretation()));
+			nbModels++;
+		}
+		assertEquals(39, nbModels);
+	}
+	
+	public void testFunctionnalDependenciesWithSingleton_PRAND()
+			throws ParseException, NoSolutionException {
+		MiningQuery<DimacsLiteral> query = MiningQuery.parse(DimacsLiteral.class, new InputStreamReader(getClass()
+				.getResourceAsStream("/funct_deps_y_singleton.satql")));
+		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
+		sat4jHandlerPRAND = new SAT4JPBBuilderPRAND(SAT4JPBBuilderPRAND.SMALL);
+		query.addClauses(sat4jHandlerPRAND);
+		sat4jHandlerPRAND.endProblem();
+		int nbModels = 0;
+		while(sat4jHandlerPRAND.getNext()) {
+			LOG.debug("found: {}", query.getPattern(sat4jHandlerPRAND.getCurrentInterpretation()));
 			nbModels++;
 		}
 		assertEquals(39, nbModels);
