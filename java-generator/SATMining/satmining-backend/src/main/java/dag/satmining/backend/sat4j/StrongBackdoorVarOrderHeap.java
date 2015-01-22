@@ -61,7 +61,7 @@ public class StrongBackdoorVarOrderHeap extends VarOrderHeap {
     public StrongBackdoorVarOrderHeap(BitSet backDoor) {
         this._backDoor = backDoor;
     }
-    
+
     @Override
     public void init() {
         // recodage avec double pile, très lié à l'implementation de la super classe

@@ -72,7 +72,6 @@ import dag.satmining.backend.minisat.MinisatModelReader;
 import dag.satmining.backend.pb.gen.CardNetworksPBFactory;
 import dag.satmining.backend.pb.gen.NaivePBFactory;
 import dag.satmining.backend.sat4j.SAT4JPBBuilder;
-import dag.satmining.backend.sat4j.SAT4JPBBuilderPRAND;
 import dag.satmining.constraints.ClauseBuilder;
 import dag.satmining.constraints.Literal;
 import dag.satmining.constraints.ReifiedWeightedPBBuilder;
@@ -95,10 +94,6 @@ public class Main<L extends Literal<L>> implements Runnable {
     // SAT/PB Backend
     private static final String MINISAT_OPT = "minisat";
     private static final String SAT4J_OPT = "sat4j";
-    private static final String SAT4J_PRAND_OPT = "sat4j_prand";
-    private static final String SAT4J_PGUIDE_OPT = "sat4j_pguide";
-    private static final String SAT4J_PBCPGUIDE_OPT = "sat4j_pbcpguide";
-    private static final String SAT4J_PBCPGUIDE_T_OPT = "sat4j_pbcpguide_t";
     private static final String CNF_OPT = "cnf";
     private static final String MAX_MODELS_SWITCH = "-max-models";
     private static final String MINISAT_TIMEOUT_OPT = "minisatTimeout";
@@ -290,22 +285,6 @@ public class Main<L extends Literal<L>> implements Runnable {
                 .create(INPUT_OPT));
         opts.addOption(OptionBuilder.withDescription(
                 "uses SAT4J as mining backend").create(SAT4J_OPT));
-        opts.addOption(OptionBuilder.withDescription(
-                "uses SAT4J with PRAND algorithm as mining backend").create(SAT4J_PRAND_OPT));  
-        
-/* * * *
- * arguments pour les algorithmes en cours d'implementation:
- * *
-        opts.addOption(OptionBuilder.withDescription(
-                        "uses SAT4J with PGUIDE algorithm as mining backend").create(SAT4J_PGUIDE_OPT));
-        opts.addOption(OptionBuilder.withDescription(
-                "uses SAT4J with PBCPGUIDE algorithm as mining backend").create(SAT4J_PBCPGUIDE_OPT));
-        opts.addOption(OptionBuilder
-        .withArgName("conflicts number")
-        .hasArg()
-        .withDescription(
-                "uses SAT4J as mining backend with PBCPGUIDE algorithm until T conflicts have been found, PGUIDE after").create(SAT4J_PBCPGUIDE_T_OPT));        
-*/ 
         opts.addOption(OptionBuilder
                 .withArgName("minisat_exe")
                 .hasArg()
@@ -473,13 +452,6 @@ public class Main<L extends Literal<L>> implements Runnable {
             } else if (argsL.contains("-" + SAT4J_OPT)) {
                 SAT4JPBBuilder sat4jbuilder = new SAT4JPBBuilder(
                         SAT4JPBBuilder.LARGE);
-                BVPBWrapper<DimacsLiteral> wrapper = new BVPBWrapper<DimacsLiteral>(
-                        sat4jbuilder);
-                runner = new Main<BVLiteral>(BVLiteral.class, wrapper,
-                        sat4jbuilder);
-            } else if (argsL.contains("-" + SAT4J_PRAND_OPT)) { //active la diversification avec PRAND
-                SAT4JPBBuilderPRAND sat4jbuilder = new SAT4JPBBuilderPRAND(
-                        SAT4JPBBuilderPRAND.LARGE);
                 BVPBWrapper<DimacsLiteral> wrapper = new BVPBWrapper<DimacsLiteral>(
                         sat4jbuilder);
                 runner = new Main<BVLiteral>(BVLiteral.class, wrapper,
