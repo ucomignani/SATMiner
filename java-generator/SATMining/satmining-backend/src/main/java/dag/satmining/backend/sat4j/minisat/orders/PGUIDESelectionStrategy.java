@@ -49,72 +49,85 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
-*
-* @author ucomignani
-*/
+ *
+ * @author ucomignani
+ */
 public final class PGUIDESelectionStrategy implements IPhaseSelectionStrategy {
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(PGUIDESelectionStrategy.class);
-	
+
 	private static final long serialVersionUID = 1L;
 
-    protected int[] phase;
-    protected int[] nbPos;
-    protected int[] nbNeg;
+	protected int[] phase;
+	protected int[] nbPos;
+	protected int[] nbNeg;
+	protected boolean premiereInitModeleAct = true;
+	
+	public void init(int nlength) {
+		boolean nouveauCompteur = false;
+		if (this.phase == null || this.phase.length < nlength) {
+			this.phase = new int[nlength];
 
-    public void init(int nlength) {
-    	boolean nouveauCompteur = false;
-    	
-        if (this.phase == null || this.phase.length < nlength) {
-            this.phase = new int[nlength];
-
-        }
-        if(this.nbPos == null || this.nbNeg == null || this.nbPos.length < nlength || this.nbNeg.length < nlength){
-            this.nbPos = new int[nlength];
-            this.nbNeg = new int[nlength];
-            nouveauCompteur = true;
-        }
-        for (int i = 1; i < nlength; i++) {
-            this.phase[i] = negLit(i);
-            this.nbPos[i] = nouveauCompteur ? 0 : this.nbPos[i];
-            this.nbNeg[i] = nouveauCompteur ? 1 : this.nbPos[i]+1;
-        }
-    }
-
-    public void init(int var, int p) {
-        this.phase[var] = p;
-    }
-
-    public int select(int var) {
-        return this.phase[var];
-    }
-    
-	public void updateVar(int p) {
-		int varP = var(p);
-		int pi = this.nbPos[varP] - this.nbNeg[varP];
-				
-		if(pi>0){
-			this.phase[varP] = negLit(varP);
-            this.nbNeg[varP]++;
-		}else if(pi<0){
-			this.phase[varP] = posLit(varP);
-            this.nbPos[varP]++;
-		}else{
-			boolean choix = new Random().nextBoolean();
-			this.phase[varP] = choix ? posLit(varP) : negLit(varP);			
-			if(choix)
-				this.nbPos[varP]++;
-			else
-				this.nbNeg[varP]++;
 		}
+		if(this.nbPos == null || this.nbNeg == null || this.nbPos.length < nlength || this.nbNeg.length < nlength){
+			this.nbPos = new int[nlength];
+			this.nbNeg = new int[nlength];
+			nouveauCompteur = true;
+		}
+		for (int i = 1; i < nlength; i++) {
+			// on incremente les compteurs en fonction des valuations du dernier modele ou on initialise a wero si l'on vient de demarrer
 
-//		LOG.info("Var:{}; Phase choisie:{}; Nb pos:{}; Nb neg:{}", varP, this.phase[varP],this.nbPos[varP],this.nbNeg[varP]);
+			if(nouveauCompteur){
+				this.nbPos[i] = 0;
+				this.nbNeg[i] = 0;	
+			}
+			else if(premiereInitModeleAct && this.phase[i]%2 == 0)
+			{
+				this.nbPos[i] ++;
+			}
+			else if(premiereInitModeleAct && this.phase[i]%2 == 1)
+			{
+				this.nbNeg[i]++;
+			}
+			LOG.info("Var:{}; Phase choisie:{}; Nb pos:{}; Nb neg:{}", i, this.phase[i],this.nbPos[i],this.nbNeg[i]);
+
+			this.phase[i] = negLit(i);
+
+		}
+		
+		this.premiereInitModeleAct = false;//afin d'eviter de compter plusieurs fois si init() est appelle plusieurs fois de suite (comme c'est le cas dans actuellement))
+	}
+
+	public void init(int var, int p) {
+		this.phase[var] = p;
+	}
+
+	public int select(int var) {
+		this.premiereInitModeleAct = true; // pour rendre de nouveau le comptage possible au prochain appel a init()
+
+		int pi = this.nbPos[var] - this.nbNeg[var];
+
+		if(pi>0){
+			return negLit(var);
+		}else if(pi<0){
+			return posLit(var);
+		}else{
+			return  new Random().nextBoolean() ? posLit(var) : negLit(var);
+		}
+	}
+
+	public void updateVar(int p) {
+		this.premiereInitModeleAct = true; // pour rendre de nouveau le comptage possible au prochain appel a init()
+
+		int var = var(p);
+//		LOG.info("UpVar:{}; Phase choisie:{}; Nb pos:{}; Nb neg:{}", var, this.phase[var],this.nbPos[var],this.nbNeg[var]);
+		this.phase[var] = p;
 	}
 
 	@Override
 	public String toString() {
-		return "random phase selection";
+		return "guided phase selection";
 	}
 
 	public void assignLiteral(int p) {

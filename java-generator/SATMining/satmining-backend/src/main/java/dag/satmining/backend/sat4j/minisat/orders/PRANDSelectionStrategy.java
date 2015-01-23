@@ -75,16 +75,12 @@ public final class PRANDSelectionStrategy implements IPhaseSelectionStrategy {
     }
 
     public int select(int var) {
-        return this.phase[var];
+//		LOG.info("Var {}; Phase choisie: {}", varP, choix);
+		return  new Random().nextBoolean() ? posLit(var) : negLit(var);
     }
     
 	public void updateVar(int p) {
-		boolean choix = new Random().nextBoolean();
-		int varP = var(p);
-		
-//		LOG.info("Var {}; Phase choisie: {}", varP, choix);
-
-		this.phase[varP] = choix ? posLit(varP) : negLit(varP);
+		this.phase[var(p)] = p;
 	}
 
 	@Override
