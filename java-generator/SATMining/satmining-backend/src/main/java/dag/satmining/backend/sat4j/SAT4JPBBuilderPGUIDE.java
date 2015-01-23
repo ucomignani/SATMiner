@@ -1,4 +1,4 @@
-/* ./satmining-backend/src/main/java/dag/satmining/backend/sat4j/SAT4JPBBuilderPGUIDE.java
+/* ./satmining-backend/src/main/java/dag/satmining/backend/sat4j/SAT4JPBBuilderPRAND.java
 
    Copyright (C) 2013, 2014 Emmanuel Coquery.
 
@@ -38,6 +38,18 @@ exception statement from your version. */
 
 package dag.satmining.backend.sat4j;
 
+import org.sat4j.minisat.learning.MiniSATLearning;
+import org.sat4j.minisat.restarts.MiniSATRestarts;
+import org.sat4j.pb.constraints.PBMaxDataStructure;
+import org.sat4j.pb.core.PBDataStructureFactory;
+import org.sat4j.pb.core.PBSolverResolution;
+import org.sat4j.tools.ModelIterator;
+
+import dag.satmining.backend.dimacs.DimacsLiteral;
+import dag.satmining.backend.sat4j.minisat.orders.PGUIDESelectionStrategy;
+import dag.satmining.constraints.impl.PBReifier;
+import dag.satmining.constraints.impl.WeightedPBReifier;
+
 /**
 *
 * @author ucomignani
@@ -45,8 +57,24 @@ package dag.satmining.backend.sat4j;
 public class SAT4JPBBuilderPGUIDE extends SAT4JPBBuilder{
 
 	public SAT4JPBBuilderPGUIDE(int initNbVar) {
-		super(initNbVar);
-		// TODO Auto-generated constructor stub
+		super();
+		_pbReifier = new PBReifier<DimacsLiteral>(this);
+		_wpbReifier = new WeightedPBReifier<DimacsLiteral>(this, true);
+        _sat4jInitNbVar = initNbVar;
+        initSolver();
 	}
 
+	private void initSolver() {
+		// Taken from SolverFactory.PBSolverWithImpliedClause() to use
+		// specialized order for strong backdoor.
+		_varOrder = new StrongBackdoorVarOrderHeapWithPhaseSelectionChoice(_strongBackdoor, new PGUIDESelectionStrategy());
+		MiniSATLearning<PBDataStructureFactory> learning = new MiniSATLearning<PBDataStructureFactory>();
+		PBSolverResolution solver = new PBSolverResolution(learning,
+				new PBMaxDataStructure(), _varOrder, new MiniSATRestarts());
+		learning.setDataStructureFactory(solver.getDSFactory());
+		learning.setVarActivityListener(solver);
+		_solver = solver;
+		_solver.newVar(_sat4jInitNbVar);
+		_iteratorOnSolver = new ModelIterator(_solver);
+	}
 }

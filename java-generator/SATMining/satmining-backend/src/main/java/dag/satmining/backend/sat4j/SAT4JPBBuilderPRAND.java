@@ -38,9 +38,6 @@ exception statement from your version. */
 
 package dag.satmining.backend.sat4j;
 
-import java.util.BitSet;
-
-import org.sat4j.core.VecInt;
 import org.sat4j.minisat.learning.MiniSATLearning;
 import org.sat4j.minisat.restarts.MiniSATRestarts;
 import org.sat4j.pb.constraints.PBMaxDataStructure;
@@ -67,7 +64,6 @@ public class SAT4JPBBuilderPRAND extends SAT4JPBBuilder{
         initSolver();
 	}
 
-	@SuppressWarnings("unused")
 	private void initSolver() {
 		// Taken from SolverFactory.PBSolverWithImpliedClause() to use
 		// specialized order for strong backdoor.

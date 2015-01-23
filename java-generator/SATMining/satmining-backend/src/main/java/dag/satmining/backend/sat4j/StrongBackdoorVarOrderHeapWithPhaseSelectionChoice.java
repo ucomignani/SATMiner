@@ -40,10 +40,7 @@ package dag.satmining.backend.sat4j;
 
 import java.util.BitSet;
 
-import org.sat4j.core.LiteralsUtils;
-import org.sat4j.minisat.core.Heap;
 import org.sat4j.minisat.core.IPhaseSelectionStrategy;
-import org.sat4j.minisat.orders.VarOrderHeap;
 
 /**
  *
@@ -56,7 +53,5 @@ public class StrongBackdoorVarOrderHeapWithPhaseSelectionChoice extends StrongBa
 	public StrongBackdoorVarOrderHeapWithPhaseSelectionChoice(BitSet backDoor, IPhaseSelectionStrategy strategy) {
 		super(backDoor);
         super.phaseStrategy = strategy;
-		System.out.println("================== SBDWC ==================");
-
     }
 }
