@@ -42,6 +42,8 @@ exception statement from your version. */
  */
 package dag.satmining.backend.sat4j;
 
+import org.sat4j.tools.ModelIterator;
+
 import dag.satmining.NoSolutionException;
 import dag.satmining.backend.BackendTest;
 import dag.satmining.backend.dimacs.DimacsLiteral;

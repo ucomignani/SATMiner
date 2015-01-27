@@ -12,14 +12,6 @@
   		<artifactId>satmining-core</artifactId>
   		<version>1.0-SNAPSHOT</version>
   	</dependency>
-		<dependency>
-			<groupId>org.ow2.sat4j</groupId>
-			<artifactId>org.ow2.sat4j.core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.ow2.sat4j</groupId>
-			<artifactId>org.ow2.sat4j.pb</artifactId>
-		</dependency>
         <dependency>
             <groupId>net.boolvar</groupId>
             <artifactId>BoolVarPB</artifactId>
@@ -45,6 +37,16 @@
         		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
+		</dependency>		
+		<dependency>
+			<groupId>fr.liris.bd.dag</groupId>
+			<artifactId>sat4j-core</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+				<dependency>
+			<groupId>fr.liris.bd.dag</groupId>
+			<artifactId>sat4j-pb</artifactId>
+			<version>1.0-SNAPSHOT</version>
 		</dependency>
   </dependencies>
 </project>

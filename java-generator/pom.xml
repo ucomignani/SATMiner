@@ -12,6 +12,5 @@
     <module>LinesToChars</module>
     <module>DataGenerator</module>
     <module>Benchmark</module>
-    <module>Sat4j</module>
   </modules>
 </project>

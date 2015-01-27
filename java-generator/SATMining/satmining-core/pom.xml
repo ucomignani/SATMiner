@@ -13,11 +13,6 @@
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.ow2.sat4j</groupId>
-			<artifactId>org.ow2.sat4j.core</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
@@ -25,6 +20,11 @@
 		<dependency>
 		  <groupId>fr.liris.bd.dag</groupId>
 		  <artifactId>satmining-utils</artifactId>
+		  <version>1.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+		  <groupId>fr.liris.bd.dag</groupId>
+		  <artifactId>sat4j-core</artifactId>
 		  <version>1.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
