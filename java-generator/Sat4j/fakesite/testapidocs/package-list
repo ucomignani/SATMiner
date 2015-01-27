@@ -1,0 +1,10 @@
+org.sat4j
+org.sat4j.core
+org.sat4j.maxsat
+org.sat4j.minisat
+org.sat4j.minisat.constraints
+org.sat4j.minisat.core
+org.sat4j.pb
+org.sat4j.pb.constraints
+org.sat4j.reader.csp
+org.sat4j.tools

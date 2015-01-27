@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pmd version="4.2.5" timestamp="2013-02-09T14:23:00.130">
+<file name="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/OptToPBSATAdapter.java">
+<violation beginline="143" endline="145" begincolumn="11" endcolumn="9" rule="EmptyCatchBlock" ruleset="Basic Rules" package="org.sat4j.pb" class="OptToPBSATAdapter" method="model" externalInfoUrl="http://pmd.sourceforge.net/rules/basic.html#EmptyCatchBlock" priority="3">
+Avoid empty catch blocks
+</violation>
+</file>
+</pmd>

@@ -54,6 +54,7 @@ import org.slf4j.LoggerFactory;
 */
 public final class PRANDSelectionStrategy implements IPhaseSelectionStrategy {
 
+	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory
 			.getLogger(PRANDSelectionStrategy.class);
 	

@@ -54,6 +54,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class PGUIDESelectionStrategy implements IPhaseSelectionStrategy {
 
+	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory
 			.getLogger(PGUIDESelectionStrategy.class);
 
@@ -90,7 +91,6 @@ public final class PGUIDESelectionStrategy implements IPhaseSelectionStrategy {
 			{
 				this.nbNeg[i]++;
 			}
-			LOG.info("Var:{}; Phase choisie:{}; Nb pos:{}; Nb neg:{}", i, this.phase[i],this.nbPos[i],this.nbNeg[i]);
 
 			this.phase[i] = negLit(i);
 

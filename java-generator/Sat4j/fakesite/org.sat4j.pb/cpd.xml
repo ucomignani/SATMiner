@@ -1,0 +1,2104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pmd-cpd>
+<duplication lines="126" tokens="540">
+<file line="108" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MinWatchPbLong.java"/>
+<file line="111" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MinWatchPbLongCP.java"/>
+<codefragment>
+<![CDATA[
+    protected MinWatchPbLongCP(ILits voc, int[] lits, BigInteger[] coefs, // NOPMD
+            BigInteger degree, BigInteger sumCoefs) {
+
+        super(lits, coefs, degree, sumCoefs);
+        this.voc = voc;
+
+        this.watching = new int[this.coefs.length];
+        this.watched = new boolean[this.coefs.length];
+        this.activity = 0;
+        this.watchCumul = 0;
+        this.watchingCount = 0;
+
+    }
+
+    /*
+     * This method initialize the watched literals.
+     * 
+     * This method is only called in the factory methods.
+     * 
+     * @see org.sat4j.minisat.constraints.WatchPb#computeWatches()
+     */
+    @Override
+    protected void computeWatches() throws ContradictionException {
+        assert this.watchCumul == 0;
+        assert this.watchingCount == 0;
+        for (int i = 0; i < this.lits.length
+                && this.watchCumul - this.coefs[0] < this.degree; i++) {
+            if (!this.voc.isFalsified(this.lits[i])) {
+                this.voc.watch(this.lits[i] ^ 1, this);
+                this.watching[this.watchingCount++] = i;
+                this.watched[i] = true;
+                // update the initial value for watchCumul (poss)
+                this.watchCumul = this.watchCumul + this.coefs[i];
+            }
+        }
+
+        if (this.learnt) {
+            watchMoreForLearntConstraint();
+        }
+
+        if (this.watchCumul < this.degree) {
+            throw new ContradictionException("non satisfiable constraint");
+        }
+        assert nbOfWatched() == this.watchingCount;
+    }
+
+    private void watchMoreForLearntConstraint() {
+        // looking for literals to be watched,
+        // ordered by decreasing level
+        int free = 1;
+        int maxlevel, maxi, level;
+
+        while (this.watchCumul - this.coefs[0] < this.degree && free > 0) {
+            free = 0;
+            // looking for the literal falsified
+            // at the least (lowest ?) level
+            maxlevel = -1;
+            maxi = -1;
+            for (int i = 0; i < this.lits.length; i++) {
+                if (this.voc.isFalsified(this.lits[i]) && !this.watched[i]) {
+                    free++;
+                    level = this.voc.getLevel(this.lits[i]);
+                    if (level > maxlevel) {
+                        maxi = i;
+                        maxlevel = level;
+                    }
+                }
+            }
+
+            if (free > 0) {
+                assert maxi >= 0;
+                this.voc.watch(this.lits[maxi] ^ 1, this);
+                this.watching[this.watchingCount++] = maxi;
+                this.watched[maxi] = true;
+                // update of the watchCumul value
+                this.watchCumul = this.watchCumul + this.coefs[maxi];
+                free--;
+                assert free >= 0;
+            }
+        }
+        assert this.lits.length == 1 || this.watchingCount > 1;
+    }
+
+    /*
+     * This method propagates any possible value.
+     * 
+     * This method is only called in the factory methods.
+     * 
+     * @see
+     * org.sat4j.minisat.constraints.WatchPb#computePropagation(org.sat4j.minisat
+     * .UnitPropagationListener)
+     */
+    @Override
+    protected void computePropagation(UnitPropagationListener s)
+            throws ContradictionException {
+        // propagate any possible value
+        int ind = 0;
+        while (ind < this.lits.length
+                && this.watchCumul - this.coefs[this.watching[ind]] < this.degree) {
+            if (this.voc.isUnassigned(this.lits[ind])
+                    && !s.enqueue(this.lits[ind], this)) {
+                throw new ContradictionException("non satisfiable constraint");
+            }
+            ind++;
+        }
+    }
+
+    /**
+     * build a pseudo boolean constraint. Coefficients are positive integers
+     * less than or equal to the degree (this is called a normalized
+     * constraint).
+     * 
+     * @param s
+     *            a unit propagation listener
+     * @param voc
+     *            the vocabulary
+     * @param lits
+     *            the literals
+     * @param coefs
+     *            the coefficients
+     * @param degree
+     *            the degree of the constraint to normalize.
+     * @return a new PB constraint or null if a trivial inconsistency is
+     *         detected.
+     */
+    public static MinWatchPbLongCP normalizedMinWatchPbNew(
+]]>
+</codefragment>
+</duplication>
+<duplication lines="101" tokens="476">
+<file line="460" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/WatchPbLong.java"/>
+<file line="496" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/WatchPbLongCP.java"/>
+<codefragment>
+<![CDATA[
+            }
+
+            sort(from, i);
+            sort(i, to);
+        }
+
+    }
+
+    @Override
+    public String toString() {
+        StringBuffer stb = new StringBuffer();
+
+        if (this.lits.length > 0) {
+            for (int i = 0; i < this.lits.length; i++) {
+                stb.append(" + ");
+                stb.append(this.coefs[i]);
+                stb.append(".");
+                stb.append(Lits.toString(this.lits[i]));
+                stb.append("[");
+                stb.append(this.voc.valueToString(this.lits[i]));
+                stb.append("@");
+                stb.append(this.voc.getLevel(this.lits[i]));
+                stb.append("]");
+                stb.append(" ");
+            }
+            stb.append(">= ");
+            stb.append(this.degree);
+        }
+        return stb.toString();
+    }
+
+    public void assertConstraint(UnitPropagationListener s) {
+        long tmp = slackConstraint();
+        for (int i = 0; i < this.lits.length; i++) {
+            if (this.voc.isUnassigned(this.lits[i]) && tmp < this.coefs[i]) {
+                boolean ret = s.enqueue(this.lits[i], this);
+                assert ret;
+            }
+        }
+    }
+
+    public void register() {
+        assert this.learnt;
+        try {
+            computeWatches();
+        } catch (ContradictionException e) {
+            System.out.println(this);
+            assert false;
+        }
+    }
+
+    /**
+     * to obtain the literals of the constraint.
+     * 
+     * @return a copy of the array of the literals
+     */
+    public int[] getLits() {
+        int[] litsBis = new int[this.lits.length];
+        System.arraycopy(this.lits, 0, litsBis, 0, this.lits.length);
+        return litsBis;
+    }
+
+    public ILits getVocabulary() {
+        return this.voc;
+    }
+
+    /**
+     * compute an implied clause on the literals with the greater coefficients.
+     * 
+     * @return a vector containing the literals for this clause.
+     */
+    public IVecInt computeAnImpliedClause() {
+        long cptCoefs = 0;
+        int index = this.coefs.length;
+        while (cptCoefs > this.degree && index > 0) {
+            cptCoefs = cptCoefs + this.coefs[--index];
+        }
+        if (index > 0 && index < size() / 2) {
+            IVecInt literals = new VecInt(index);
+            for (int j = 0; j <= index; j++) {
+                literals.push(this.lits[j]);
+            }
+            return literals;
+        }
+        return null;
+    }
+
+    public boolean coefficientsEqualToOne() {
+        return false;
+    }
+
+    @Override
+    public boolean equals(Object pb) {
+        if (pb == null) {
+            return false;
+        }
+        // this method should be simplified since now two constraints should
+        // have
+        // always
+        // their literals in the same order
+        try {
+]]>
+</codefragment>
+</duplication>
+<duplication lines="68" tokens="379">
+<file line="101" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MaxWatchPbLong.java"/>
+<file line="101" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MaxWatchPbLongCP.java"/>
+<codefragment>
+<![CDATA[
+    private MaxWatchPbLongCP(ILits voc, int[] lits, BigInteger[] coefs,
+            BigInteger degree, BigInteger sumCoefs) {
+
+        super(lits, coefs, degree, sumCoefs);
+        this.voc = voc;
+
+        this.activity = 0;
+        this.watchCumul = 0;
+        if (coefs.length > MaxWatchPb.LIMIT_FOR_MAP) {
+            this.litToCoeffs = new HashMap<Integer, Long>(this.coefs.length);
+            for (int i = 0; i < this.coefs.length; i++) {
+                this.litToCoeffs.put(this.lits[i], this.coefs[i]);
+            }
+        } else {
+            this.litToCoeffs = null;
+        }
+    }
+
+    /**
+     * All the literals are watched.
+     * 
+     * @see org.sat4j.pb.constraints.pb.WatchPbLong#computeWatches()
+     */
+    @Override
+    protected void computeWatches() throws ContradictionException {
+        assert this.watchCumul == 0;
+        for (int i = 0; i < this.lits.length; i++) {
+            if (this.voc.isFalsified(this.lits[i])) {
+                if (this.learnt) {
+                    this.voc.undos(this.lits[i] ^ 1).push(this);
+                    this.voc.watch(this.lits[i] ^ 1, this);
+                }
+            } else {
+                // updating of the initial value for the counter
+                this.voc.watch(this.lits[i] ^ 1, this);
+                this.watchCumul = this.watchCumul + this.coefs[i];
+            }
+        }
+
+        assert this.watchCumul >= computeLeftSide();
+        if (!this.learnt && this.watchCumul < this.degree) {
+            throw new ContradictionException("non satisfiable constraint");
+        }
+    }
+
+    /*
+     * This method propagates any possible value.
+     * 
+     * This method is only called in the factory methods.
+     * 
+     * @see org.sat4j.minisat.constraints.WatchPb#computePropagation()
+     */
+    @Override
+    protected void computePropagation(UnitPropagationListener s)
+            throws ContradictionException {
+        // propagate any possible value
+        int ind = 0;
+        while (ind < this.coefs.length
+                && this.watchCumul - this.coefs[ind] < this.degree) {
+            if (this.voc.isUnassigned(this.lits[ind])
+                    && !s.enqueue(this.lits[ind], this)) {
+                // because this happens during the building of a constraint.
+                throw new ContradictionException("non satisfiable constraint");
+            }
+            ind++;
+        }
+        assert this.watchCumul >= computeLeftSide();
+    }
+]]>
+</codefragment>
+</duplication>
+<duplication lines="63" tokens="339">
+<file line="284" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MinWatchPbLong.java"/>
+<file line="286" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MinWatchPbLongCP.java"/>
+<codefragment>
+<![CDATA[
+    public boolean propagate(UnitPropagationListener s, int p) {
+        assert nbOfWatched() == this.watchingCount;
+        assert this.watchingCount > 1;
+
+        // finding the index for p in the array of literals (pIndice)
+        // and in the array of watching (pIndiceWatching)
+        int pIndiceWatching = 0;
+        while (pIndiceWatching < this.watchingCount
+                && (this.lits[this.watching[pIndiceWatching]] ^ 1) != p) {
+            pIndiceWatching++;
+        }
+        int pIndice = this.watching[pIndiceWatching];
+
+        assert p == (this.lits[pIndice] ^ 1);
+        assert this.watched[pIndice];
+
+        // the greatest coefficient of the watched literals is necessary
+        // (pIndice excluded)
+        long maxCoef = maximalCoefficient(pIndice);
+
+        // update watching and watched w.r.t. to the propagation of p
+        // new literals will be watched, maxCoef could be changed
+        maxCoef = updateWatched(maxCoef, pIndice);
+
+        long upWatchCumul = this.watchCumul - this.coefs[pIndice];
+        assert nbOfWatched() == this.watchingCount;
+
+        // if a conflict has been detected, return false
+        if (upWatchCumul < this.degree) {
+            // conflit
+            this.voc.watch(p, this);
+            assert this.watched[pIndice];
+            assert !isSatisfiable();
+            return false;
+        } else if (upWatchCumul < this.degree + maxCoef) {
+            // some literals must be assigned to true and then propagated
+            assert this.watchingCount != 0;
+            long limit = upWatchCumul - this.degree;
+            for (int i = 0; i < this.watchingCount; i++) {
+                if (limit < this.coefs[this.watching[i]]
+                        && i != pIndiceWatching
+                        && !this.voc.isSatisfied(this.lits[this.watching[i]])
+                        && !s.enqueue(this.lits[this.watching[i]], this)) {
+                    this.voc.watch(p, this);
+                    assert !isSatisfiable();
+                    return false;
+                }
+            }
+            // if the constraint is added to the undos of p (by propagation),
+            // then p should be preserved.
+            this.voc.undos(p).push(this);
+        }
+
+        // else p is no more watched
+        this.watched[pIndice] = false;
+        this.watchCumul = upWatchCumul;
+        this.watching[pIndiceWatching] = this.watching[--this.watchingCount];
+
+        assert this.watchingCount != 0;
+        assert nbOfWatched() == this.watchingCount;
+
+        return true;
+    }
+]]>
+</codefragment>
+</duplication>
+<duplication lines="76" tokens="285">
+<file line="402" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MinWatchPbLong.java"/>
+<file line="402" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MinWatchPbLongCP.java"/>
+<codefragment>
+<![CDATA[
+        return new MinWatchPbLongCP(voc, mpb);
+    }
+
+    /**
+     * the maximal coefficient for the watched literals
+     * 
+     * @param pIndice
+     *            propagated literal : its coefficient is excluded from the
+     *            search of the maximal coefficient
+     * @return the maximal coefficient for the watched literals
+     */
+    protected long maximalCoefficient(int pIndice) {
+        long maxCoef = 0;
+        for (int i = 0; i < this.watchingCount; i++) {
+            if (this.coefs[this.watching[i]] > maxCoef
+                    && this.watching[i] != pIndice) {
+                maxCoef = this.coefs[this.watching[i]];
+            }
+        }
+
+        assert this.learnt || maxCoef != 0;
+        return maxCoef;
+    }
+
+    /**
+     * update arrays watched and watching w.r.t. the propagation of a literal.
+     * 
+     * return the maximal coefficient of the watched literals (could have been
+     * changed).
+     * 
+     * @param mc
+     *            the current maximal coefficient of the watched literals
+     * @param pIndice
+     *            the literal propagated (falsified)
+     * @return the new maximal coefficient of the watched literals
+     */
+    protected long updateWatched(long mc, int pIndice) {
+        long maxCoef = mc;
+        // if not all the literals are watched
+        if (this.watchingCount < size()) {
+            // the watchCumul sum will have to be updated
+            long upWatchCumul = this.watchCumul - this.coefs[pIndice];
+
+            // we must obtain upWatchCumul such that
+            // upWatchCumul = degree + maxCoef
+            long degreePlusMaxCoef = this.degree + maxCoef;
+            for (int ind = 0; ind < this.lits.length; ind++) {
+                if (upWatchCumul >= degreePlusMaxCoef) {
+                    // nothing more to watch
+                    // note: logic negated to old version // dvh
+                    break;
+                }
+                // while upWatchCumul does not contain enough
+                if (!this.voc.isFalsified(this.lits[ind]) && !this.watched[ind]) {
+                    // watch one more
+                    upWatchCumul = upWatchCumul + this.coefs[ind];
+                    // update arrays watched and watching
+                    this.watched[ind] = true;
+                    assert this.watchingCount < size();
+                    this.watching[this.watchingCount++] = ind;
+                    this.voc.watch(this.lits[ind] ^ 1, this);
+                    // this new watched literal could change the maximal
+                    // coefficient
+                    if (this.coefs[ind] > maxCoef) {
+                        maxCoef = this.coefs[ind];
+                        degreePlusMaxCoef = this.degree + maxCoef;
+                    }
+                }
+            }
+            // update watchCumul
+            this.watchCumul = upWatchCumul + this.coefs[pIndice];
+        }
+        return maxCoef;
+    }
+
+}
+]]>
+</codefragment>
+</duplication>
+<duplication lines="44" tokens="265">
+<file line="452" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/WatchPb.java"/>
+<file line="448" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/WatchPbLong.java"/>
+<codefragment>
+<![CDATA[
+                        && this.lits[j] < litPivot);
+
+                if (i >= j) {
+                    break;
+                }
+
+                tmp = this.coefs[i];
+                this.coefs[i] = this.coefs[j];
+                this.coefs[j] = tmp;
+                tmp2 = this.lits[i];
+                this.lits[i] = this.lits[j];
+                this.lits[j] = tmp2;
+            }
+
+            sort(from, i);
+            sort(i, to);
+        }
+
+    }
+
+    @Override
+    public String toString() {
+        StringBuffer stb = new StringBuffer();
+
+        if (this.lits.length > 0) {
+            for (int i = 0; i < this.lits.length; i++) {
+                stb.append(" + ");
+                stb.append(this.coefs[i]);
+                stb.append(".");
+                stb.append(Lits.toString(this.lits[i]));
+                stb.append("[");
+                stb.append(this.voc.valueToString(this.lits[i]));
+                stb.append("@");
+                stb.append(this.voc.getLevel(this.lits[i]));
+                stb.append("]");
+                stb.append(" ");
+            }
+            stb.append(">= ");
+            stb.append(this.degree);
+        }
+        return stb.toString();
+    }
+
+    public void assertConstraint(UnitPropagationListener s) {
+]]>
+</codefragment>
+</duplication>
+<duplication lines="52" tokens="257">
+<file line="325" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MinWatchPb.java"/>
+<file line="326" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MinWatchPbLongCP.java"/>
+<codefragment>
+<![CDATA[
+                        && i != pIndiceWatching
+                        && !this.voc.isSatisfied(this.lits[this.watching[i]])
+                        && !s.enqueue(this.lits[this.watching[i]], this)) {
+                    this.voc.watch(p, this);
+                    assert !isSatisfiable();
+                    return false;
+                }
+            }
+            // if the constraint is added to the undos of p (by propagation),
+            // then p should be preserved.
+            this.voc.undos(p).push(this);
+        }
+
+        // else p is no more watched
+        this.watched[pIndice] = false;
+        this.watchCumul = upWatchCumul;
+        this.watching[pIndiceWatching] = this.watching[--this.watchingCount];
+
+        assert this.watchingCount != 0;
+        assert nbOfWatched() == this.watchingCount;
+
+        return true;
+    }
+
+    /**
+     * Remove the constraint from the solver
+     */
+    public void remove(UnitPropagationListener upl) {
+        for (int i = 0; i < this.watchingCount; i++) {
+            this.voc.watches(this.lits[this.watching[i]] ^ 1).remove(this);
+            this.watched[this.watching[i]] = false;
+        }
+        this.watchingCount = 0;
+        assert nbOfWatched() == this.watchingCount;
+    }
+
+    /**
+     * this method is called during backtrack
+     * 
+     * @param p
+     *            un unassigned literal
+     */
+    public void undo(int p) {
+        this.voc.watch(p, this);
+        int pIndice = 0;
+        while ((this.lits[pIndice] ^ 1) != p) {
+            pIndice++;
+        }
+
+        assert pIndice < this.lits.length;
+
+        this.watchCumul = this.watchCumul + this.coefs[pIndice];
+]]>
+</codefragment>
+</duplication>
+<duplication lines="56" tokens="248">
+<file line="180" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MaxWatchPbLong.java"/>
+<file line="179" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MaxWatchPbLongCP.java"/>
+<codefragment>
+<![CDATA[
+    public boolean propagate(UnitPropagationListener s, int p) {
+        this.voc.watch(p, this);
+
+        assert this.watchCumul >= computeLeftSide() : "" + this.watchCumul
+                + "/" + computeLeftSide() + ":" + this.learnt;
+
+        // compute the new value for watchCumul
+        long coefP;
+        if (this.litToCoeffs == null) {
+            // finding the index for p in the array of literals
+            int indiceP = 0;
+            while ((this.lits[indiceP] ^ 1) != p) {
+                indiceP++;
+            }
+
+            // compute the new value for watchCumul
+            coefP = this.coefs[indiceP];
+        } else {
+            coefP = this.litToCoeffs.get(p ^ 1);
+        }
+        long newcumul = this.watchCumul - coefP;
+
+        if (newcumul < this.degree) {
+            // there is a conflict
+            assert !isSatisfiable();
+            return false;
+        }
+
+        // if no conflict, not(p) can be propagated
+        // allow a later un-assignation
+        this.voc.undos(p).push(this);
+        // really update watchCumul
+        this.watchCumul = newcumul;
+
+        // propagation
+        int ind = 0;
+        // limit is the margin between the sum of the coefficients of the
+        // satisfied+unassigned literals
+        // and the degree of the constraint
+        long limit = this.watchCumul - this.degree;
+        // for each coefficient greater than limit
+        while (ind < this.coefs.length && limit < this.coefs[ind]) {
+            // its corresponding literal is implied
+            if (this.voc.isUnassigned(this.lits[ind])
+                    && !s.enqueue(this.lits[ind], this)) {
+                // if it is not possible then there is a conflict
+                assert !isSatisfiable();
+                return false;
+            }
+            ind++;
+        }
+
+        assert this.learnt || this.watchCumul >= computeLeftSide();
+        assert this.watchCumul >= computeLeftSide();
+        return true;
+    }
+]]>
+</codefragment>
+</duplication>
+<duplication lines="48" tokens="212">
+<file line="562" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/WatchPbLong.java"/>
+<file line="598" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/WatchPbLongCP.java"/>
+<codefragment>
+<![CDATA[
+            WatchPbLongCP wpb = (WatchPbLongCP) pb;
+            if (this.degree != wpb.degree
+                    || this.coefs.length != wpb.coefs.length
+                    || this.lits.length != wpb.lits.length) {
+                return false;
+            }
+            int lit;
+            boolean ok;
+            for (int ilit = 0; ilit < this.coefs.length; ilit++) {
+                lit = this.lits[ilit];
+                ok = false;
+                for (int ilit2 = 0; ilit2 < this.coefs.length; ilit2++) {
+                    if (wpb.lits[ilit2] == lit) {
+                        if (wpb.coefs[ilit2] != this.coefs[ilit]) {
+                            return false;
+                        }
+
+                        ok = true;
+                        break;
+
+                    }
+                }
+                if (!ok) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (ClassCastException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        long sum = 0;
+        for (int p : this.lits) {
+            sum += p;
+        }
+        return (int) sum / this.lits.length;
+    }
+
+    public void forwardActivity(double claInc) {
+        if (!this.learnt) {
+            this.activity += claInc;
+        }
+    }
+
+    public long[] getLongCoefs() {
+]]>
+</codefragment>
+</duplication>
+<duplication lines="101" tokens="199">
+<file line="189" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/WatchPbLong.java"/>
+<file line="197" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/WatchPbLongCP.java"/>
+<codefragment>
+<![CDATA[
+                }
+            }
+        }
+    }
+
+    protected abstract void computeWatches() throws ContradictionException;
+
+    protected abstract void computePropagation(UnitPropagationListener s)
+            throws ContradictionException;
+
+    /**
+     * to obtain the i-th literal of the constraint
+     * 
+     * @param i
+     *            index of the literal
+     * @return the literal
+     */
+    public int get(int i) {
+        return this.lits[i];
+    }
+
+    /**
+     * to obtain the activity value of the constraint
+     * 
+     * @return activity value of the constraint
+     * @see org.sat4j.minisat.core.Constr#getActivity()
+     */
+    public double getActivity() {
+        return this.activity;
+    }
+
+    /**
+     * increase activity value of the constraint
+     * 
+     * @see org.sat4j.minisat.core.Constr#incActivity(double)
+     */
+    public void incActivity(double claInc) {
+        if (this.learnt) {
+            this.activity += claInc;
+        }
+    }
+
+    public void setActivity(double d) {
+        if (this.learnt) {
+            this.activity = d;
+        }
+    }
+
+    /**
+     * compute the slack of the current constraint slack = poss - degree of the
+     * constraint
+     * 
+     * @return la marge
+     */
+    public long slackConstraint() {
+        return computeLeftSide() - this.degree;
+    }
+
+    /**
+     * compute the slack of a described constraint slack = poss - degree of the
+     * constraint
+     * 
+     * @param theCoefs
+     *            coefficients of the constraint
+     * @param theDegree
+     *            degree of the constraint
+     * @return slack of the constraint
+     */
+    public long slackConstraint(long[] theCoefs, long theDegree) {
+        return computeLeftSide(theCoefs) - theDegree;
+    }
+
+    /**
+     * compute the sum of the coefficients of the satisfied or non-assigned
+     * literals of a described constraint (usually called poss)
+     * 
+     * @param coefs
+     *            coefficients of the constraint
+     * @return poss
+     */
+    public long computeLeftSide(long[] theCoefs) {
+        long poss = 0;
+        // for each literal
+        for (int i = 0; i < this.lits.length; i++) {
+            if (!this.voc.isFalsified(this.lits[i])) {
+                assert theCoefs[i] >= 0;
+                poss = poss + theCoefs[i];
+            }
+        }
+        return poss;
+    }
+
+    /**
+     * compute the sum of the coefficients of the satisfied or non-assigned
+     * literals of a described constraint (usually called poss)
+     * 
+     * @param coefs
+     *            coefficients of the constraint
+     * @return poss
+     */
+    public BigInteger computeLeftSide(BigInteger[] theCoefs) {
+]]>
+</codefragment>
+</duplication>
+<duplication lines="47" tokens="199">
+<file line="126" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/WatchPbLong.java"/>
+<file line="142" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/WatchPbLongCP.java"/>
+<codefragment>
+<![CDATA[
+        }
+        return res;
+    }
+
+    /**
+     * This predicate tests wether the constraint is assertive at decision level
+     * dl
+     * 
+     * @param dl
+     * @return true iff the constraint is assertive at decision level dl.
+     */
+    public boolean isAssertive(int dl) {
+        long slack = 0;
+        for (int i = 0; i < this.lits.length; i++) {
+            if (this.coefs[i] > 0
+                    && (!this.voc.isFalsified(this.lits[i]) || this.voc
+                            .getLevel(this.lits[i]) >= dl)) {
+                slack = slack + this.coefs[i];
+            }
+        }
+        slack = slack - this.degree;
+        if (slack < 0) {
+            return false;
+        }
+        for (int i = 0; i < this.lits.length; i++) {
+            if (this.coefs[i] > 0
+                    && (this.voc.isUnassigned(this.lits[i]) || this.voc
+                            .getLevel(this.lits[i]) >= dl)
+                    && slack < this.coefs[i]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * compute the reason for the assignment of a literal
+     * 
+     * @param p
+     *            a falsified literal (or Lit.UNDEFINED)
+     * @param outReason
+     *            list of falsified literals for which the negation is the
+     *            reason of the assignment
+     * @see org.sat4j.minisat.core.Constr#calcReason(int, IVecInt)
+     */
+    public void calcReason(int p, IVecInt outReason) {
+        long sumfalsified = 0;
+]]>
+</codefragment>
+</duplication>
+<duplication lines="34" tokens="193">
+<file line="68" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/PBSolverDecorator.java"/>
+<file line="123" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/tools/LexicoDecoratorPB.java"/>
+<codefragment>
+<![CDATA[
+        return this.objs.size();
+    }
+
+    public IConstr addAtMost(IVecInt literals, IVecInt coeffs, int degree)
+            throws ContradictionException {
+        return decorated().addAtMost(literals, coeffs, degree);
+    }
+
+    public IConstr addAtMost(IVecInt literals, IVec<BigInteger> coeffs,
+            BigInteger degree) throws ContradictionException {
+        return decorated().addAtMost(literals, coeffs, degree);
+    }
+
+    public IConstr addAtLeast(IVecInt literals, IVecInt coeffs, int degree)
+            throws ContradictionException {
+        return decorated().addAtLeast(literals, coeffs, degree);
+    }
+
+    public IConstr addAtLeast(IVecInt literals, IVec<BigInteger> coeffs,
+            BigInteger degree) throws ContradictionException {
+        return decorated().addAtLeast(literals, coeffs, degree);
+    }
+
+    public IConstr addExactly(IVecInt literals, IVecInt coeffs, int weight)
+            throws ContradictionException {
+        return decorated().addExactly(literals, coeffs, weight);
+    }
+
+    public IConstr addExactly(IVecInt literals, IVec<BigInteger> coeffs,
+            BigInteger weight) throws ContradictionException {
+        return decorated().addExactly(literals, coeffs, weight);
+    }
+
+}
+]]>
+</codefragment>
+</duplication>
+<duplication lines="32" tokens="188">
+<file line="464" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/WatchPb.java"/>
+<file line="496" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/WatchPbLongCP.java"/>
+<codefragment>
+<![CDATA[
+            }
+
+            sort(from, i);
+            sort(i, to);
+        }
+
+    }
+
+    @Override
+    public String toString() {
+        StringBuffer stb = new StringBuffer();
+
+        if (this.lits.length > 0) {
+            for (int i = 0; i < this.lits.length; i++) {
+                stb.append(" + ");
+                stb.append(this.coefs[i]);
+                stb.append(".");
+                stb.append(Lits.toString(this.lits[i]));
+                stb.append("[");
+                stb.append(this.voc.valueToString(this.lits[i]));
+                stb.append("@");
+                stb.append(this.voc.getLevel(this.lits[i]));
+                stb.append("]");
+                stb.append(" ");
+            }
+            stb.append(">= ");
+            stb.append(this.degree);
+        }
+        return stb.toString();
+    }
+
+    public void assertConstraint(UnitPropagationListener s) {
+]]>
+</codefragment>
+</duplication>
+<duplication lines="57" tokens="188">
+<file line="243" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MinWatchPb.java"/>
+<file line="244" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MinWatchPbLongCP.java"/>
+<codefragment>
+<![CDATA[
+        if (outclause.degree <= 0) {
+            return null;
+        }
+
+        outclause.computeWatches();
+
+        outclause.computePropagation(s);
+
+        return outclause;
+
+    }
+
+    /**
+     * Number of really watched literals. It should return the same value as
+     * watchingCount.
+     * 
+     * This method must only be called for assertions.
+     * 
+     * @return number of watched literals.
+     */
+    protected int nbOfWatched() {
+        int retour = 0;
+        for (int ind = 0; ind < this.watched.length; ind++) {
+            for (int i = 0; i < this.watchingCount; i++) {
+                if (this.watching[i] == ind) {
+                    assert this.watched[ind];
+                }
+            }
+            retour += this.watched[ind] ? 1 : 0;
+        }
+        return retour;
+    }
+
+    /**
+     * Propagation of a falsified literal
+     * 
+     * @param s
+     *            the solver
+     * @param p
+     *            the propagated literal (it must be falsified)
+     * @return false iff there is a conflict
+     */
+    public boolean propagate(UnitPropagationListener s, int p) {
+        assert nbOfWatched() == this.watchingCount;
+        assert this.watchingCount > 1;
+
+        // finding the index for p in the array of literals (pIndice)
+        // and in the array of watching (pIndiceWatching)
+        int pIndiceWatching = 0;
+        while (pIndiceWatching < this.watchingCount
+                && (this.lits[this.watching[pIndiceWatching]] ^ 1) != p) {
+            pIndiceWatching++;
+        }
+        int pIndice = this.watching[pIndiceWatching];
+
+        assert p == (this.lits[pIndice] ^ 1);
+        assert this.watched[pIndice];
+]]>
+</codefragment>
+</duplication>
+<duplication lines="24" tokens="162">
+<file line="431" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/LPStringSolver.java"/>
+<file line="492" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/LPStringSolver.java"/>
+<codefragment>
+<![CDATA[
+            BigInteger weight) throws ContradictionException {
+        StringBuffer out = getOut();
+        assert literals.size() == coeffs.size();
+        this.nbOfConstraints++;
+        int n = literals.size();
+        if (n > 0) {
+            out.append(coeffs.get(0));
+            out.append("x");
+            out.append(literals.get(0));
+            out.append(" ");
+        }
+        BigInteger coeff;
+        for (int i = 1; i < n; i++) {
+            coeff = coeffs.get(i);
+            if (coeff.signum() > 0) {
+                out.append("+ " + coeff);
+            } else {
+                out.append("- " + coeff.negate());
+            }
+            out.append("x");
+            out.append(literals.get(i));
+            out.append(" ");
+        }
+        out.append("= ");
+]]>
+</codefragment>
+</duplication>
+<duplication lines="25" tokens="157">
+<file line="400" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/LPStringSolver.java"/>
+<file line="461" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/LPStringSolver.java"/>
+<codefragment>
+<![CDATA[
+    public IConstr addExactly(IVecInt literals, IVecInt coeffs, int weight)
+            throws ContradictionException {
+        StringBuffer out = getOut();
+        assert literals.size() == coeffs.size();
+        this.nbOfConstraints++;
+        int n = literals.size();
+        if (n > 0) {
+            out.append(coeffs.get(0));
+            out.append("x");
+            out.append(literals.get(0));
+            out.append(" ");
+        }
+        int coeff;
+        for (int i = 1; i < n; i++) {
+            coeff = coeffs.get(i);
+            if (coeff > 0) {
+                out.append("+ " + coeff);
+            } else {
+                out.append("- " + coeff * -1);
+            }
+            out.append("x");
+            out.append(literals.get(i));
+            out.append(" ");
+        }
+        out.append("= ");
+]]>
+</codefragment>
+</duplication>
+<duplication lines="42" tokens="155">
+<file line="185" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/reader/OPBReader2007.java"/>
+<file line="59" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/reader/OPBReader2010.java"/>
+<codefragment>
+<![CDATA[
+        super(solver);
+    }
+
+    /**
+     * read the first comment line to get the number of variables and the number
+     * of constraints in the file calls metaData with the data that was read
+     * 
+     * @throws IOException
+     * @throws ParseFormatException
+     */
+    @Override
+    protected void readMetaData() throws IOException, ParseFormatException {
+        char c;
+        String s;
+
+        // get the number of variables and constraints
+        c = get();
+        if (c != '*') {
+            throw new ParseFormatException(
+                    "First line of input file should be a comment");
+        }
+        s = readWord();
+        if (eof() || !"#variable=".equals(s)) {
+            throw new ParseFormatException(
+                    "First line should contain #variable= as first keyword");
+        }
+
+        this.nbVars = Integer.parseInt(readWord());
+        this.nbNewSymbols = this.nbVars + 1;
+
+        s = readWord();
+        if (eof() || !"#constraint=".equals(s)) {
+            throw new ParseFormatException(
+                    "First line should contain #constraint= as second keyword");
+        }
+
+        this.nbConstr = Integer.parseInt(readWord());
+        this.charAvailable = false;
+        if (!eol()) {
+            String rest = this.in.readLine();
+
+            if (rest != null && rest.contains("#soft")) {
+]]>
+</codefragment>
+</duplication>
+<duplication lines="24" tokens="146">
+<file line="162" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MinWatchPb.java"/>
+<file line="160" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MinWatchPbLong.java"/>
+<codefragment>
+<![CDATA[
+        while (this.watchCumul - this.coefs[0] < this.degree && free > 0) {
+            free = 0;
+            // looking for the literal falsified
+            // at the least (lowest ?) level
+            maxlevel = -1;
+            maxi = -1;
+            for (int i = 0; i < this.lits.length; i++) {
+                if (this.voc.isFalsified(this.lits[i]) && !this.watched[i]) {
+                    free++;
+                    level = this.voc.getLevel(this.lits[i]);
+                    if (level > maxlevel) {
+                        maxi = i;
+                        maxlevel = level;
+                    }
+                }
+            }
+
+            if (free > 0) {
+                assert maxi >= 0;
+                this.voc.watch(this.lits[maxi] ^ 1, this);
+                this.watching[this.watchingCount++] = maxi;
+                this.watched[maxi] = true;
+                // update of the watchCumul value
+                this.watchCumul = this.watchCumul + this.coefs[maxi];
+]]>
+</codefragment>
+</duplication>
+<duplication lines="32" tokens="144">
+<file line="68" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/tools/PBAdapter.java"/>
+<file line="147" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/tools/XplainPB.java"/>
+<codefragment>
+<![CDATA[
+        return decorated().getObjectiveFunction();
+    }
+
+    public IConstr addAtMost(IVecInt literals, IVecInt coeffs, int degree)
+            throws ContradictionException {
+        throw new UnsupportedOperationException();
+    }
+
+    public IConstr addAtMost(IVecInt literals, IVec<BigInteger> coeffs,
+            BigInteger degree) throws ContradictionException {
+        throw new UnsupportedOperationException();
+    }
+
+    public IConstr addAtLeast(IVecInt literals, IVecInt coeffs, int degree)
+            throws ContradictionException {
+        throw new UnsupportedOperationException();
+    }
+
+    public IConstr addAtLeast(IVecInt literals, IVec<BigInteger> coeffs,
+            BigInteger degree) throws ContradictionException {
+        throw new UnsupportedOperationException();
+    }
+
+    public IConstr addExactly(IVecInt literals, IVecInt coeffs, int weight)
+            throws ContradictionException {
+        throw new UnsupportedOperationException();
+    }
+
+    public IConstr addExactly(IVecInt literals, IVec<BigInteger> coeffs,
+            BigInteger weight) throws ContradictionException {
+        throw new UnsupportedOperationException();
+    }
+]]>
+</codefragment>
+</duplication>
+<duplication lines="77" tokens="144">
+<file line="276" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/WatchPbLong.java"/>
+<file line="304" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/WatchPbLongCP.java"/>
+<codefragment>
+<![CDATA[
+            }
+        }
+        return poss;
+    }
+
+    /**
+     * compute the sum of the coefficients of the satisfied or non-assigned
+     * literals of the current constraint (usually called poss)
+     * 
+     * @return poss
+     */
+    public long computeLeftSide() {
+        return computeLeftSide(this.coefs);
+    }
+
+    /**
+     * tests if the constraint is still satisfiable.
+     * 
+     * this method is only called in assertions.
+     * 
+     * @return the constraint is satisfiable
+     */
+    protected boolean isSatisfiable() {
+        return computeLeftSide() >= this.degree;
+    }
+
+    /**
+     * is the constraint a learnt constraint ?
+     * 
+     * @return true if the constraint is learnt, else false
+     * @see org.sat4j.specs.IConstr#learnt()
+     */
+    public boolean learnt() {
+        return this.learnt;
+    }
+
+    /**
+     * The constraint is the reason of a unit propagation.
+     * 
+     * @return true
+     */
+    public boolean locked() {
+        for (int p : this.lits) {
+            if (this.voc.getReason(p) == this) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * ppcm : least common multiple for two integers (plus petit commun
+     * multiple)
+     * 
+     * @param a
+     *            one integer
+     * @param b
+     *            the other integer
+     * @return the least common multiple of a and b
+     */
+    protected static BigInteger ppcm(BigInteger a, BigInteger b) {
+        return a.divide(a.gcd(b)).multiply(b);
+    }
+
+    /**
+     * to re-scale the activity of the constraint
+     * 
+     * @param d
+     *            adjusting factor
+     */
+    public void rescaleBy(double d) {
+        this.activity *= d;
+    }
+
+    void selectionSort(int from, int to) {
+        int i, j, bestIndex;
+        long tmp;
+]]>
+</codefragment>
+</duplication>
+<duplication lines="32" tokens="143">
+<file line="188" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/PseudoBitsAdderDecorator.java"/>
+<file line="148" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/tools/XplainPB.java"/>
+<codefragment>
+<![CDATA[
+    }
+
+    public IConstr addAtMost(IVecInt literals, IVecInt coeffs, int degree)
+            throws ContradictionException {
+        throw new UnsupportedOperationException();
+    }
+
+    public IConstr addAtMost(IVecInt literals, IVec<BigInteger> coeffs,
+            BigInteger degree) throws ContradictionException {
+        throw new UnsupportedOperationException();
+    }
+
+    public IConstr addAtLeast(IVecInt literals, IVecInt coeffs, int degree)
+            throws ContradictionException {
+        throw new UnsupportedOperationException();
+    }
+
+    public IConstr addAtLeast(IVecInt literals, IVec<BigInteger> coeffs,
+            BigInteger degree) throws ContradictionException {
+        throw new UnsupportedOperationException();
+    }
+
+    public IConstr addExactly(IVecInt literals, IVecInt coeffs, int weight)
+            throws ContradictionException {
+        throw new UnsupportedOperationException();
+    }
+
+    public IConstr addExactly(IVecInt literals, IVec<BigInteger> coeffs,
+            BigInteger weight) throws ContradictionException {
+        throw new UnsupportedOperationException();
+    }
+}
+]]>
+</codefragment>
+</duplication>
+<duplication lines="31" tokens="142">
+<file line="188" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/PseudoBitsAdderDecorator.java"/>
+<file line="69" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/tools/PBAdapter.java"/>
+<codefragment>
+<![CDATA[
+    }
+
+    public IConstr addAtMost(IVecInt literals, IVecInt coeffs, int degree)
+            throws ContradictionException {
+        throw new UnsupportedOperationException();
+    }
+
+    public IConstr addAtMost(IVecInt literals, IVec<BigInteger> coeffs,
+            BigInteger degree) throws ContradictionException {
+        throw new UnsupportedOperationException();
+    }
+
+    public IConstr addAtLeast(IVecInt literals, IVecInt coeffs, int degree)
+            throws ContradictionException {
+        throw new UnsupportedOperationException();
+    }
+
+    public IConstr addAtLeast(IVecInt literals, IVec<BigInteger> coeffs,
+            BigInteger degree) throws ContradictionException {
+        throw new UnsupportedOperationException();
+    }
+
+    public IConstr addExactly(IVecInt literals, IVecInt coeffs, int weight)
+            throws ContradictionException {
+        throw new UnsupportedOperationException();
+    }
+
+    public IConstr addExactly(IVecInt literals, IVec<BigInteger> coeffs,
+            BigInteger weight) throws ContradictionException {
+        throw new UnsupportedOperationException();
+    }
+]]>
+</codefragment>
+</duplication>
+<duplication lines="41" tokens="131">
+<file line="370" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/WatchPbLong.java"/>
+<file line="404" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/WatchPbLongCP.java"/>
+<codefragment>
+<![CDATA[
+        }
+    }
+
+    /**
+     * the constraint is learnt
+     */
+    public void setLearnt() {
+        this.learnt = true;
+    }
+
+    /**
+     * simplify the constraint (if it is satisfied)
+     * 
+     * @return true if the constraint is satisfied, else false
+     */
+    public boolean simplify() {
+        long cumul = 0;
+
+        int i = 0;
+        while (i < this.lits.length && cumul < this.degree) {
+            if (this.voc.isSatisfied(this.lits[i])) {
+                // strong measure
+                cumul = cumul + this.coefs[i];
+            }
+            i++;
+        }
+
+        return cumul >= this.degree;
+    }
+
+    public final int size() {
+        return this.lits.length;
+    }
+
+    /**
+     * sort coefficient and literal arrays
+     */
+    protected final void sort() {
+        assert this.lits != null;
+        if (this.coefs.length > 0) {
+            this.sort(0, size());
+]]>
+</codefragment>
+</duplication>
+<duplication lines="32" tokens="130">
+<file line="113" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/LPStringSolver.java"/>
+<file line="110" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/OPBStringSolver.java"/>
+<codefragment>
+<![CDATA[
+                getOut().append("-1 x" + -p + " >= 0 ;\n");
+            }
+            this.nbOfConstraints++;
+        }
+        throw new TimeoutException();
+    }
+
+    @Override
+    public boolean isSatisfiable(IVecInt assumps, boolean global)
+            throws TimeoutException {
+        return super.isSatisfiable(assumps, global);
+    }
+
+    public IConstr addPseudoBoolean(IVecInt lits, IVec<BigInteger> coeffs,
+            boolean moreThan, BigInteger d) throws ContradictionException {
+        if (moreThan) {
+            return addAtLeast(lits, coeffs, d);
+        }
+        return addAtMost(lits, coeffs, d);
+    }
+
+    public void setObjectiveFunction(ObjectiveFunction obj) {
+        this.obj = obj;
+    }
+
+    @Override
+    public IConstr addAtLeast(IVecInt literals, int degree)
+            throws ContradictionException {
+        StringBuffer out = getOut();
+        this.nbOfConstraints++;
+        int negationweight = 0;
+        int p;
+]]>
+</codefragment>
+</duplication>
+<duplication lines="23" tokens="125">
+<file line="325" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MinWatchPb.java"/>
+<file line="324" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MinWatchPbLong.java"/>
+<codefragment>
+<![CDATA[
+                        && i != pIndiceWatching
+                        && !this.voc.isSatisfied(this.lits[this.watching[i]])
+                        && !s.enqueue(this.lits[this.watching[i]], this)) {
+                    this.voc.watch(p, this);
+                    assert !isSatisfiable();
+                    return false;
+                }
+            }
+            // if the constraint is added to the undos of p (by propagation),
+            // then p should be preserved.
+            this.voc.undos(p).push(this);
+        }
+
+        // else p is no more watched
+        this.watched[pIndice] = false;
+        this.watchCumul = upWatchCumul;
+        this.watching[pIndiceWatching] = this.watching[--this.watchingCount];
+
+        assert this.watchingCount != 0;
+        assert nbOfWatched() == this.watchingCount;
+
+        return true;
+    }
+]]>
+</codefragment>
+</duplication>
+<duplication lines="21" tokens="122">
+<file line="436" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/WatchPbLong.java"/>
+<file line="467" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/WatchPbLongCP.java"/>
+<codefragment>
+<![CDATA[
+            int i = from - 1;
+            int j = to;
+            int tmp2;
+
+            for (;;) {
+                do {
+                    i++;
+                } while (this.coefs[i] > pivot || this.coefs[i] == pivot
+                        && this.lits[i] > litPivot);
+                do {
+                    j--;
+                } while (pivot > this.coefs[j] || this.coefs[j] == pivot
+                        && this.lits[j] < litPivot);
+
+                if (i >= j) {
+                    break;
+                }
+
+                tmp = this.coefs[i];
+                this.coefs[i] = this.coefs[j];
+                this.coefs[j] = tmp;
+]]>
+</codefragment>
+</duplication>
+<duplication lines="35" tokens="116">
+<file line="238" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MinWatchPbLong.java"/>
+<file line="241" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MinWatchPbLongCP.java"/>
+<codefragment>
+<![CDATA[
+        MinWatchPbLongCP outclause = new MinWatchPbLongCP(voc, lits, coefs,
+                degree, sumCoefs);
+
+        if (outclause.degree <= 0) {
+            return null;
+        }
+
+        outclause.computeWatches();
+
+        outclause.computePropagation(s);
+
+        return outclause;
+
+    }
+
+    /**
+     * Number of really watched literals. It should return the same value as
+     * watchingCount.
+     * 
+     * This method must only be called for assertions.
+     * 
+     * @return number of watched literals.
+     */
+    protected int nbOfWatched() {
+        int retour = 0;
+        for (int ind = 0; ind < this.watched.length; ind++) {
+            for (int i = 0; i < this.watchingCount; i++) {
+                if (this.watching[i] == ind) {
+                    assert this.watched[ind];
+                }
+            }
+            retour += this.watched[ind] ? 1 : 0;
+        }
+        return retour;
+    }
+]]>
+</codefragment>
+</duplication>
+<duplication lines="44" tokens="113">
+<file line="53" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/LPStringSolver.java"/>
+<file line="50" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/OPBStringSolver.java"/>
+<codefragment>
+<![CDATA[
+public class OPBStringSolver extends DimacsStringSolver implements IPBSolver {
+
+    private static final String FAKE_I_CONSTR_MSG = "Fake IConstr";
+
+    /**
+	 * 
+	 */
+    private static final long serialVersionUID = 1L;
+
+    private int indxConstrObj;
+
+    private int nbOfConstraints;
+
+    private ObjectiveFunction obj;
+
+    private boolean inserted = false;
+
+    private static final IConstr FAKE_CONSTR = new IConstr() {
+
+        public int size() {
+            throw new UnsupportedOperationException(FAKE_I_CONSTR_MSG);
+        }
+
+        public boolean learnt() {
+            throw new UnsupportedOperationException(FAKE_I_CONSTR_MSG);
+        }
+
+        public double getActivity() {
+            throw new UnsupportedOperationException(FAKE_I_CONSTR_MSG);
+        }
+
+        public int get(int i) {
+            throw new UnsupportedOperationException(FAKE_I_CONSTR_MSG);
+        }
+
+        public boolean canBePropagatedMultipleTimes() {
+            throw new UnsupportedOperationException(FAKE_I_CONSTR_MSG);
+        }
+    };
+
+    /**
+	 * 
+	 */
+    public OPBStringSolver() {
+]]>
+</codefragment>
+</duplication>
+<duplication lines="14" tokens="112">
+<file line="353" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/WatchPbLong.java"/>
+<file line="382" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/WatchPbLongCP.java"/>
+<codefragment>
+<![CDATA[
+        int tmp2;
+
+        for (i = from; i < to - 1; i++) {
+            bestIndex = i;
+            for (j = i + 1; j < to; j++) {
+                if (this.coefs[j] > this.coefs[bestIndex]
+                        || this.coefs[j] == this.coefs[bestIndex]
+                        && this.lits[j] > this.lits[bestIndex]) {
+                    bestIndex = j;
+                }
+            }
+            tmp = this.coefs[i];
+            this.coefs[i] = this.coefs[bestIndex];
+            this.coefs[bestIndex] = tmp;
+]]>
+</codefragment>
+</duplication>
+<duplication lines="40" tokens="112">
+<file line="50" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/OPBStringSolver.java"/>
+<file line="48" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/UserFriendlyPBStringSolver.java"/>
+<codefragment>
+<![CDATA[
+public class UserFriendlyPBStringSolver<T> extends DimacsStringSolver implements
+        IPBSolver {
+
+    private static final String FAKE_I_CONSTR_MSG = "Fake IConstr";
+
+    /**
+	 * 
+	 */
+    private static final long serialVersionUID = 1L;
+
+    private int indxConstrObj;
+
+    private int nbOfConstraints;
+
+    private ObjectiveFunction obj;
+
+    private boolean inserted = false;
+
+    private static final IConstr FAKE_CONSTR = new IConstr() {
+
+        public int size() {
+            throw new UnsupportedOperationException(FAKE_I_CONSTR_MSG);
+        }
+
+        public boolean learnt() {
+            throw new UnsupportedOperationException(FAKE_I_CONSTR_MSG);
+        }
+
+        public double getActivity() {
+            throw new UnsupportedOperationException(FAKE_I_CONSTR_MSG);
+        }
+
+        public int get(int i) {
+            throw new UnsupportedOperationException(FAKE_I_CONSTR_MSG);
+        }
+
+        public boolean canBePropagatedMultipleTimes() {
+            throw new UnsupportedOperationException(FAKE_I_CONSTR_MSG);
+        }
+    };
+]]>
+</codefragment>
+</duplication>
+<duplication lines="30" tokens="112">
+<file line="315" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/LPStringSolver.java"/>
+<file line="242" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/OPBStringSolver.java"/>
+<codefragment>
+<![CDATA[
+    }
+
+    @Override
+    public int newVar(int howmany) {
+        StringBuffer out = getOut();
+        setNbVars(howmany);
+        // to add later the number of constraints
+        this.indxConstrObj = out.length();
+        out.append("\n");
+        return howmany;
+    }
+
+    @Override
+    public void setExpectedNumberOfClauses(int nb) {
+    }
+
+    public ObjectiveFunction getObjectiveFunction() {
+        return this.obj;
+    }
+
+    @Override
+    public int nConstraints() {
+        return this.nbOfConstraints;
+    }
+
+    public IConstr addAtMost(IVecInt literals, IVecInt coeffs, int degree)
+            throws ContradictionException {
+        StringBuffer out = getOut();
+        assert literals.size() == coeffs.size();
+        this.nbOfConstraints++;
+]]>
+</codefragment>
+</duplication>
+<duplication lines="40" tokens="112">
+<file line="53" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/LPStringSolver.java"/>
+<file line="48" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/UserFriendlyPBStringSolver.java"/>
+<codefragment>
+<![CDATA[
+public class UserFriendlyPBStringSolver<T> extends DimacsStringSolver implements
+        IPBSolver {
+
+    private static final String FAKE_I_CONSTR_MSG = "Fake IConstr";
+
+    /**
+	 * 
+	 */
+    private static final long serialVersionUID = 1L;
+
+    private int indxConstrObj;
+
+    private int nbOfConstraints;
+
+    private ObjectiveFunction obj;
+
+    private boolean inserted = false;
+
+    private static final IConstr FAKE_CONSTR = new IConstr() {
+
+        public int size() {
+            throw new UnsupportedOperationException(FAKE_I_CONSTR_MSG);
+        }
+
+        public boolean learnt() {
+            throw new UnsupportedOperationException(FAKE_I_CONSTR_MSG);
+        }
+
+        public double getActivity() {
+            throw new UnsupportedOperationException(FAKE_I_CONSTR_MSG);
+        }
+
+        public int get(int i) {
+            throw new UnsupportedOperationException(FAKE_I_CONSTR_MSG);
+        }
+
+        public boolean canBePropagatedMultipleTimes() {
+            throw new UnsupportedOperationException(FAKE_I_CONSTR_MSG);
+        }
+    };
+]]>
+</codefragment>
+</duplication>
+<duplication lines="52" tokens="109">
+<file line="301" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/WatchPb.java"/>
+<file line="300" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/WatchPbLong.java"/>
+<codefragment>
+<![CDATA[
+    }
+
+    /**
+     * is the constraint a learnt constraint ?
+     * 
+     * @return true if the constraint is learnt, else false
+     * @see org.sat4j.specs.IConstr#learnt()
+     */
+    public boolean learnt() {
+        return this.learnt;
+    }
+
+    /**
+     * The constraint is the reason of a unit propagation.
+     * 
+     * @return true
+     */
+    public boolean locked() {
+        for (int p : this.lits) {
+            if (this.voc.getReason(p) == this) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * ppcm : least common multiple for two integers (plus petit commun
+     * multiple)
+     * 
+     * @param a
+     *            one integer
+     * @param b
+     *            the other integer
+     * @return the least common multiple of a and b
+     */
+    protected static BigInteger ppcm(BigInteger a, BigInteger b) {
+        return a.divide(a.gcd(b)).multiply(b);
+    }
+
+    /**
+     * to re-scale the activity of the constraint
+     * 
+     * @param d
+     *            adjusting factor
+     */
+    public void rescaleBy(double d) {
+        this.activity *= d;
+    }
+
+    void selectionSort(int from, int to) {
+        int i, j, bestIndex;
+]]>
+</codefragment>
+</duplication>
+<duplication lines="31" tokens="107">
+<file line="71" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MaxWatchPbLong.java"/>
+<file line="71" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MaxWatchPbLongCP.java"/>
+<codefragment>
+<![CDATA[
+    private MaxWatchPbLongCP(ILits voc, IDataStructurePB mpb) {
+
+        super(mpb);
+        this.voc = voc;
+
+        this.activity = 0;
+        this.watchCumul = 0;
+        if (this.coefs.length > MaxWatchPb.LIMIT_FOR_MAP) {
+            this.litToCoeffs = new HashMap<Integer, Long>(this.coefs.length);
+            for (int i = 0; i < this.coefs.length; i++) {
+                this.litToCoeffs.put(this.lits[i], this.coefs[i]);
+            }
+        } else {
+            this.litToCoeffs = null;
+        }
+    }
+
+    /**
+     * Builds a PB constraint for a0.x0 + a1.x1 + ... + an.xn >= k
+     * 
+     * @param voc
+     *            all the possible variables (vocabulary)
+     * @param lits
+     *            literals of the constraint (x0,x1, ... xn)
+     * @param coefs
+     *            coefficients of the left side of the constraint (a0, a1, ...
+     *            an)
+     * @param degree
+     *            degree of the constraint (k)
+     */
+    private MaxWatchPbLongCP(ILits voc, int[] lits, BigInteger[] coefs,
+]]>
+</codefragment>
+</duplication>
+<duplication lines="10" tokens="106">
+<file line="132" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MaxWatchPb.java"/>
+<file line="127" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MaxWatchPbLong.java"/>
+<codefragment>
+<![CDATA[
+        for (int i = 0; i < this.lits.length; i++) {
+            if (this.voc.isFalsified(this.lits[i])) {
+                if (this.learnt) {
+                    this.voc.undos(this.lits[i] ^ 1).push(this);
+                    this.voc.watch(this.lits[i] ^ 1, this);
+                }
+            } else {
+                // updating of the initial value for the counter
+                this.voc.watch(this.lits[i] ^ 1, this);
+                this.watchCumul = this.watchCumul + this.coefs[i];
+]]>
+</codefragment>
+</duplication>
+<duplication lines="43" tokens="104">
+<file line="42" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/OriginalBinaryClausePB.java"/>
+<file line="42" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/OriginalHTClausePB.java"/>
+<codefragment>
+<![CDATA[
+    public OriginalHTClausePB(IVecInt ps, ILits voc) {
+        super(ps, voc);
+    }
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    public IVecInt computeAnImpliedClause() {
+        return null;
+    }
+
+    public BigInteger getCoef(int literal) {
+        return BigInteger.ONE;
+    }
+
+    public BigInteger[] getCoefs() {
+        BigInteger[] tmp = new BigInteger[size()];
+        for (int i = 0; i < tmp.length; i++) {
+            tmp[i] = BigInteger.ONE;
+        }
+        return tmp;
+    }
+
+    public BigInteger getDegree() {
+        return BigInteger.ONE;
+    }
+
+    /**
+     * Creates a brand new clause, presumably from external data. Performs all
+     * sanity checks.
+     * 
+     * @param s
+     *            the object responsible for unit propagation
+     * @param voc
+     *            the vocabulary
+     * @param literals
+     *            the literals to store in the clause
+     * @return the created clause or null if the clause should be ignored
+     *         (tautology for example)
+     */
+    public static OriginalHTClausePB brandNewClause(UnitPropagationListener s,
+]]>
+</codefragment>
+</duplication>
+<duplication lines="29" tokens="102">
+<file line="41" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/LearntBinaryClausePB.java"/>
+<file line="42" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/OriginalBinaryClausePB.java"/>
+<codefragment>
+<![CDATA[
+    public OriginalBinaryClausePB(IVecInt ps, ILits voc) {
+        super(ps, voc);
+        // TODO Auto-generated constructor stub
+    }
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    public IVecInt computeAnImpliedClause() {
+        return null;
+    }
+
+    public BigInteger getCoef(int literal) {
+        return BigInteger.ONE;
+    }
+
+    public BigInteger[] getCoefs() {
+        BigInteger[] tmp = new BigInteger[size()];
+        for (int i = 0; i < tmp.length; i++) {
+            tmp[i] = BigInteger.ONE;
+        }
+        return tmp;
+    }
+
+    public BigInteger getDegree() {
+        return BigInteger.ONE;
+    }
+]]>
+</codefragment>
+</duplication>
+<duplication lines="33" tokens="101">
+<file line="368" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MinWatchPbLong.java"/>
+<file line="368" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MinWatchPbLongCP.java"/>
+<codefragment>
+<![CDATA[
+    public void undo(int p) {
+        this.voc.watch(p, this);
+        int pIndice = 0;
+        while ((this.lits[pIndice] ^ 1) != p) {
+            pIndice++;
+        }
+
+        assert pIndice < this.lits.length;
+
+        this.watchCumul = this.watchCumul + this.coefs[pIndice];
+
+        assert this.watchingCount == nbOfWatched();
+
+        this.watched[pIndice] = true;
+        this.watching[this.watchingCount++] = pIndice;
+
+        assert this.watchingCount == nbOfWatched();
+    }
+
+    /**
+     * build a pseudo boolean constraint from a specific data structure. For
+     * learnt constraints.
+     * 
+     * @param s
+     *            a unit propagation listener (usually the solver)
+     * @param mpb
+     *            data structure which contains literals of the constraint,
+     *            coefficients (a0, a1, ... an), and the degree of the
+     *            constraint (k). The constraint is a "more than" constraint.
+     * @return a new PB constraint or null if a trivial inconsistency is
+     *         detected.
+     */
+    public static WatchPbLongCP normalizedWatchPbNew(ILits voc,
+]]>
+</codefragment>
+</duplication>
+<duplication lines="32" tokens="100">
+<file line="243" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MinWatchPb.java"/>
+<file line="241" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/constraints/pb/MinWatchPbLong.java"/>
+<codefragment>
+<![CDATA[
+        if (outclause.degree <= 0) {
+            return null;
+        }
+
+        outclause.computeWatches();
+
+        outclause.computePropagation(s);
+
+        return outclause;
+
+    }
+
+    /**
+     * Number of really watched literals. It should return the same value as
+     * watchingCount.
+     * 
+     * This method must only be called for assertions.
+     * 
+     * @return number of watched literals.
+     */
+    protected int nbOfWatched() {
+        int retour = 0;
+        for (int ind = 0; ind < this.watched.length; ind++) {
+            for (int i = 0; i < this.watchingCount; i++) {
+                if (this.watching[i] == ind) {
+                    assert this.watched[ind];
+                }
+            }
+            retour += this.watched[ind] ? 1 : 0;
+        }
+        return retour;
+    }
+]]>
+</codefragment>
+</duplication>
+<duplication lines="15" tokens="100">
+<file line="357" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/OPBStringSolver.java"/>
+<file line="375" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/OPBStringSolver.java"/>
+<codefragment>
+<![CDATA[
+            BigInteger weight) throws ContradictionException {
+        StringBuffer out = getOut();
+        assert literals.size() == coeffs.size();
+        this.nbOfConstraints++;
+        for (int i = 0; i < literals.size(); i++) {
+            out.append(coeffs.get(i));
+            out.append(" x");
+            out.append(literals.get(i));
+            out.append(" ");
+        }
+        out.append("= ");
+        out.append(weight);
+        out.append(" ;\n");
+        return FAKE_CONSTR;
+    }
+]]>
+</codefragment>
+</duplication>
+<duplication lines="16" tokens="100">
+<file line="301" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/OPBStringSolver.java"/>
+<file line="319" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.pb/src/main/java/org/sat4j/pb/OPBStringSolver.java"/>
+<codefragment>
+<![CDATA[
+            BigInteger degree) throws ContradictionException {
+        StringBuffer out = getOut();
+        assert literals.size() == coeffs.size();
+        this.nbOfConstraints++;
+        for (int i = 0; i < literals.size(); i++) {
+            out.append(coeffs.get(i));
+            out.append(" x");
+            out.append(literals.get(i));
+            out.append(" ");
+        }
+        out.append(">= ");
+        out.append(degree);
+        out.append(" ;\n");
+        return FAKE_CONSTR;
+
+    }
+]]>
+</codefragment>
+</duplication>
+</pmd-cpd>

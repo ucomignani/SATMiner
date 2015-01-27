@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<rss version="0.91">
+  <channel>
+    <title>SAT4J csp xml parser - Checkstyle report</title>
+    <link>http://www.sat4j.org/org.sat4j.csp.xmlparser/</link>
+    <description>SAT4J csp xml parser - Checkstyle report</description>
+    <language>en-us</language>
+    <copyright>&#169;2013 Centre de Recherche en Informatique de Lens (CRIL)</copyright>
+    <item>
+      <title>File: 25,
+             Errors: 1524,
+             Warnings: 0,
+             Infos: 0
+      </title>
+            <link>http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html</link>
+      <description>
+        <p>Click <a href="http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html">here</a> for the full Checkstyle report.</p>
+
+        <table summary="Files" boder="1">
+          <thead>
+            <tr>
+              <th>Files</th>
+              <th style="width:30px;"><abbr title="Info">I</abbr></th>
+              <th style="width:30px;"><abbr title="Warning">W</abbr></th>
+              <th style="width:30px;"><abbr title="Error">E</abbr></th>
+            </tr>
+          </thead>
+          <tbody>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html#org.sat4j.csp.xml.ConstantParameter.java">org/sat4j/csp/xml/ConstantParameter.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  10
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html#org.sat4j.csp.xml.CSPFormatException.java">org/sat4j/csp/xml/CSPFormatException.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  13
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html#org.sat4j.csp.xml.Presentation.java">org/sat4j/csp/xml/Presentation.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  16
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html#org.sat4j.csp.xml.ICSPCallback.java">org/sat4j/csp/xml/ICSPCallback.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  314
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html#org.sat4j.csp.main.Test.java">org/sat4j/csp/main/Test.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  20
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html#org.sat4j.csp.xml.Domain.java">org/sat4j/csp/xml/Domain.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  61
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html#org.sat4j.csp.xml.Variable.java">org/sat4j/csp/xml/Variable.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  14
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html#org.sat4j.csp.xml.Instance.java">org/sat4j/csp/xml/Instance.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  13
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html#org.sat4j.csp.main.SimpleCallback.java">org/sat4j/csp/main/SimpleCallback.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  473
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html#org.sat4j.csp.xml.CspXmlParser.java">org/sat4j/csp/xml/CspXmlParser.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  28
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html#org.sat4j.csp.xml.Expression.java">org/sat4j/csp/xml/Expression.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  10
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html#org.sat4j.csp.xml.Relations.java">org/sat4j/csp/xml/Relations.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  19
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html#org.sat4j.csp.xml.Variables.java">org/sat4j/csp/xml/Variables.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  17
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html#org.sat4j.csp.xml.Relation.java">org/sat4j/csp/xml/Relation.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  61
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html#org.sat4j.csp.xml.Functional.java">org/sat4j/csp/xml/Functional.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  28
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html#org.sat4j.csp.xml.Constraint.java">org/sat4j/csp/xml/Constraint.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  51
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html#org.sat4j.csp.xml.Parameters.java">org/sat4j/csp/xml/Parameters.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  73
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html#org.sat4j.csp.xml.ListOfParameters.java">org/sat4j/csp/xml/ListOfParameters.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  9
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html#org.sat4j.csp.xml.InstanceParser.java">org/sat4j/csp/xml/InstanceParser.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  140
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html#org.sat4j.csp.xml.Predicates.java">org/sat4j/csp/xml/Predicates.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  20
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html#org.sat4j.csp.xml.TagNames.java">org/sat4j/csp/xml/TagNames.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  18
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html#org.sat4j.csp.xml.Constraints.java">org/sat4j/csp/xml/Constraints.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  21
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html#org.sat4j.csp.xml.Domains.java">org/sat4j/csp/xml/Domains.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  20
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html#org.sat4j.csp.xml.Element.java">org/sat4j/csp/xml/Element.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  44
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.csp.xmlparser//checkstyle.html#org.sat4j.csp.xml.Predicate.java">org/sat4j/csp/xml/Predicate.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  31
+                </td>
+              </tr>
+                      </tbody>
+        </table>
+        
+      </description>
+    </item>
+  </channel>
+</rss>
+

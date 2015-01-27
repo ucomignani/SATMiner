@@ -1,0 +1,4 @@
+org.sat4j.csp
+org.sat4j.csp.constraints
+org.sat4j.csp.encodings
+org.sat4j.reader

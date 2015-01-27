@@ -1,0 +1,527 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<rss version="0.91">
+  <channel>
+    <title>SAT4J sat - Checkstyle report</title>
+    <link>http://www.sat4j.org/org.sat4j.sat/</link>
+    <description>SAT4J sat - Checkstyle report</description>
+    <language>en-us</language>
+    <copyright>&#169;2013 Centre de Recherche en Informatique de Lens (CRIL)</copyright>
+    <item>
+      <title>File: 35,
+             Errors: 2146,
+             Warnings: 0,
+             Infos: 0
+      </title>
+            <link>http://www.sat4j.org/org.sat4j.sat//checkstyle.html</link>
+      <description>
+        <p>Click <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html">here</a> for the full Checkstyle report.</p>
+
+        <table summary="Files" boder="1">
+          <thead>
+            <tr>
+              <th>Files</th>
+              <th style="width:30px;"><abbr title="Info">I</abbr></th>
+              <th style="width:30px;"><abbr title="Warning">W</abbr></th>
+              <th style="width:30px;"><abbr title="Error">E</abbr></th>
+            </tr>
+          </thead>
+          <tbody>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.visu.package-info.java">org/sat4j/sat/visu/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.visu.VisuPreferences.java">org/sat4j/sat/visu/VisuPreferences.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  211
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.visu.GnuplotBasedSolverVisualisation.java">org/sat4j/sat/visu/GnuplotBasedSolverVisualisation.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  98
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.SolverController.java">org/sat4j/sat/SolverController.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  18
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.RandomWalkCommandComponent.java">org/sat4j/sat/RandomWalkCommandComponent.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  26
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.visu.TracePainterCross.java">org/sat4j/sat/visu/TracePainterCross.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  32
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.PhaseCommandComponent.java">org/sat4j/sat/PhaseCommandComponent.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  30
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.Solvers.java">org/sat4j/sat/Solvers.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  93
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.RemoteControlStrategy.java">org/sat4j/sat/RemoteControlStrategy.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  118
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.visu.TracePainterPlus.java">org/sat4j/sat/visu/TracePainterPlus.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  30
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.RestartCommandComponent.java">org/sat4j/sat/RestartCommandComponent.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  60
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.DetailedCommandPanel.java">org/sat4j/sat/DetailedCommandPanel.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  379
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.visu.GnuplotDataFile.java">org/sat4j/sat/visu/GnuplotDataFile.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  48
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.visu.GnuplotFunction.java">org/sat4j/sat/visu/GnuplotFunction.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  29
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.package-info.java">org/sat4j/sat/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  2
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.visu.JChartBasedSolverVisualisation.java">org/sat4j/sat/visu/JChartBasedSolverVisualisation.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  203
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.visu.PointPainterPlus.java">org/sat4j/sat/visu/PointPainterPlus.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  32
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.VerySimpleCommandPanel.java">org/sat4j/sat/VerySimpleCommandPanel.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  25
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.Launcher.java">org/sat4j/sat/Launcher.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  38
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.CommandComponent.java">org/sat4j/sat/CommandComponent.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  6
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.SimplifierCommandComponent.java">org/sat4j/sat/SimplifierCommandComponent.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  32
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.LaunchRemoteControl.java">org/sat4j/sat/LaunchRemoteControl.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  10
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.visu.TraceComposite.java">org/sat4j/sat/visu/TraceComposite.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  162
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.StartSolverEnum.java">org/sat4j/sat/StartSolverEnum.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  6
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.visu.MyChartPanel.java">org/sat4j/sat/visu/MyChartPanel.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  15
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.visu.ChartBasedVisualizationTool.java">org/sat4j/sat/visu/ChartBasedVisualizationTool.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  16
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.HotSolverCommandComponent.java">org/sat4j/sat/HotSolverCommandComponent.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  19
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.visu.VisuPreferencesFrame.java">org/sat4j/sat/visu/VisuPreferencesFrame.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  81
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.RTSI.java">org/sat4j/sat/RTSI.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  57
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.visu.SolverVisualisation.java">org/sat4j/sat/visu/SolverVisualisation.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  6
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.CleanCommandComponent.java">org/sat4j/sat/CleanCommandComponent.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  80
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.ProblemType.java">org/sat4j/sat/ProblemType.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  8
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.visu.PointPainterCross.java">org/sat4j/sat/visu/PointPainterCross.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  32
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.RemoteControlFrame.java">org/sat4j/sat/RemoteControlFrame.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  79
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.sat4j.org/org.sat4j.sat//checkstyle.html#org.sat4j.sat.Lanceur.java">org/sat4j/sat/Lanceur.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  65
+                </td>
+              </tr>
+                      </tbody>
+        </table>
+        
+      </description>
+    </item>
+  </channel>
+</rss>
+

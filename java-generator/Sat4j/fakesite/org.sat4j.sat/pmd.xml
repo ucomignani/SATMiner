@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pmd version="4.2.5" timestamp="2013-02-09T14:24:04.285">
+<file name="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.sat/src/main/java/org/sat4j/sat/Lanceur.java">
+<violation beginline="155" endline="155" begincolumn="24" endcolumn="24" rule="UnusedLocalVariable" ruleset="Unused Code Rules" package="org.sat4j.sat" class="Lanceur" method="configureSolver" variable="m" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedLocalVariable" priority="3">
+Avoid unused local variables such as 'm'.
+</violation>
+</file>
+<file name="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.sat/src/main/java/org/sat4j/sat/LaunchRemoteControl.java">
+<violation beginline="70" endline="70" begincolumn="28" endcolumn="32" rule="UnusedLocalVariable" ruleset="Unused Code Rules" package="org.sat4j.sat" class="LaunchRemoteControl" method="main" variable="frame" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedLocalVariable" priority="3">
+Avoid unused local variables such as 'frame'.
+</violation>
+</file>
+<file name="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.sat/src/main/java/org/sat4j/sat/Launcher.java">
+<violation beginline="195" endline="195" begincolumn="25" endcolumn="27" rule="UnusedLocalVariable" ruleset="Unused Code Rules" package="org.sat4j.sat" class="Launcher" method="configureSolver" variable="myk" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedLocalVariable" priority="3">
+Avoid unused local variables such as 'myk'.
+</violation>
+</file>
+<file name="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.sat/src/main/java/org/sat4j/sat/RTSI.java">
+<violation beginline="174" endline="176" begincolumn="23" endcolumn="21" rule="EmptyCatchBlock" ruleset="Basic Rules" package="org.sat4j.sat" class="RTSI" method="findnames" externalInfoUrl="http://pmd.sourceforge.net/rules/basic.html#EmptyCatchBlock" priority="3">
+Avoid empty catch blocks
+</violation>
+<violation beginline="231" endline="232" begincolumn="27" endcolumn="25" rule="EmptyCatchBlock" ruleset="Basic Rules" package="org.sat4j.sat" class="RTSI" method="findnames" externalInfoUrl="http://pmd.sourceforge.net/rules/basic.html#EmptyCatchBlock" priority="3">
+Avoid empty catch blocks
+</violation>
+</file>
+</pmd>

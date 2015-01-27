@@ -1,0 +1,7 @@
+org.sat4j.pb
+org.sat4j.pb.constraints
+org.sat4j.pb.constraints.pb
+org.sat4j.pb.core
+org.sat4j.pb.orders
+org.sat4j.pb.reader
+org.sat4j.pb.tools

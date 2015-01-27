@@ -42,14 +42,10 @@ exception statement from your version. */
  */
 package dag.satmining.backend.sat4j;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import dag.satmining.NoSolutionException;
 import dag.satmining.backend.BackendTest;
 import dag.satmining.backend.dimacs.DimacsLiteral;
 import dag.satmining.backend.sat4j.minisat.orders.PRANDSelectionStrategy;
-import static org.sat4j.core.LiteralsUtils.posLit;
 
 
 /**
@@ -57,9 +53,6 @@ import static org.sat4j.core.LiteralsUtils.posLit;
  * @author ucomignani
  */
 public class SAT4JBackendPRANDTest extends BackendTest<DimacsLiteral> {
-
-	private static final Logger LOG = LoggerFactory
-			.getLogger(SAT4JBackendPRANDTest.class);
 
 	@Override
 	protected void initHandler() {
@@ -79,8 +72,8 @@ public class SAT4JBackendPRANDTest extends BackendTest<DimacsLiteral> {
 
 		for(int i=0; i<10;i++){
 			testPhaseSelection.init(3);
-			testPhaseSelection.updateVar(posLit(2));
-			assertTrue(testPhaseSelection.select(2) == (2<<1) || testPhaseSelection.select(2) == (2<<1 ^ 1));
+			int testRand = testPhaseSelection.select(2);
+			assertTrue(testRand == (2<<1) || testRand == (2<<1 ^ 1));
 		}
 	}
 }

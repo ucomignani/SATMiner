@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pmd-cpd>
+<duplication lines="39" tokens="219">
+<file line="832" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.sat/src/main/java/org/sat4j/sat/DetailedCommandPanel.java"/>
+<file line="912" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.sat/src/main/java/org/sat4j/sat/DetailedCommandPanel.java"/>
+<codefragment>
+<![CDATA[
+            this.solver = factory.createSolverByName(partsSelectedSolver[1]);
+
+            cdclSolver = (ICDCL<?>) this.solver.getSolvingEngine();
+
+            this.telecomStrategy.setSolver(cdclSolver);
+            this.telecomStrategy.setRestartStrategy(cdclSolver
+                    .getRestartStrategy());
+            cdclSolver.setRestartStrategy(this.telecomStrategy);
+
+            this.restartPanel.setCurrentRestart(this.telecomStrategy
+                    .getRestartStrategy().getClass().getSimpleName());
+
+            order = cdclSolver.getOrder();
+
+            proba = 0;
+
+            if (this.optimizationMode) {
+                if (order instanceof RandomWalkDecoratorObjective) {
+                    this.randomWalk = (RandomWalkDecorator) order;
+                    proba = this.randomWalk.getProbability();
+                } else if (order instanceof VarOrderHeapObjective) {
+                    this.randomWalk = new RandomWalkDecoratorObjective(
+                            (VarOrderHeapObjective) order, 0);
+                }
+            } else if (cdclSolver.getOrder() instanceof RandomWalkDecorator) {
+                this.randomWalk = (RandomWalkDecorator) order;
+                proba = this.randomWalk.getProbability();
+            } else {
+                this.randomWalk = new RandomWalkDecorator((VarOrderHeap) order,
+                        0);
+            }
+
+            this.randomWalk.setProbability(proba);
+            this.rwPanel.setProba(proba);
+
+            cdclSolver.setOrder(this.randomWalk);
+
+            this.telecomStrategy.setPhaseSelectionStrategy(cdclSolver
+                    .getOrder().getPhaseSelectionStrategy());
+]]>
+</codefragment>
+</duplication>
+<duplication lines="49" tokens="183">
+<file line="199" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.sat/src/main/java/org/sat4j/sat/Lanceur.java"/>
+<file line="196" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.sat/src/main/java/org/sat4j/sat/Launcher.java"/>
+<codefragment>
+<![CDATA[
+            }
+
+            if (cmd.hasOption("r")) {
+                this.modeTracing = true;
+                if (!cmd.hasOption("remote")) {
+                    asolver.setSearchListener(new MultiTracing(
+                            new ConflictLevelTracing(
+                                    new FileBasedVisualizationTool(
+                                            this.filename + "-conflict-level"),
+                                    new FileBasedVisualizationTool(
+                                            this.filename
+                                                    + "-conflict-level-restart"),
+                                    new FileBasedVisualizationTool(
+                                            this.filename
+                                                    + "-conflict-level-clean")),
+                            new DecisionTracing(
+                                    new FileBasedVisualizationTool(
+                                            this.filename
+                                                    + "-decision-indexes-pos"),
+                                    new FileBasedVisualizationTool(
+                                            this.filename
+                                                    + "-decision-indexes-neg"),
+                                    new FileBasedVisualizationTool(
+                                            this.filename
+                                                    + "-decision-indexes-restart"),
+                                    new FileBasedVisualizationTool(
+                                            this.filename
+                                                    + "-decision-indexes-clean")),
+                            new LearnedClausesSizeTracing(
+                                    new FileBasedVisualizationTool(
+                                            this.filename
+                                                    + "-learned-clauses-size"),
+                                    new FileBasedVisualizationTool(
+                                            this.filename
+                                                    + "-learned-clauses-size-restart"),
+                                    new FileBasedVisualizationTool(
+                                            this.filename
+                                                    + "-learned-clauses-size-clean")),
+                            new ConflictDepthTracing(
+                                    new FileBasedVisualizationTool(
+                                            this.filename + "-conflict-depth"),
+                                    new FileBasedVisualizationTool(
+                                            this.filename
+                                                    + "-conflict-depth-restart"),
+                                    new FileBasedVisualizationTool(
+                                            this.filename
+                                                    + "-conflict-depth-clean"))));
+                }
+            }
+]]>
+</codefragment>
+</duplication>
+<duplication lines="35" tokens="138">
+<file line="35" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.sat/src/main/java/org/sat4j/sat/visu/TracePainterCross.java"/>
+<file line="35" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.sat/src/main/java/org/sat4j/sat/visu/TracePainterPlus.java"/>
+<codefragment>
+<![CDATA[
+        this.mPointPainter = new PointPainterPlus(plusSize);
+    }
+
+    /**
+     * @see info.monitorenter.gui.chart.ITracePainter#endPaintIteration(java.awt.Graphics)
+     */
+    @Override
+    public void endPaintIteration(final Graphics g2d) {
+        if (g2d != null) {
+            int previousX = this.getPreviousX();
+            int previousY = this.getPreviousY();
+            if (previousX != Integer.MIN_VALUE
+                    || previousY != Integer.MIN_VALUE) {
+                this.mPointPainter.paintPoint(previousX, previousY, 0, 0, g2d,
+                        this.getPreviousPoint());
+            }
+        }
+        this.mPointPainter.endPaintIteration(g2d);
+    }
+
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        final TracePainterPlus other = (TracePainterPlus) obj;
+]]>
+</codefragment>
+</duplication>
+<duplication lines="21" tokens="137">
+<file line="425" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.sat/src/main/java/org/sat4j/sat/Solvers.java"/>
+<file line="461" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.sat/src/main/java/org/sat4j/sat/Solvers.java"/>
+<codefragment>
+<![CDATA[
+                            Class.forName(PACKAGE_PHASE + "." + name)
+                                    .newInstance()).keySet();
+                    keySet.remove(CLASS);
+                    if (keySet.size() > 0) {
+                        classNames.add(name + keySet);
+                    } else {
+                        classNames.add(name);
+                    }
+                } catch (IllegalAccessException e) {
+                    logger.log(e.getMessage());
+                } catch (InvocationTargetException e) {
+                    logger.log(e.getMessage());
+                } catch (NoSuchMethodException e) {
+                    logger.log(e.getMessage());
+                } catch (InstantiationException e) {
+                    logger.log(e.getMessage());
+                } catch (ClassNotFoundException e) {
+                    logger.log(e.getMessage());
+                }
+            }
+        }
+]]>
+</codefragment>
+</duplication>
+<duplication lines="18" tokens="132">
+<file line="797" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.sat/src/main/java/org/sat4j/sat/DetailedCommandPanel.java"/>
+<file line="895" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.sat/src/main/java/org/sat4j/sat/DetailedCommandPanel.java"/>
+<codefragment>
+<![CDATA[
+        default:
+            selectedSolver = (String) this.listeSolvers.getSelectedItem();
+            partsSelectedSolver = selectedSolver.split("\\.");
+
+            assert partsSelectedSolver.length == 2;
+            assert partsSelectedSolver[0].equals(MINISAT_PREFIX)
+                    || partsSelectedSolver[0].equals(PB_PREFIX)
+                    || partsSelectedSolver[0].equals(MAXSAT_PREFIX);
+
+            if (partsSelectedSolver[0].equals(MINISAT_PREFIX)) {
+                factory = org.sat4j.minisat.SolverFactory.instance();
+            } else if (partsSelectedSolver[0].equals(PB_PREFIX)) {
+                factory = org.sat4j.pb.SolverFactory.instance();
+            } else {
+                factory = org.sat4j.maxsat.SolverFactory.instance();
+            }
+
+            this.solver = factory.createSolverByName(partsSelectedSolver[1]);
+]]>
+</codefragment>
+</duplication>
+<duplication lines="40" tokens="129">
+<file line="87" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.sat/src/main/java/org/sat4j/sat/visu/TracePainterCross.java"/>
+<file line="87" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.sat/src/main/java/org/sat4j/sat/visu/TracePainterPlus.java"/>
+<codefragment>
+<![CDATA[
+        return this.mPointPainter.getPlusSize();
+    }
+
+    /**
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime
+                * result
+                + (this.mPointPainter == null ? 0 : this.mPointPainter
+                        .hashCode());
+        return result;
+    }
+
+    /**
+     * @see info.monitorenter.gui.chart.traces.painters.ATracePainter#paintPoint(int,
+     *      int, int, int, java.awt.Graphics,
+     *      info.monitorenter.gui.chart.ITracePoint2D)
+     */
+    @Override
+    public void paintPoint(final int absoluteX, final int absoluteY,
+            final int nextX, final int nextY, final Graphics g,
+            final ITracePoint2D original) {
+        super.paintPoint(absoluteX, absoluteY, nextX, nextY, g, original);
+        this.mPointPainter.paintPoint(absoluteX, absoluteY, nextX, nextY, g,
+                original);
+    }
+
+    /**
+     * Sets the size of the plus to paint in pixel.
+     * <p>
+     * 
+     * @param plusSize
+     *            the diameter of the plus to paint in pixel.
+     */
+    public void setPlusSize(final int plusSize) {
+        this.mPointPainter.setPlusSize(plusSize);
+]]>
+</codefragment>
+</duplication>
+<duplication lines="22" tokens="127">
+<file line="463" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.sat/src/main/java/org/sat4j/sat/Solvers.java"/>
+<file line="538" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.sat/src/main/java/org/sat4j/sat/Solvers.java"/>
+<codefragment>
+<![CDATA[
+                    keySet.remove(CLASS);
+
+                    if (keySet.size() > 0) {
+                        classNames.add(name + keySet);
+                    } else {
+                        classNames.add(name);
+                    }
+
+                } catch (IllegalAccessException e) {
+                    logger.log(e.getMessage());
+                } catch (InvocationTargetException e) {
+                    logger.log(e.getMessage());
+                } catch (NoSuchMethodException e) {
+                    logger.log(e.getMessage());
+                } catch (InstantiationException e) {
+                    logger.log(e.getMessage());
+                } catch (ClassNotFoundException e) {
+                    logger.log(e.getMessage());
+                }
+            }
+        }
+        logger.log("Available orders (" + Solvers.ORDERS + "): " + classNames);
+]]>
+</codefragment>
+</duplication>
+<duplication lines="18" tokens="126">
+<file line="420" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.sat/src/main/java/org/sat4j/sat/Lanceur.java"/>
+<file line="335" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.sat/src/main/java/org/sat4j/sat/Launcher.java"/>
+<codefragment>
+<![CDATA[
+                System.exit(launcher.getExitCode().value());
+            } else {
+                RemoteControlFrame frame = new RemoteControlFrame(
+                        this.filename, "", args);
+                frame.activateTracing(this.modeTracing);
+                frame.setOptimisationMode(this.isModeOptimization);
+            }
+        } catch (FileNotFoundException e) {
+            System.err.println("FATAL " + e.getLocalizedMessage());
+        } catch (IOException e) {
+            System.err.println("FATAL " + e.getLocalizedMessage());
+        } catch (ContradictionException e) {
+            this.exitCode = ExitCode.UNSATISFIABLE;
+            log("(trivial inconsistency)"); //$NON-NLS-1$
+        } catch (ParseFormatException e) {
+            System.err.println("FATAL " + e.getLocalizedMessage());
+        }
+    }
+]]>
+</codefragment>
+</duplication>
+<duplication lines="21" tokens="123">
+<file line="428" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.sat/src/main/java/org/sat4j/sat/Solvers.java"/>
+<file line="538" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.sat/src/main/java/org/sat4j/sat/Solvers.java"/>
+<codefragment>
+<![CDATA[
+                    keySet.remove(CLASS);
+
+                    if (keySet.size() > 0) {
+                        classNames.add(name + keySet);
+                    } else {
+                        classNames.add(name);
+                    }
+
+                } catch (IllegalAccessException e) {
+                    logger.log(e.getMessage());
+                } catch (InvocationTargetException e) {
+                    logger.log(e.getMessage());
+                } catch (NoSuchMethodException e) {
+                    logger.log(e.getMessage());
+                } catch (InstantiationException e) {
+                    logger.log(e.getMessage());
+                } catch (ClassNotFoundException e) {
+                    logger.log(e.getMessage());
+                }
+            }
+        }
+]]>
+</codefragment>
+</duplication>
+<duplication lines="17" tokens="112">
+<file line="476" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.sat/src/main/java/org/sat4j/sat/Lanceur.java"/>
+<file line="234" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.sat/src/main/java/org/sat4j/sat/Solvers.java"/>
+<codefragment>
+<![CDATA[
+                "Do not display a solution line (useful if the solution is large)");
+        Option op = options.getOption("l");
+        op.setArgName("libname");
+        op = options.getOption("s");
+        op.setArgName("solvername");
+        op = options.getOption("S");
+        op.setArgName("solverStringDefinition");
+        op = options.getOption("t");
+        op.setArgName(NUMBER);
+        op = options.getOption("T");
+        op.setArgName(NUMBER);
+        op = options.getOption("C");
+        op.setArgName(NUMBER);
+        op = options.getOption("k");
+        op.setArgName(NUMBER);
+        op = options.getOption("d");
+        op.setArgName(FILENAME);
+]]>
+</codefragment>
+</duplication>
+<duplication lines="15" tokens="107">
+<file line="425" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.sat/src/main/java/org/sat4j/sat/Solvers.java"/>
+<file line="493" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.sat/src/main/java/org/sat4j/sat/Solvers.java"/>
+<codefragment>
+<![CDATA[
+                        Class.forName(PACKAGE_LEARNING + "." + name)
+                                .newInstance()).keySet();
+                keySet.remove(CLASS);
+                if (keySet.size() > 0) {
+                    classNames.add(name + keySet);
+                } else {
+                    classNames.add(name);
+                }
+            } catch (IllegalAccessException e) {
+                logger.log(e.getMessage());
+            } catch (InvocationTargetException e) {
+                logger.log(e.getMessage());
+            } catch (NoSuchMethodException e) {
+                logger.log(e.getMessage());
+            } catch (InstantiationException e) {
+]]>
+</codefragment>
+</duplication>
+</pmd-cpd>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pmd-cpd>
+<duplication lines="13" tokens="107">
+<file line="312" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.maxsat/src/main/java/org/sat4j/maxsat/WeightedMaxSatDecorator.java"/>
+<file line="381" path="/home/daniel/MAVENRELEASE/target/checkout/org.sat4j.maxsat/src/main/java/org/sat4j/maxsat/WeightedMaxSatDecorator.java"/>
+<codefragment>
+<![CDATA[
+    public IConstr addSoftAtMost(BigInteger weight, IVecInt literals, int degree)
+            throws ContradictionException {
+        checkMaxVarId();
+        if (weight.compareTo(this.top) < 0) {
+            this.coefs.push(weight);
+            int newvar = nextFreeVarId(true);
+            this.lits.push(newvar);
+            IVec<BigInteger> cardcoeffs = new Vec<BigInteger>(
+                    literals.size() + 1);
+            cardcoeffs.growTo(literals.size(), BigInteger.ONE);
+            literals.push(newvar);
+            BigInteger bigDegree = BigInteger.valueOf(degree);
+            cardcoeffs.push(bigDegree.negate());
+]]>
+</codefragment>
+</duplication>
+</pmd-cpd>
