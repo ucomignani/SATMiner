@@ -67,11 +67,11 @@ public class StrongBackdoorVarOrderHeap extends VarOrderHeap {
         // recodage avec double pile, très lié à l'implementation de la super classe
         super.init();
         int nlength = lits.nVars() + 1;
-        _strongHeap = new Heap(activity);
-        _strongHeap.setBounds(nlength);
+        set_strongHeap(new Heap(activity));
+        get_strongHeap().setBounds(nlength);
         for (int i = 1; i < nlength; i++) {
             if (lits.belongsToPool(i) && _backDoor.get(i)) {
-                _strongHeap.insert(i);
+                get_strongHeap().insert(i);
             }
         }
     }
@@ -79,8 +79,8 @@ public class StrongBackdoorVarOrderHeap extends VarOrderHeap {
     @Override
     public int select() {
         // recodage avec double pile, très lié à l'implementation de la super classe
-        while (!_strongHeap.empty()) {
-            int var = _strongHeap.getmin();
+        while (!get_strongHeap().empty()) {
+            int var = get_strongHeap().getmin();
             int next = phaseStrategy.select(var);
             if (lits.isUnassigned(next)) {
                 return next;
@@ -93,8 +93,8 @@ public class StrongBackdoorVarOrderHeap extends VarOrderHeap {
     public void undo(int x) {
         // recodage avec double pile, très lié à l'implementation de la super classe
         if (_backDoor.get(x)
-                && !_strongHeap.inHeap(x)) {
-            _strongHeap.insert(x);
+                && !get_strongHeap().inHeap(x)) {
+            get_strongHeap().insert(x);
         }
         super.undo(x);
     }
@@ -105,8 +105,16 @@ public class StrongBackdoorVarOrderHeap extends VarOrderHeap {
         super.updateVar(p);
         int var = LiteralsUtils.var(p);
         if (_backDoor.get(var)
-                && _strongHeap.inHeap(var)) {
-            _strongHeap.increase(var);
+                && get_strongHeap().inHeap(var)) {
+            get_strongHeap().increase(var);
         }
     }
+
+	public Heap get_strongHeap() {
+		return _strongHeap;
+	}
+
+	public void set_strongHeap(Heap _strongHeap) {
+		this._strongHeap = _strongHeap;
+	}
 }

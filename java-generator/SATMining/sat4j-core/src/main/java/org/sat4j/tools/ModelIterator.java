@@ -110,10 +110,6 @@ public class ModelIterator extends SolverDecorator<ISolver> {
         this.bound = bound;
     }
     
-    public void StringTest(){
-    	System.out.println("test===============================================================================================================");
-    }
-
     /*
      * (non-Javadoc)
      * 

@@ -42,11 +42,11 @@ import org.sat4j.minisat.learning.MiniSATLearning;
 import org.sat4j.minisat.restarts.MiniSATRestarts;
 import org.sat4j.pb.constraints.PBMaxDataStructure;
 import org.sat4j.pb.core.PBDataStructureFactory;
-import org.sat4j.pb.core.PBSolverResolution;
 import org.sat4j.tools.ModelIterator;
 
 import dag.satmining.backend.dimacs.DimacsLiteral;
 import dag.satmining.backend.sat4j.minisat.orders.PBCPGUIDESelectionStrategy;
+import dag.satmining.backend.sat4j.pb.core.PBSolverResolution_PBCPGUIDE;
 import dag.satmining.constraints.impl.PBReifier;
 import dag.satmining.constraints.impl.WeightedPBReifier;
 
@@ -69,7 +69,7 @@ public class SAT4JPBBuilderPBCPGUIDE extends SAT4JPBBuilder{
 		// specialized order for strong backdoor.
 		_varOrder = new StrongBackdoorVarOrderHeapWithPhaseSelectionChoice(_strongBackdoor, new PBCPGUIDESelectionStrategy());
 		MiniSATLearning<PBDataStructureFactory> learning = new MiniSATLearning<PBDataStructureFactory>();
-		PBSolverResolution solver = new PBSolverResolution(learning,
+		PBSolverResolution_PBCPGUIDE solver = new PBSolverResolution_PBCPGUIDE(learning,
 				new PBMaxDataStructure(), _varOrder, new MiniSATRestarts());
 		learning.setDataStructureFactory(solver.getDSFactory());
 		learning.setVarActivityListener(solver);

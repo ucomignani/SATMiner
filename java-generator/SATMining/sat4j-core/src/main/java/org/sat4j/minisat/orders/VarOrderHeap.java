@@ -112,7 +112,7 @@ public class VarOrderHeap implements IOrder, Serializable {
             int next = this.phaseStrategy.select(var);
             if (this.lits.isUnassigned(next)) {
                 if (this.activity[var] < 0.0001) {
-                    this.nullchoice++;
+                    this.setNullchoice(this.getNullchoice() + 1);
                 }
                 return next;
             }
@@ -229,7 +229,7 @@ public class VarOrderHeap implements IOrder, Serializable {
     }
 
     public void printStat(PrintWriter out, String prefix) {
-        out.println(prefix + "non guided choices\t" + this.nullchoice); //$NON-NLS-1$
+        out.println(prefix + "non guided choices\t" + this.getNullchoice()); //$NON-NLS-1$
     }
 
     public void assignLiteral(int p) {
@@ -244,4 +244,12 @@ public class VarOrderHeap implements IOrder, Serializable {
     public double[] getVariableHeuristics() {
         return this.activity;
     }
+
+	public long getNullchoice() {
+		return nullchoice;
+	}
+
+	public void setNullchoice(long nullchoice) {
+		this.nullchoice = nullchoice;
+	}
 }

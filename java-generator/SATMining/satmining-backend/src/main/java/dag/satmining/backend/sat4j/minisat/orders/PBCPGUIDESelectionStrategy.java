@@ -90,7 +90,7 @@ public final class PBCPGUIDESelectionStrategy implements IPhaseSelectionStrategy
 			{
 				this.nbNeg[i]++;
 			}
-			LOG.info("Var:{}; Phase choisie:{}; Nb pos:{}; Nb neg:{}", i, this.phase[i],this.nbPos[i],this.nbNeg[i]);
+//			LOG.info("Var:{}; Phase choisie:{}; Nb pos:{}; Nb neg:{}", i, this.phase[i],this.nbPos[i],this.nbNeg[i]);
 
 			this.phase[i] = negLit(i);
 
