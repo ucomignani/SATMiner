@@ -2,24 +2,54 @@ package dag.satmining.backend.sat4j.pb.core;
 
 import static org.sat4j.core.LiteralsUtils.toDimacs;
 
+import org.sat4j.core.VecInt;
 import org.sat4j.minisat.core.Constr;
 import org.sat4j.minisat.core.ILits;
 import org.sat4j.minisat.core.IOrder;
 import org.sat4j.minisat.core.LearningStrategy;
 import org.sat4j.minisat.core.RestartStrategy;
+import org.sat4j.minisat.core.SearchParams;
 import org.sat4j.pb.core.PBDataStructureFactory;
 import org.sat4j.pb.core.PBSolverResolution;
 import org.sat4j.specs.IVecInt;
 import org.sat4j.specs.Lbool;
 import org.sat4j.specs.TimeoutException;
 
+import dag.satmining.backend.sat4j.StrongBackdoorVarOrderHeap_PBCPGUIDE;
+
+
 public class PBSolverResolution_PBCPGUIDE extends PBSolverResolution{
 
-	public PBSolverResolution_PBCPGUIDE(
-			LearningStrategy<PBDataStructureFactory> learner,
-			PBDataStructureFactory dsf, IOrder order, RestartStrategy restarter) {
-		super(learner, dsf, order, restarter);
-		// TODO Auto-generated constructor stub
+	protected int[] nbPos;
+	protected int[] nbNeg;
+	
+	   public PBSolverResolution_PBCPGUIDE(LearningStrategy<PBDataStructureFactory> learner,
+	            PBDataStructureFactory dsf, SearchParams params, IOrder order,
+	            RestartStrategy restarter) {
+	        super(learner, dsf, params, order, restarter);
+	    }
+	
+
+    public PBSolverResolution_PBCPGUIDE(LearningStrategy<PBDataStructureFactory> learner,
+            PBDataStructureFactory dsf, IOrder order, RestartStrategy restarter) {
+        super(learner, dsf, order, restarter);
+    }
+
+	public void initOuUpdateCompteurs(){
+		boolean nouveauCompteur = false;
+		
+		if(this.nbPos == null || this.nbNeg == null || this.nbPos.length < nVars() || this.nbNeg.length < nVars()){
+			this.nbPos = new int[nVars()];
+			this.nbNeg = new int[nVars()];
+			nouveauCompteur = true;
+		}
+
+		if(nouveauCompteur){
+			for (int i = 1; i < nVars(); i++) {
+				this.nbPos[i] = 0;
+				this.nbNeg[i] = 0;	
+			}
+		}
 	}
 
 	/**
@@ -27,126 +57,181 @@ public class PBSolverResolution_PBCPGUIDE extends PBSolverResolution{
 	 */
 	private static final long serialVersionUID = 1L;
 
+	@Override
+	protected Lbool search(IVecInt assumps) {
+		assert this.rootLevel == decisionLevel();
+		this.stats.starts++;
+		int backjumpLevel;
 
-    protected Lbool search(IVecInt assumps) {
-        assert this.rootLevel == decisionLevel();
-        this.stats.starts++;
-        int backjumpLevel;
-    
-        // varDecay = 1 / params.varDecay;
-        this.getOrder().setVarDecay(1 / this.getParams().getVarDecay());
-        this.setClaDecay(1 / this.getParams().getClaDecay());
+		// varDecay = 1 / params.varDecay;
+		this.getOrder().setVarDecay(1 / this.getParams().getVarDecay());
+		this.setClaDecay(1 / this.getParams().getClaDecay());
 
-        do {
-            this.slistener.beginLoop();
-            // propage les clauses unitaires
-            Constr confl = propagate();
-            assert this.trail.size() == this.getQhead();
+		do {
+			this.slistener.beginLoop();
+			// propage les clauses unitaires
+			Constr confl = propagate();
+			assert this.trail.size() == this.getQhead();
 
-            if (confl == null) {
-                // No conflict found
-                // simpliFYDB() prevents a correct use of
-                // constraints removal.
-                if (decisionLevel() == 0 && this.isDBSimplificationAllowed()) {
-                    // // Simplify the set of problem clause
-                    // // iff rootLevel==0
-                    this.stats.rootSimplifications++;
-                    boolean ret = simplifyDB();
-                    assert ret;
-                }
-                // was learnts.size() - nAssigns() > nofLearnts
-                // if (nofLearnts.obj >= 0 && learnts.size() > nofLearnts.obj) {
-                assert nAssigns() <= this.voc.realnVars();
-                if (nAssigns() == this.voc.realnVars()) {
-                    modelFound();
-                    this.slistener
-                            .solutionFound((this.getFullmodel() != null) ? this.getFullmodel()
-                                    : this.getModel(), this);
-                    if (this.sharedConflict == null) {
-                        cancelUntil(this.rootLevel);
-                        return Lbool.TRUE;
-                    } else {
-                        // listener called ISolverService.backtrack()
-                        confl = this.sharedConflict;
-                        this.sharedConflict = null;
-                    }
-                } else {
-                    if (this.getRestarter().shouldRestart()) {
-                        // Reached bound on number of conflicts
-                        // Force a restart
-                        cancelUntil(this.rootLevel);
-                        return Lbool.UNDEFINED;
-                    }
-                    if (this.needToReduceDB) {
-                        reduceDB();
-                        this.needToReduceDB = false;
-                        // Runtime.getRuntime().gc();
-                    }
-                    if (this.sharedConflict == null) {
-                        // New variable decision
-                        this.stats.decisions++;
-                        int p = this.getOrder().select();
-                        if (p == ILits.UNDEFINED) {
-                            confl = preventTheSameDecisionsToBeMade();
-                            this.setLastConflictMeansUnsat(false);
-                        } else {
-                            assert p > 1;
-                            this.slistener.assuming(toDimacs(p));
-                            boolean ret = assume(p);
-                            assert ret;
-                        }
-                    } else {
-                        // listener called ISolverService.backtrack()
-                        confl = this.sharedConflict;
-                        this.sharedConflict = null;
-                    }
-                }
-            }
-            if (confl != null) {
-                // un conflit apparait
-                this.stats.conflicts++;
-                this.slistener.conflictFound(confl, decisionLevel(),
-                        this.trail.size());
-                this.getConflictCount().newConflict();
+			if (confl == null) {
+				// No conflict found
+				// simpliFYDB() prevents a correct use of
+				// constraints removal.
+				if (decisionLevel() == 0 && this.isDBSimplificationAllowed()) {
+					// // Simplify the set of problem clause
+					// // iff rootLevel==0
+					this.stats.rootSimplifications++;
+					boolean ret = simplifyDB();
+					assert ret;
+				}
+				// was learnts.size() - nAssigns() > nofLearnts
+				// if (nofLearnts.obj >= 0 && learnts.size() > nofLearnts.obj) {
+				assert nAssigns() <= this.voc.realnVars();
+				if (nAssigns() == this.voc.realnVars()) {
+					modelFound();
+					this.slistener
+					.solutionFound((this.getFullmodel() != null) ? this.getFullmodel()
+							: this.getModel(), this);
+					if (this.sharedConflict == null) {
+						cancelUntil(this.rootLevel);
+						return Lbool.TRUE;
+					} else {
+						// listener called ISolverService.backtrack()
+						confl = this.sharedConflict;
+						this.sharedConflict = null;
+					}
+				} else {
+					if (this.getRestarter().shouldRestart()) {
+						// Reached bound on number of conflicts
+						// Force a restart
+						cancelUntil(this.rootLevel);
+						return Lbool.UNDEFINED;
+					}
+					if (this.needToReduceDB) {
+						reduceDB();
+						this.needToReduceDB = false;
+						// Runtime.getRuntime().gc();
+					}
+					if (this.sharedConflict == null) {
+						// New variable decision
+						this.stats.decisions++;
 
-                if (decisionLevel() == this.rootLevel) {
-                    if (this.isLastConflictMeansUnsat()) {
-                        // conflict at root level, the formula is inconsistent
-                        this.setUnsatExplanationInTermsOfAssumptions(analyzeFinalConflictInTermsOfAssumptions(
-                                confl, assumps, ILits.UNDEFINED));
-                        return Lbool.FALSE;
-                    }
-                    return Lbool.UNDEFINED;
-                }
-                int conflictTrailLevel = this.trail.size();
-                // analyze conflict
-                try {
-                    analyze(confl, this.getAnalysisResult());
-                } catch (TimeoutException e) {
-                    return Lbool.UNDEFINED;
-                }
-                assert this.getAnalysisResult().backtrackLevel < decisionLevel();
-                backjumpLevel = Math.max(this.getAnalysisResult().backtrackLevel,
-                        this.rootLevel);
-                this.slistener.backjump(backjumpLevel);
-                cancelUntil(backjumpLevel);
-                if (backjumpLevel == this.rootLevel) {
-                    this.getRestarter().onBackjumpToRootLevel();
-                }
-                assert decisionLevel() >= this.rootLevel
-                        && decisionLevel() >= this.getAnalysisResult().backtrackLevel;
-                if (this.getAnalysisResult().reason == null) {
-                    return Lbool.FALSE;
-                }
-                record(this.getAnalysisResult().reason);
-                this.getRestarter().newLearnedClause(this.getAnalysisResult().reason,
-                        conflictTrailLevel);
-                this.getAnalysisResult().reason = null;
-                decayActivities();
-            }
-        } while (this.undertimeout);
-        return Lbool.UNDEFINED; // timeout occured
-    }
+						this.initOuUpdateCompteurs(); //si les compteurs ne sont pas deja init on les cree pour avoir le bon nombre de variables
+						int p = ((StrongBackdoorVarOrderHeap_PBCPGUIDE) this.getOrder()).select(this.nbPos,this.nbNeg);
+						if (p == ILits.UNDEFINED) {
+							confl = preventTheSameDecisionsToBeMade();
+							this.setLastConflictMeansUnsat(false);
+						} else {
+							assert p > 1;
+							this.slistener.assuming(toDimacs(p));
+							boolean ret = assume(p);
+							assert ret;
+						}
+					} else {
+						// listener called ISolverService.backtrack()
+						confl = this.sharedConflict;
+						this.sharedConflict = null;
+					}
+				}
+			}
+			if (confl != null) {
+				// un conflit apparait
+				this.stats.conflicts++;
+				this.slistener.conflictFound(confl, decisionLevel(),
+						this.trail.size());
+				this.getConflictCount().newConflict();
 
-   
+				if (decisionLevel() == this.rootLevel) {
+					if (this.isLastConflictMeansUnsat()) {
+						// conflict at root level, the formula is inconsistent
+						this.setUnsatExplanationInTermsOfAssumptions(analyzeFinalConflictInTermsOfAssumptions(
+								confl, assumps, ILits.UNDEFINED));
+						return Lbool.FALSE;
+					}
+					return Lbool.UNDEFINED;
+				}
+				int conflictTrailLevel = this.trail.size();
+				// analyze conflict
+				try {
+					analyze(confl, this.getAnalysisResult());
+				} catch (TimeoutException e) {
+					return Lbool.UNDEFINED;
+				}
+				assert this.getAnalysisResult().backtrackLevel < decisionLevel();
+				backjumpLevel = Math.max(this.getAnalysisResult().backtrackLevel,
+						this.rootLevel);
+				this.slistener.backjump(backjumpLevel);
+				cancelUntil(backjumpLevel);
+				if (backjumpLevel == this.rootLevel) {
+					this.getRestarter().onBackjumpToRootLevel();
+				}
+				assert decisionLevel() >= this.rootLevel
+						&& decisionLevel() >= this.getAnalysisResult().backtrackLevel;
+						if (this.getAnalysisResult().reason == null) {
+							return Lbool.FALSE;
+						}
+						record(this.getAnalysisResult().reason);
+						this.getRestarter().newLearnedClause(this.getAnalysisResult().reason,
+								conflictTrailLevel);
+						this.getAnalysisResult().reason = null;
+						decayActivities();
+			}
+		} while (this.undertimeout);
+		return Lbool.UNDEFINED; // timeout occured
+	}
+
+	/**
+	 * 
+	 */
+	protected void modelFound() {
+		IVecInt tempmodel = new VecInt(nVars());
+		this.setUserbooleanmodel(new boolean[realNumberOfVariables()]);
+		this.setFullmodel(null);
+		for (int i = 1; i <= nVars(); i++) {
+			if (this.voc.belongsToPool(i)) {
+				int p = this.voc.getFromPool(i);
+				if (!this.voc.isUnassigned(p)) {
+
+					/*
+					 * On incremente ici les compteurs pour les calculs de distance entre modeles
+					 */
+					if(this.voc.isSatisfied(p))
+						this.nbPos[i]++;
+					else
+						this.nbNeg[i]++;
+
+					tempmodel.push(this.voc.isSatisfied(p) ? i : -i);                  
+					this.getUserbooleanmodel()[i - 1] = this.voc.isSatisfied(p);
+					if (this.voc.getReason(p) == null && voc.getLevel(p) > 0) {
+						this.getDecisions().push(tempmodel.last());
+					} else {
+						this.getImplied().push(tempmodel.last());
+					}
+				}
+			}
+		}
+		this.setModel(new int[tempmodel.size()]);
+		tempmodel.copyTo(this.getModel());
+		if (realNumberOfVariables() > nVars()) {
+			for (int i = nVars() + 1; i <= realNumberOfVariables(); i++) {
+				if (this.voc.belongsToPool(i)) {
+					int p = this.voc.getFromPool(i);
+					if (!this.voc.isUnassigned(p)) {
+						tempmodel.push(this.voc.isSatisfied(p) ? i : -i);
+						this.getUserbooleanmodel()[i - 1] = this.voc.isSatisfied(p);
+						if (this.voc.getReason(p) == null) {
+							this.getDecisions().push(tempmodel.last());
+						} else {
+							this.getImplied().push(tempmodel.last());
+						}
+					}
+				}
+			}
+			this.setFullmodel(new int[tempmodel.size()]);
+			tempmodel.moveTo(this.getFullmodel());
+		} else {
+			this.setFullmodel(this.getModel());
+		}
+	}
+
 }

@@ -39,8 +39,8 @@ public class PBSolverResolution_PGUIDE extends PBSolverResolution{
 		boolean nouveauCompteur = false;
 		
 		if(this.nbPos == null || this.nbNeg == null || this.nbPos.length < nVars() || this.nbNeg.length < nVars()){
-			this.nbPos = new int[nVars()];
-			this.nbNeg = new int[nVars()];
+			this.nbPos = new int[nVars()+1];
+			this.nbNeg = new int[nVars()+1];
 			nouveauCompteur = true;
 		}
 
@@ -195,7 +195,10 @@ public class PBSolverResolution_PGUIDE extends PBSolverResolution{
 					/*
 					 * On incremente ici les compteurs pour les calculs de distance entre modeles
 					 */
-
+					if(this.voc.isSatisfied(p))
+						this.nbPos[i]++;
+					else
+						this.nbNeg[i]++;
 
 					tempmodel.push(this.voc.isSatisfied(p) ? i : -i);                  
 					this.getUserbooleanmodel()[i - 1] = this.voc.isSatisfied(p);

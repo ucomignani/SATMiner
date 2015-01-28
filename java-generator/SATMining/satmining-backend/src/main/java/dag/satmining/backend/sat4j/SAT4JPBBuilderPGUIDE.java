@@ -42,13 +42,9 @@ import org.sat4j.minisat.learning.MiniSATLearning;
 import org.sat4j.minisat.restarts.MiniSATRestarts;
 import org.sat4j.pb.constraints.PBMaxDataStructure;
 import org.sat4j.pb.core.PBDataStructureFactory;
-import org.sat4j.pb.core.PBSolverResolution;
-import org.sat4j.specs.ContradictionException;
-import org.sat4j.specs.TimeoutException;
 import org.sat4j.tools.ModelIterator;
 
 import dag.satmining.backend.dimacs.DimacsLiteral;
-import dag.satmining.backend.sat4j.minisat.orders.PGUIDESelectionStrategy;
 import dag.satmining.backend.sat4j.pb.core.PBSolverResolution_PGUIDE;
 import dag.satmining.constraints.impl.PBReifier;
 import dag.satmining.constraints.impl.WeightedPBReifier;

@@ -67,7 +67,7 @@ public class SAT4JPBBuilderPBCPGUIDE extends SAT4JPBBuilder{
 	private void initSolver() {
 		// Taken from SolverFactory.PBSolverWithImpliedClause() to use
 		// specialized order for strong backdoor.
-		_varOrder = new StrongBackdoorVarOrderHeapWithPhaseSelectionChoice(_strongBackdoor, new PBCPGUIDESelectionStrategy());
+		_varOrder = new StrongBackdoorVarOrderHeap_PBCPGUIDE(_strongBackdoor);
 		MiniSATLearning<PBDataStructureFactory> learning = new MiniSATLearning<PBDataStructureFactory>();
 		PBSolverResolution_PBCPGUIDE solver = new PBSolverResolution_PBCPGUIDE(learning,
 				new PBMaxDataStructure(), _varOrder, new MiniSATRestarts());
