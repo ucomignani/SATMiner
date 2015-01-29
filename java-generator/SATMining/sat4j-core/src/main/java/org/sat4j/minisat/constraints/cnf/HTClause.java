@@ -33,6 +33,7 @@ import static org.sat4j.core.LiteralsUtils.neg;
 
 import java.io.Serializable;
 
+import org.sat4j.core.VecInt;
 import org.sat4j.minisat.core.Constr;
 import org.sat4j.minisat.core.ILits;
 import org.sat4j.minisat.core.Propagatable;
@@ -309,5 +310,24 @@ public abstract class HTClause implements Propagatable, Constr, Serializable {
 
     public void calcReasonOnTheFly(int p, IVecInt trail, IVecInt outReason) {
         calcReason(p, outReason);
+    }
+    
+    /**
+     * Ajout pour SATMiner:
+     * Vector representation of the constraint
+     * 
+     * @return a vector representing the constraint.
+     * @author ucomignani
+     */
+    @Override
+    public VecInt toVector() {
+    	VecInt res = new VecInt();
+    	res.push(this.head);
+        for (int middleLit : this.middleLits) {
+        	res.push(middleLit);
+        }
+    	res.push(this.tail);
+    	
+        return res;
     }
 }

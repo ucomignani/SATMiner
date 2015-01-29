@@ -29,6 +29,7 @@
  *******************************************************************************/
 package org.sat4j.minisat.constraints.cnf;
 
+import org.sat4j.core.VecInt;
 import org.sat4j.minisat.core.Constr;
 import org.sat4j.minisat.core.UnitPropagationListener;
 import org.sat4j.specs.IVecInt;
@@ -120,5 +121,20 @@ public class UnitClauses implements Constr {
 
     public void calcReasonOnTheFly(int p, IVecInt trail, IVecInt outReason) {
         calcReason(p, outReason);
+    }
+    /**
+     * Ajout pour SATMiner:
+     * Vector representation of the constraint
+     * 
+     * @return a vector representing the constraint.
+     * @author ucomignani
+     */
+    @Override
+    public VecInt toVector() {
+    	VecInt res = new VecInt();
+        for (int lit : this.literals) {
+            res.push(lit);
+        }
+        return res;
     }
 }

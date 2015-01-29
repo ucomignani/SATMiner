@@ -33,6 +33,7 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.sat4j.core.VecInt;
 import org.sat4j.minisat.core.ILits;
 import org.sat4j.minisat.core.UnitPropagationListener;
 import org.sat4j.specs.ContradictionException;
@@ -330,5 +331,11 @@ public final class MaxWatchPbLong extends WatchPbLong {
             IDataStructurePB mpb) {
         return new MaxWatchPbLong(voc, mpb);
     }
+
+	@Override
+	public VecInt toVector() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

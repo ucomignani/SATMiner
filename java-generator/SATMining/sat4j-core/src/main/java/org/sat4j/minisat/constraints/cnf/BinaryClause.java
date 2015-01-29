@@ -33,6 +33,7 @@ import static org.sat4j.core.LiteralsUtils.neg;
 
 import java.io.Serializable;
 
+import org.sat4j.core.VecInt;
 import org.sat4j.minisat.core.Constr;
 import org.sat4j.minisat.core.ILits;
 import org.sat4j.minisat.core.Propagatable;
@@ -147,6 +148,22 @@ public abstract class BinaryClause implements Propagatable, Constr,
         stb.append(this.voc.valueToString(this.tail));
         stb.append("]"); //$NON-NLS-1$
         return stb.toString();
+    }
+    
+    /**
+     * Ajout pour SATMiner:
+     * Vector representation of the constraint
+     * 
+     * @return a vector representing the constraint.
+     * @author ucomignani
+     */
+    @Override
+    public VecInt toVector() {
+    	VecInt res = new VecInt();
+    	res.push(this.head);
+    	res.push(this.tail);
+    	
+        return res;
     }
 
     /**

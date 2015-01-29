@@ -1,4 +1,4 @@
-/* ./satmining-backend/src/test/java/dag/satmining/backend/sat4j/SAT4JBackendTestPRAND.java
+/* ./satmining-backend/src/test/java/dag/satmining/backend/sat4j/SAT4JBackendTestPGUIDE.java
 
    Copyright (C) 2013, 2014 Emmanuel Coquery.
 
@@ -42,21 +42,23 @@ exception statement from your version. */
  */
 package dag.satmining.backend.sat4j;
 
+import static org.sat4j.core.LiteralsUtils.negLit;
+import static org.sat4j.core.LiteralsUtils.posLit;
 import dag.satmining.NoSolutionException;
 import dag.satmining.backend.BackendTest;
 import dag.satmining.backend.dimacs.DimacsLiteral;
-import dag.satmining.backend.sat4j.minisat.orders.PRANDSelectionStrategy;
+import dag.satmining.backend.sat4j.minisat.orders.PGUIDESelectionStrategy;
 
 
 /**
  *
  * @author ucomignani
  */
-public class SAT4JBackendPRANDTest extends BackendTest<DimacsLiteral> {
+public class SAT4JBackendPGUIDETest extends BackendTest<DimacsLiteral> {
 
 	@Override
 	protected void initHandler() {
-		SAT4JPBBuilderPRAND sat4jHandler = new SAT4JPBBuilderPRAND(SAT4JPBBuilderPRAND.SMALL); // use a light solver to avoid heap space problems
+		SAT4JPBBuilderPGUIDE sat4jHandler = new SAT4JPBBuilderPGUIDE(SAT4JPBBuilderPGUIDE.SMALL); // use a light solver to avoid heap space problems
 		_handler = sat4jHandler;
 		_modelReader = sat4jHandler;
 	}
@@ -67,13 +69,23 @@ public class SAT4JBackendPRANDTest extends BackendTest<DimacsLiteral> {
 		_modelReader = null;
 	}
 
-	public void testPRANDSelectionStrategy() throws NoSolutionException {
-		PRANDSelectionStrategy testPhaseSelection = new PRANDSelectionStrategy();
+	public void testPGUIDESelectionStrategy() throws NoSolutionException {
+		PGUIDESelectionStrategy testPhaseSelection = new PGUIDESelectionStrategy();
 
-		for(int i=0; i<10;i++){
-			testPhaseSelection.init(3);
-			int testRand = testPhaseSelection.select(2);
-			assertTrue(testRand == (2<<1) || testRand == (2<<1 ^ 1));
+		int[] nbPos = {-1,0,1,2};
+		int[] nbNeg = {-1,2,1,0};
+
+		for(int i=0; i<5;i++){
+			testPhaseSelection.init(4);
+			int testBCPGUIDE_var1 = testPhaseSelection.select(nbPos, nbNeg, 1);
+			int testBCPGUIDE_var2 = testPhaseSelection.select(nbPos, nbNeg, 2);
+			int testBCPGUIDE_var3 = testPhaseSelection.select(nbPos, nbNeg, 3);
+
+			System.out.println();
+			assertEquals(testBCPGUIDE_var1, posLit(1) );
+			assertTrue( (testBCPGUIDE_var2 == posLit(2)) || (testBCPGUIDE_var2 == negLit(2)) );
+			assertEquals(testBCPGUIDE_var3, negLit(3) );
 		}
+
 	}
 }

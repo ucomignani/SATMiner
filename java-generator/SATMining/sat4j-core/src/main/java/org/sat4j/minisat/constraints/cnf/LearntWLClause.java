@@ -29,6 +29,7 @@
  *******************************************************************************/
 package org.sat4j.minisat.constraints.cnf;
 
+import org.sat4j.core.VecInt;
 import org.sat4j.minisat.core.ILits;
 import org.sat4j.specs.IVecInt;
 
@@ -91,4 +92,10 @@ public final class LearntWLClause extends WLClause {
     public void incActivity(double claInc) {
         this.activity += claInc;
     }
+
+	@Override
+	public VecInt toVector() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

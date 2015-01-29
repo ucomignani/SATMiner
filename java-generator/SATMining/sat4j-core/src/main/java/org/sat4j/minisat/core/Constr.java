@@ -29,6 +29,7 @@
  *******************************************************************************/
 package org.sat4j.minisat.core;
 
+import org.sat4j.core.VecInt;
 import org.sat4j.specs.IConstr;
 import org.sat4j.specs.IVecInt;
 
@@ -160,5 +161,9 @@ public interface Constr extends IConstr {
      *            a UnitPropagationListener to use for unit propagation.
      */
     void assertConstraint(UnitPropagationListener s);
-
+    
+    /*
+     * ajout pour SATMiner
+     */
+    VecInt toVector();
 }

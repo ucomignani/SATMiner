@@ -30,6 +30,7 @@
 package org.sat4j.minisat.constraints.cnf;
 
 import org.sat4j.core.LiteralsUtils;
+import org.sat4j.core.VecInt;
 import org.sat4j.minisat.core.Constr;
 import org.sat4j.minisat.core.ILits;
 import org.sat4j.minisat.core.UnitPropagationListener;
@@ -123,6 +124,21 @@ public class UnitClause implements Constr {
         return Lits.toString(this.literal);
     }
 
+    /**
+     * Ajout pour SATMiner:
+     * Vector representation of the constraint
+     * 
+     * @return a vector representing the constraint.
+     * @author ucomignani
+     */
+    @Override
+    public VecInt toVector() {
+    	VecInt res = new VecInt();
+    	res.push(this.literal);
+    	
+        return res;
+    }
+    
     public boolean canBePropagatedMultipleTimes() {
         return false;
     }

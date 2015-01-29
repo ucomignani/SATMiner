@@ -31,6 +31,7 @@ package org.sat4j.pb.constraints.pb;
 
 import java.math.BigInteger;
 
+import org.sat4j.core.VecInt;
 import org.sat4j.minisat.core.ILits;
 import org.sat4j.minisat.core.UnitPropagationListener;
 import org.sat4j.specs.ContradictionException;
@@ -473,5 +474,11 @@ public class MinWatchPbLong extends WatchPbLong {
         }
         return maxCoef;
     }
+
+	@Override
+	public VecInt toVector() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

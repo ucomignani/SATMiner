@@ -93,11 +93,11 @@ public abstract class BackendTest<L extends Literal<L>> extends TestCase {
 		while (_modelReader.getNext()) {
 			Interpretation inter = _modelReader.getCurrentInterpretation();
 			nb++;
-			LOG.debug("_a: {}",inter.getValue(_a));
-			LOG.debug("_b: {}",inter.getValue(_b));
-			LOG.debug("_c: {}",inter.getValue(_c));
-			LOG.debug("_d: {}",inter.getValue(_d));
-			LOG.debug("_e: {}",inter.getValue(_e));
+			LOG.info("_a: {}",inter.getValue(_a));
+			LOG.info("_b: {}",inter.getValue(_b));
+			LOG.info("_c: {}",inter.getValue(_c));
+			LOG.info("_d: {}",inter.getValue(_d));
+			LOG.info("_e: {}",inter.getValue(_e));
 			assertTrue(inter.getValue(_a) || inter.getValue(_b)
 					|| inter.getValue(_c));
 			assertTrue(inter.getValue(_d));

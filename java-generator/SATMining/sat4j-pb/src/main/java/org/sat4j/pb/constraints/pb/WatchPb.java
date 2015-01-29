@@ -492,6 +492,25 @@ public abstract class WatchPb implements IWatchPb, Propagatable, Undoable,
         return stb.toString();
     }
 
+    /**
+     * Ajout pour SATMiner:
+     * Vector representation of the constraint
+     * 
+     * @return a vector representing the constraint.
+     * @author ucomignani
+     */
+    @Override
+    public VecInt toVector() {
+    	VecInt res = new VecInt();
+        if (this.lits.length > 0) {
+            for (int i = 0; i < this.lits.length; i++) {
+               res.push(lits[i]);
+            }
+        }
+        return res;
+    }
+    
+    
     public void assertConstraint(UnitPropagationListener s) {
         BigInteger tmp = slackConstraint();
         for (int i = 0; i < this.lits.length; i++) {
@@ -502,7 +521,7 @@ public abstract class WatchPb implements IWatchPb, Propagatable, Undoable,
             }
         }
     }
-
+    
     /**
      * @return Returns the degree.
      */

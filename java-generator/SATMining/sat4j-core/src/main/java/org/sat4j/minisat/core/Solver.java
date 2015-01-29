@@ -1077,7 +1077,7 @@ public class Solver<D extends DataStructureFactory> implements ISolverService,
         SearchListener lslistener = this.slistener;
         // ltrail.size() changes due to propagation
         // cannot cache that value.
-        while (this.getQhead() < ltrail.size()) {
+        while (this.qhead < ltrail.size()) {
             lstats.propagations++;
             int p = ltrail.get(this.qhead++);
             lslistener.propagating(toDimacs(p), null);

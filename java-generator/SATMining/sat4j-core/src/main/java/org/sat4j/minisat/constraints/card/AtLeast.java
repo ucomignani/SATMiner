@@ -304,6 +304,22 @@ public class AtLeast implements Propagatable, Constr, Undoable, Serializable {
     }
 
     /**
+     * Ajout pour SATMiner:
+     * Vector representation of the constraint
+     * 
+     * @return a vector representing the constraint.
+     * @author ucomignani
+     */
+    @Override
+    public VecInt toVector() {
+    	VecInt res = new VecInt();
+        for (int lit : this.lits) {
+            res.push(lit);
+        }
+        return res;
+    }
+    
+    /**
      * @since 2.1
      */
     public void forwardActivity(double claInc) {

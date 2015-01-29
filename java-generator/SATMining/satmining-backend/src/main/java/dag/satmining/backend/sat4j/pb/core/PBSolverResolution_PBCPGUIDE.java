@@ -54,8 +54,8 @@ import org.sat4j.specs.Lbool;
 import org.sat4j.specs.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.sat4j.core.LiteralsUtils.neg;
 
+import static org.sat4j.core.LiteralsUtils.neg;
 import dag.satmining.backend.sat4j.StrongBackdoorVarOrderHeap_PBCPGUIDE;
 
 /**
@@ -166,19 +166,16 @@ public class PBSolverResolution_PBCPGUIDE extends PBSolverResolution{
 						/*
 						 * implementation du PBCPGUIDE
 						 */
+						// TODO nettoyer logs une fois termine
 						this.initOuUpdateCompteurs(); //si les compteurs ne sont pas deja init on les cree pour avoir le bon nombre de variables
 						
 						int p = ((StrongBackdoorVarOrderHeap_PBCPGUIDE) this.getOrder()).select(this.nbPos,this.nbNeg);
-						LOG.info("Phase av propag {}", p);
-						LOG.info("Taille trail {}", trail.size());
-						this.propagate();
-						LOG.info("Phase ap propag {}", p);
-						LOG.info("Taille trail {}", trail.size());
-						p = neg(p);
-						this.propagate();
-						LOG.info("Phase ap propag2 {}", p);
-						LOG.info("Taille trail {}", trail.size());
-
+						SimpleUnitPropagation prop = new SimpleUnitPropagation();
+						VecInt resPropagation = prop.simplePropagation(p, this.trail, this.voc, this.constrs, this.learnts);
+						
+						// on fait le calcul de sitance sur la negation de p
+						//TODO implem seconde partie du PBCPGUIDE p=neg(p);
+						
 						
 						if (p == ILits.UNDEFINED) {
 							confl = preventTheSameDecisionsToBeMade();
@@ -261,7 +258,7 @@ public class PBSolverResolution_PBCPGUIDE extends PBSolverResolution{
 						this.nbPos[i]++;
 					else
 						this.nbNeg[i]++;
-
+					
 					tempmodel.push(this.voc.isSatisfied(p) ? i : -i);                  
 					this.getUserbooleanmodel()[i - 1] = this.voc.isSatisfied(p);
 					if (this.voc.getReason(p) == null && voc.getLevel(p) > 0) {

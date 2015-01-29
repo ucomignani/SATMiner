@@ -32,6 +32,7 @@ package org.sat4j.minisat.constraints.card;
 import java.io.Serializable;
 import java.math.BigInteger;
 
+import org.sat4j.core.VecInt;
 import org.sat4j.minisat.constraints.cnf.Lits;
 import org.sat4j.minisat.constraints.cnf.UnitClauses;
 import org.sat4j.minisat.core.Constr;
@@ -385,6 +386,29 @@ public final class MaxWatchCard implements Propagatable, Constr, Undoable,
         return stb.toString();
     }
 
+    /**
+     * Ajout pour SATMiner:
+     * Vector representation of the constraint
+     * 
+     * @return a vector representing the constraint.
+     * @author ucomignani
+     */
+    @Override
+    public VecInt toVector() {
+    	VecInt res = new VecInt();
+        if (this.lits.length > 0) {
+            if (this.voc.isUnassigned(this.lits[0])) {
+                res.push((this.lits[0]));
+            }
+            for (int i = 1; i < this.lits.length; i++) {
+                if (this.voc.isUnassigned(this.lits[i])) {
+                    res.push(this.lits[i]);
+                }
+            }
+        }
+        return res;
+    }
+    
     /**
      * M?thode appel?e lors du backtrack
      * 

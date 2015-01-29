@@ -523,6 +523,24 @@ public abstract class WatchPbLongCP implements IWatchPb, Propagatable,
         }
         return stb.toString();
     }
+    
+    /**
+     * Ajout pour SATMiner:
+     * Vector representation of the constraint
+     * 
+     * @return a vector representing the constraint.
+     * @author ucomignani
+     */
+    @Override
+    public VecInt toVector() {
+    	VecInt res = new VecInt();
+        if (this.lits.length > 0) {
+            for (int i = 0; i < this.lits.length; i++) {
+               res.push(lits[i]);
+            }
+        }
+        return res;
+    }
 
     public void assertConstraint(UnitPropagationListener s) {
         long tmp = slackConstraint();
