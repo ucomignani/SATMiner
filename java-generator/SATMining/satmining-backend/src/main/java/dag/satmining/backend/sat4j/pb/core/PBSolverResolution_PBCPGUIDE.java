@@ -1,3 +1,41 @@
+/* ./satmining-backend/src/main/java/dag/satmining/backend/sat4j/pb/core/PBSolverResolution_PBCPGUIDE.java
+
+   Copyright (C) 2013, 2014 Emmanuel Coquery.
+
+This file is part of SATMiner
+
+SATMiner is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2, or (at your option)
+any later version.
+
+SATMiner is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with SATMiner; see the file COPYING.  If not, write to the
+Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+02110-1301 USA.
+
+Linking this library statically or dynamically with other modules is
+making a combined work based on this library.  Thus, the terms and
+conditions of the GNU General Public License cover the whole
+combination.
+
+As a special exception, the copyright holders of this library give you
+permission to link this library with independent modules to produce an
+executable, regardless of the license terms of these independent
+modules, and to copy and distribute the resulting executable under
+terms of your choice, provided that you also meet, for each linked
+independent module, the terms and conditions of the license of that
+module.  An independent module is a module which is not derived from
+or based on this library.  If you modify this library, you may extend
+this exception to your version of the library, but you are not
+obligated to do so.  If you do not wish to do so, delete this
+exception statement from your version. */
+
 package dag.satmining.backend.sat4j.pb.core;
 
 import static org.sat4j.core.LiteralsUtils.toDimacs;
@@ -14,12 +52,21 @@ import org.sat4j.pb.core.PBSolverResolution;
 import org.sat4j.specs.IVecInt;
 import org.sat4j.specs.Lbool;
 import org.sat4j.specs.TimeoutException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import static org.sat4j.core.LiteralsUtils.neg;
 
 import dag.satmining.backend.sat4j.StrongBackdoorVarOrderHeap_PBCPGUIDE;
 
-
+/**
+ *
+ * @author ucomignani
+ */
 public class PBSolverResolution_PBCPGUIDE extends PBSolverResolution{
 
+	private static final Logger LOG = LoggerFactory
+			.getLogger(PBSolverResolution_PBCPGUIDE.class);
+					
 	protected int[] nbPos;
 	protected int[] nbNeg;
 	
@@ -39,8 +86,8 @@ public class PBSolverResolution_PBCPGUIDE extends PBSolverResolution{
 		boolean nouveauCompteur = false;
 		
 		if(this.nbPos == null || this.nbNeg == null || this.nbPos.length < nVars() || this.nbNeg.length < nVars()){
-			this.nbPos = new int[nVars()];
-			this.nbNeg = new int[nVars()];
+			this.nbPos = new int[nVars()+1];
+			this.nbNeg = new int[nVars()+1];
 			nouveauCompteur = true;
 		}
 
@@ -116,8 +163,23 @@ public class PBSolverResolution_PBCPGUIDE extends PBSolverResolution{
 						// New variable decision
 						this.stats.decisions++;
 
+						/*
+						 * implementation du PBCPGUIDE
+						 */
 						this.initOuUpdateCompteurs(); //si les compteurs ne sont pas deja init on les cree pour avoir le bon nombre de variables
+						
 						int p = ((StrongBackdoorVarOrderHeap_PBCPGUIDE) this.getOrder()).select(this.nbPos,this.nbNeg);
+						LOG.info("Phase av propag {}", p);
+						LOG.info("Taille trail {}", trail.size());
+						this.propagate();
+						LOG.info("Phase ap propag {}", p);
+						LOG.info("Taille trail {}", trail.size());
+						p = neg(p);
+						this.propagate();
+						LOG.info("Phase ap propag2 {}", p);
+						LOG.info("Taille trail {}", trail.size());
+
+						
 						if (p == ILits.UNDEFINED) {
 							confl = preventTheSameDecisionsToBeMade();
 							this.setLastConflictMeansUnsat(false);

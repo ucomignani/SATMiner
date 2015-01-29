@@ -1,4 +1,4 @@
-/* ./satmining-backend/src/main/java/dag/satmining/backend/sat4j/minisat/orders/PBCPGUIDESelectionStrategy.java
+/* ./satmining-backend/src/main/java/dag/satmining/backend/sat4j/StrongBackdoorVarOrderHeapWithLearningChoice.java
 
    Copyright (C) 2013, 2014 Emmanuel Coquery.
 
@@ -36,81 +36,48 @@ this exception to your version of the library, but you are not
 obligated to do so.  If you do not wish to do so, delete this
 exception statement from your version. */
 
-package dag.satmining.backend.sat4j.minisat.orders;
+package dag.satmining.backend.sat4j;
 
-import static org.sat4j.core.LiteralsUtils.posLit;
-import static org.sat4j.core.LiteralsUtils.negLit;
-import static org.sat4j.core.LiteralsUtils.var;
+import java.util.BitSet;
 
-import java.util.Random;
-
+import org.sat4j.minisat.core.ILits;
 import org.sat4j.minisat.core.IPhaseSelectionStrategy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import dag.satmining.backend.sat4j.minisat.orders.PGUIDESelectionStrategy;
 
 /**
  *
  * @author ucomignani
  */
-public final class PBCPGUIDESelectionStrategy implements IPhaseSelectionStrategy {
-
-	@SuppressWarnings("unused")
-	private static final Logger LOG = LoggerFactory
-			.getLogger(PGUIDESelectionStrategy.class);
+public class StrongBackdoorVarOrderHeap_PGUIDE extends StrongBackdoorVarOrderHeapWithPhaseSelectionChoice {
 
 	private static final long serialVersionUID = 1L;
 
-	protected int[] phase;
+	public StrongBackdoorVarOrderHeap_PGUIDE(BitSet backDoor) {
+		super(backDoor,new PGUIDESelectionStrategy());
+	}
 
-	public void init(int nlength) {
-		if (this.phase == null || this.phase.length < nlength) {
-			this.phase = new int[nlength];
+	public int select(int nbPos[], int nbNeg[]) {
+		// recodage avec double pile, très lié à l'implementation de la super classe
+		while (!get_strongHeap().empty()) {
+			int var = get_strongHeap().getmin();
+			int next = ( (PGUIDESelectionStrategy) phaseStrategy).select(nbPos, nbNeg, var);
+			if (lits.isUnassigned(next)) {
+				return next;
+			}
 		}
-		
-		for (int i = 1; i < nlength; i++)
-			this.phase[i] = negLit(i);
 
-	}
-
-	public void init(int var, int p) {
-		this.phase[var] = p;
-	}
-
-	public int select(int var) {
-		return  new Random().nextBoolean() ? posLit(var) : negLit(var);
-	}
-	
-	public int select(int nbPos[], int nbNeg[], int var) {
-		int pi = nbPos[var] - nbNeg[var];
-		
-		/*
-		 * on privilegie le test de la phase avec le plus d'occurence en premier car on estime que c'est
-		 *  la phase potentiellement la moins rentable. Les deux devant ^etre testees cela permettra d'optimiser
-		 *  plus tard en evitant un cycle de retour+BCP (cf. publication correspondante)
-		 */
-		
-		if(pi>0){
-			return posLit(var);
-		}else{
-			return negLit(var);
+		while (!this.heap.empty()) {
+			int var = this.heap.getmin();
+			int next = this.phaseStrategy.select(var);
+			if (this.lits.isUnassigned(next)) {
+				if (this.activity[var] < 0.0001) {
+					this.setNullchoice(this.getNullchoice() + 1);
+				}
+				return next;
+			}
 		}
+		return ILits.UNDEFINED;
 	}
 
-	public void updateVar(int p) {
-		int var = var(p);
-//		LOG.info("UpVar:{}; Phase choisie:{}; Nb pos:{}; Nb neg:{}", var, this.phase[var],this.nbPos[var],this.nbNeg[var]);
-		this.phase[var] = p;
-	}
-
-	@Override
-	public String toString() {
-		return "guided phase selection";
-	}
-
-	public void assignLiteral(int p) {
-	}
-
-	public void updateVarAtDecisionLevel(int q) {
-	}
 }
-

@@ -1,4 +1,4 @@
-/* ./satmining-backend/src/main/java/dag/satmining/backend/sat4j/SAT4JPBBuilderPMIXED.java
+/* ./satmining-backend/src/main/java/dag/satmining/backend/sat4j/SAT4JPBBuilder_PBCPGUIDE_T.java
 
    Copyright (C) 2013, 2014 Emmanuel Coquery.
 

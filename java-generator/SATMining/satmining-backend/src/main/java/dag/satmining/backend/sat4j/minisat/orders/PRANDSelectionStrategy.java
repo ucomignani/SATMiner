@@ -1,4 +1,4 @@
-/* ./satmining-backend/src/main/java/dag/satmining/backend/sat4j/PRANDSelectionStrategy.java
+/* ./satmining-backend/src/main/java/dag/satmining/backend/sat4j/minisat/orders/PRANDSelectionStrategy.java
 
    Copyright (C) 2013, 2014 Emmanuel Coquery.
 
