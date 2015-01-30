@@ -85,8 +85,8 @@ public abstract class BackendTest<L extends Literal<L>> extends TestCase {
 	}
 
 	public void testClause() throws NoSolutionException {
-		_handler.addClause(_a, _b, _c);
 		_handler.addClause(_d);
+		_handler.addClause(_a, _b, _c);
 		_handler.addClause(_e);
 		_handler.endProblem();
 		int nb = 0;

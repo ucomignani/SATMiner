@@ -174,7 +174,7 @@ public class PBSolverResolution_PBCPGUIDE extends PBSolverResolution{
 						VecInt resPropagation = prop.simplePropagation(p, this.trail, this.voc, this.constrs, this.learnts);
 						
 						// on fait le calcul de sitance sur la negation de p
-						//TODO implem seconde partie du PBCPGUIDE p=neg(p);
+						// TODO implem seconde partie du PBCPGUIDE p=neg(p);
 						
 						
 						if (p == ILits.UNDEFINED) {
