@@ -39,6 +39,7 @@ exception statement from your version. */
 package dag.satmining.backend.sat4j.pb.core;
 
 import static org.sat4j.core.LiteralsUtils.toDimacs;
+import static org.sat4j.core.LiteralsUtils.var;
 
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.core.Constr;
@@ -50,6 +51,7 @@ import org.sat4j.minisat.core.SearchParams;
 import org.sat4j.pb.core.PBDataStructureFactory;
 import org.sat4j.pb.core.PBSolverResolution;
 import org.sat4j.specs.IVecInt;
+import org.sat4j.specs.IteratorInt;
 import org.sat4j.specs.Lbool;
 import org.sat4j.specs.TimeoutException;
 import org.slf4j.Logger;
@@ -166,16 +168,27 @@ public class PBSolverResolution_PBCPGUIDE extends PBSolverResolution{
 						/*
 						 * implementation du PBCPGUIDE
 						 */
-						// TODO nettoyer logs une fois termine
 						this.initOuUpdateCompteurs(); //si les compteurs ne sont pas deja init on les cree pour avoir le bon nombre de variables
 						
 						int p = ((StrongBackdoorVarOrderHeap_PBCPGUIDE) this.getOrder()).select(this.nbPos,this.nbNeg);
 						SimpleUnitPropagation prop = new SimpleUnitPropagation();
-						VecInt resPropagation = prop.simplePropagation(p, this.trail, this.voc, this.constrs, this.learnts);
+						VecInt resPropagationPos = prop.simplePropagation(p, this.trail, this.voc, this.constrs, this.learnts);
+								
+						// on fait la propagation sur la negation
+						p=neg(p);
+						prop = new SimpleUnitPropagation();
+						VecInt resPropagationNeg = prop.simplePropagation(p, this.trail, this.voc, this.constrs, this.learnts);
+
+						// calcul des distances et choix de la phase
+						double distLitPos = distanceWithVectorAndAffectations(resPropagationPos);
+						double distLitNeg = distanceWithVectorAndAffectations(resPropagationNeg);
 						
-						// on fait le calcul de sitance sur la negation de p
-						// TODO implem seconde partie du PBCPGUIDE p=neg(p);
+						if(distLitPos > distLitNeg) // si la version positive est plus rentable on revient a celle-ci via negation
+							p=neg(p);
 						
+						/*
+						 * fin PBCPGUIDE
+						 */
 						
 						if (p == ILits.UNDEFINED) {
 							confl = preventTheSameDecisionsToBeMade();
@@ -291,6 +304,36 @@ public class PBSolverResolution_PBCPGUIDE extends PBSolverResolution{
 		} else {
 			this.setFullmodel(this.getModel());
 		}
+	}
+	
+	/**
+	 * @param resPropagation
+	 * 			vecteur de literaux
+	 * 
+	 * @return distance resultante si les literaux du vecteur etaient affectes
+	 */
+	private double distanceWithVectorAndAffectations(VecInt resPropagation) {
+		IteratorInt literalIt = resPropagation.iterator();
+		int literalTmp, varTmp;
+
+		int diversificationSum = 0;
+		int nbLiterals = resPropagation.size();
+		double distance = -1;
+		
+		// ici choix de la version alternative de calcul de la distance issue du papier de Nadel. TODO tester la structure permettant l'autre version
+		while(literalIt.hasNext())
+		{
+			literalTmp = literalIt.next();
+			varTmp = var(literalTmp);
+			if(toDimacs(literalTmp) > 0)
+				diversificationSum += (this.nbPos[varTmp] + 1) * this.nbNeg[varTmp];
+			else
+				diversificationSum += this.nbPos[varTmp] * (this.nbNeg[varTmp] + 1);
+		}
+		
+		// ici on s'abstient de l'introduction de la prise en compte du nombre de modeles, celui-ci etant le meme il n'a pas d'utilite dans le cadre de notre comparaison
+		distance = (double) diversificationSum / nbLiterals;
+		return distance;
 	}
 
 }

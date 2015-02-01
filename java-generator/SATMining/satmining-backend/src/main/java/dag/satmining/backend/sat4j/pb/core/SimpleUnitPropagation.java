@@ -52,7 +52,6 @@ import org.sat4j.core.Vec;
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.core.Constr;
 import org.sat4j.minisat.core.ILits;
-import org.sat4j.minisat.core.IOrder;
 import org.sat4j.specs.IVec;
 import org.sat4j.specs.IVecInt;
 import org.sat4j.specs.IteratorInt;
@@ -66,11 +65,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SimpleUnitPropagation {
 
-	private static final Logger LOG = LoggerFactory
-			.getLogger(SimpleUnitPropagation.class);
-
 	private int idHead;
-	private ILits voc;
 	private IVec<VecInt> constrs;
 	private IVec<VecInt> learnts;
 
@@ -99,88 +94,116 @@ public class SimpleUnitPropagation {
 
 	public VecInt simplePropagation(int p, IVecInt trail, ILits vocIn, IVec<Constr> constrsIn, IVec<Constr> learntsIn){
 
-		// on passe a une structure vectorielle car la structure actuelle ne permet pas l'acces en ecriture aux litteraux
-		// TODO tester si une implementation avec la propagation propre au solveur ne serait pas plus efficace et sans risques de fausser les stats
-		this.voc = vocIn;
+		// on passe a une structure vectorielle specifique car la structure fournie par le solveur ne permet pas l'acces en ecriture aux litteraux
+		// TODO re-tester si une implementation avec la propagation propre au solveur ne serait pas plus efficace et sans risques de fausser les stats
 		this.constrs = initStructureClauses(constrsIn);
 		this.learnts = initStructureClauses(learntsIn);
 
 		VecInt propagatedLiterals = new VecInt();
 		propagatedLiterals.push(p);
+		
+		IteratorInt literalVec = null;
+		int literal;
+		VecInt vecRes = null;
 
-		//LOG.info("trail: {}", trail.toString());
-		//LOG.info("constrs avant: {}", constrs.toString());
-		System.out.println("\n\n ======================================= Debut =========================================");
-		LOG.info("Pour p lit = {}; non-assign? {}; falsif? {}; satisfait? {}; implique? {}", toDimacs(p), this.voc.isUnassigned(p), this.voc.isFalsified(p),this.voc.isSatisfied(p), this.voc.isImplied(p));
-
-		// detection point fixe
-		while(idHead < trail.size())
+		// detection point fixe et insertion des literaux resultats dans le vecteur sans doublons
+		while(idHead < propagatedLiterals.size())
 		{
+			vecRes = propagate(propagatedLiterals.get(idHead), this.constrs);
+			if(vecRes != null)
+			{
+				literalVec = vecRes.iterator();
+				while(literalVec.hasNext())
+				{
+					literal = literalVec.next();
+					if(!propagatedLiterals.contains(literal))
+						propagatedLiterals.push(literal);
+				}
+			}
 
-			propagate(this.constrs);
-
-			propagate(this.learnts);
+			vecRes = propagate(propagatedLiterals.get(idHead), this.learnts);
+			if(vecRes != null)
+			{
+				literalVec = vecRes.iterator();
+				while(literalVec.hasNext())
+				{
+					literal = literalVec.next();
+					if(!propagatedLiterals.contains(literal))
+						propagatedLiterals.push(literal);
+				}
+			}
 			
 			idHead++;
 		}
 
-		//LOG.info("constrs apres:{}", this.constrs.toString());
+		VecInt clauseTmp = null;
+		Iterator<VecInt> itClauses = this.constrs.iterator();
+		if(itClauses.hasNext())
+		{
+			clauseTmp = itClauses.next();
+		}
+		itClauses = this.learnts.iterator();
+		if(itClauses.hasNext())
+		{
+			clauseTmp = itClauses.next();
+		}
 
 		return propagatedLiterals;
 	}
 
-
-	private boolean isRemovableClause(int literalCourant) {
-		return this.voc.isSatisfied(literalCourant);
-
-	}
-
-	private void propagate(IVec<VecInt> vectorClauses){
+	private VecInt propagate(int p, IVec<VecInt> vectorClauses){
 		VecInt clauseTmp = null;
+		VecInt res = new VecInt();
+		
 		Iterator<VecInt> itClauses = vectorClauses.iterator();
 
 		if(itClauses.hasNext())
 		{
 			clauseTmp = itClauses.next();
-			simplifyClause(vectorClauses, clauseTmp);
-
+			simplifyClause(p, vectorClauses, clauseTmp);
+			
+			if(isClauseUnit(clauseTmp))
+				res.push(clauseTmp.get(0));
 		}
 		
 		while(itClauses.hasNext())
 		{
 			clauseTmp = itClauses.next();
 
-			simplifyClause(vectorClauses, clauseTmp);
+			simplifyClause(p, vectorClauses, clauseTmp);
 			
+			if(isClauseUnit(clauseTmp))
+				res.push(clauseTmp.get(0));
 		}
 		
-		
-		//LOG.info("lit = {}; non-assign? {}; falsif? {}; satisfait? {}; implique? {}", toDimacs(literalCourant), this.voc.isUnassigned(literalCourant), this.voc.isFalsified(literalCourant),this.voc.isSatisfied(literalCourant), this.voc.isImplied(literalCourant));
-
-		System.out.println();
+		return res;
 	}
 
-
-	private void simplifyClause(IVec<VecInt> vectorClauses, VecInt clauseTmp) {
+	private void simplifyClause(int p, IVec<VecInt> vectorClauses, VecInt clauseTmp) {
 		IteratorInt itInt = clauseTmp.iterator();
 		int literalCourant;
 
 		// gestion de la suppression de clauses
-		boolean clauseIsRemoved = false;
 		VecInt removableClause = null;
 		
-		while(itInt.hasNext() && !clauseIsRemoved)
+		while(itInt.hasNext())
 		{
 			literalCourant = itInt.next();
 
-			if(isRemovableClause(literalCourant))
+			if(isRemovableClause(p, literalCourant))
 			{
 				removableClause = clauseTmp;
 				vectorClauses.remove(removableClause);
-				clauseIsRemoved = true;
 			}
-		}		
+		}	
 	}
 
+	private boolean isRemovableClause(int p, int literalCourant) {
+		return p == literalCourant;
 
+	}
+	
+	private boolean isClauseUnit(VecInt clauseTmp) {
+		return clauseTmp.size() == 1;		
+	}
 }

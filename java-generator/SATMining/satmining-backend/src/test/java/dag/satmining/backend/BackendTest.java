@@ -85,14 +85,18 @@ public abstract class BackendTest<L extends Literal<L>> extends TestCase {
 	}
 
 	public void testClause() throws NoSolutionException {
-		_handler.addClause(_d);
 		_handler.addClause(_a, _b, _c);
+		_handler.addClause(_d);
 		_handler.addClause(_e);
 		_handler.endProblem();
 		int nb = 0;
+		
+		LOG.info("========== Test ==========");
+		
 		while (_modelReader.getNext()) {
 			Interpretation inter = _modelReader.getCurrentInterpretation();
 			nb++;
+			LOG.info("modele numero: {}", nb);
 			LOG.info("_a: {}",inter.getValue(_a));
 			LOG.info("_b: {}",inter.getValue(_b));
 			LOG.info("_c: {}",inter.getValue(_c));
