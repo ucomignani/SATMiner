@@ -44,17 +44,19 @@ import org.sat4j.pb.constraints.PBMaxDataStructure;
 import org.sat4j.pb.core.PBDataStructureFactory;
 import org.sat4j.tools.ModelIterator;
 
+import dag.satmining.backend.ModelReader;
 import dag.satmining.backend.dimacs.DimacsLiteral;
 import dag.satmining.backend.sat4j.minisat.orders.PBCPGUIDESelectionStrategy;
 import dag.satmining.backend.sat4j.pb.core.PBSolverResolution_PBCPGUIDE;
 import dag.satmining.constraints.impl.PBReifier;
 import dag.satmining.constraints.impl.WeightedPBReifier;
+import dag.satmining.output.Limitable;
 
 /**
 *
 * @author ucomignani
 */
-public class SAT4JPBBuilderPBCPGUIDE extends SAT4JPBBuilder{
+public class SAT4JPBBuilderPBCPGUIDE extends SAT4JPBBuilder {
 
 	public SAT4JPBBuilderPBCPGUIDE(int initNbVar) {
 		super();

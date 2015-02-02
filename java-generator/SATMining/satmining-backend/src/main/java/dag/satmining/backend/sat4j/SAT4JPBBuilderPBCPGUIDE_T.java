@@ -55,9 +55,9 @@ import dag.satmining.constraints.impl.WeightedPBReifier;
 */
 public class SAT4JPBBuilderPBCPGUIDE_T extends SAT4JPBBuilder{
 
-	private int _nbConflictsBeforeUseOfPGUIDE;
+	private long _nbConflictsBeforeUseOfPGUIDE;
 
-	public SAT4JPBBuilderPBCPGUIDE_T(int initNbVar, int nbConflictsBeforeUseOfPGUIDE) {
+	public SAT4JPBBuilderPBCPGUIDE_T(int initNbVar, long nbConflictsBeforeUseOfPGUIDE) {
 		super();
 		_pbReifier = new PBReifier<DimacsLiteral>(this);
 		_wpbReifier = new WeightedPBReifier<DimacsLiteral>(this, true);

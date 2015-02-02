@@ -71,18 +71,18 @@ public class PBSolverResolution_PBCPGUIDE_T extends PBSolverResolution{
 
 	protected int[] nbPos;
 	protected int[] nbNeg;
-	private int nbConflictsBeforeUseOfPGUIDE;
+	private long nbConflictsBeforeUseOfPGUIDE;
 
 	public PBSolverResolution_PBCPGUIDE_T(LearningStrategy<PBDataStructureFactory> learner,
 			PBDataStructureFactory dsf, SearchParams params, IOrder order,
-			RestartStrategy restarter, int nbConflictsBeforeUseOfPGUIDE) {
+			RestartStrategy restarter, long nbConflictsBeforeUseOfPGUIDE) {
 		super(learner, dsf, params, order, restarter);
 		this.nbConflictsBeforeUseOfPGUIDE = nbConflictsBeforeUseOfPGUIDE;
 	}
 
 
 	public PBSolverResolution_PBCPGUIDE_T(LearningStrategy<PBDataStructureFactory> learner,
-			PBDataStructureFactory dsf, IOrder order, RestartStrategy restarter, int nbConflictsBeforeUseOfPGUIDE) {
+			PBDataStructureFactory dsf, IOrder order, RestartStrategy restarter, long nbConflictsBeforeUseOfPGUIDE) {
 		super(learner, dsf, order, restarter);
 		this.nbConflictsBeforeUseOfPGUIDE = nbConflictsBeforeUseOfPGUIDE;
 	}
