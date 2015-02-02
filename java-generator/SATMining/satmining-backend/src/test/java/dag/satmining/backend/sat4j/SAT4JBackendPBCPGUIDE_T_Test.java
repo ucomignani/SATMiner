@@ -1,4 +1,4 @@
-/* ./satmining-backend/src/main/java/dag/satmining/backend/sat4j/SAT4JPBBuilder_PBCPGUIDE_T.java
+/* ./satmining-backend/src/test/java/dag/satmining/backend/sat4j/SAT4JBackendTestPBCPGUIDE_T.java
 
    Copyright (C) 2013, 2014 Emmanuel Coquery.
 
@@ -36,48 +36,56 @@ this exception to your version of the library, but you are not
 obligated to do so.  If you do not wish to do so, delete this
 exception statement from your version. */
 
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package dag.satmining.backend.sat4j;
 
-import org.sat4j.minisat.learning.MiniSATLearning;
-import org.sat4j.minisat.restarts.MiniSATRestarts;
-import org.sat4j.pb.constraints.PBMaxDataStructure;
-import org.sat4j.pb.core.PBDataStructureFactory;
-import org.sat4j.tools.ModelIterator;
+import static org.sat4j.core.LiteralsUtils.negLit;
+import static org.sat4j.core.LiteralsUtils.posLit;
 
+import dag.satmining.NoSolutionException;
+import dag.satmining.backend.BackendTest;
 import dag.satmining.backend.dimacs.DimacsLiteral;
-import dag.satmining.backend.sat4j.pb.core.PBSolverResolution_PBCPGUIDE_T;
-import dag.satmining.constraints.impl.PBReifier;
-import dag.satmining.constraints.impl.WeightedPBReifier;
+import dag.satmining.backend.sat4j.minisat.orders.PBCPGUIDESelectionStrategy;
+
 
 /**
-*
-* @author ucomignani
-*/
-public class SAT4JPBBuilderPBCPGUIDE_T extends SAT4JPBBuilder{
-
-	private int _nbConflictsBeforeUseOfPGUIDE;
-
-	public SAT4JPBBuilderPBCPGUIDE_T(int initNbVar, int nbConflictsBeforeUseOfPGUIDE) {
-		super();
-		_pbReifier = new PBReifier<DimacsLiteral>(this);
-		_wpbReifier = new WeightedPBReifier<DimacsLiteral>(this, true);
-        _sat4jInitNbVar = initNbVar;
-        _nbConflictsBeforeUseOfPGUIDE = nbConflictsBeforeUseOfPGUIDE;
-        initSolver();
+ *
+ * @author ucomignani
+ */
+public class SAT4JBackendPBCPGUIDE_T_Test extends BackendTest<DimacsLiteral> {
+	
+	@Override
+	protected void initHandler() {
+		SAT4JPBBuilderPBCPGUIDE_T sat4jHandler = new SAT4JPBBuilderPBCPGUIDE_T(SAT4JPBBuilderPBCPGUIDE_T.SMALL, 10); // use a light solver to avoid heap space problems
+		_handler = sat4jHandler;
+		_modelReader = sat4jHandler;
 	}
 
-	private void initSolver() {
-		// Taken from SolverFactory.PBSolverWithImpliedClause() to use
-		// specialized order for strong backdoor.
-		_varOrder = new StrongBackdoorVarOrderHeap_PBCPGUIDE(_strongBackdoor);
-		MiniSATLearning<PBDataStructureFactory> learning = new MiniSATLearning<PBDataStructureFactory>();
-		PBSolverResolution_PBCPGUIDE_T solver = new PBSolverResolution_PBCPGUIDE_T(learning,
-				new PBMaxDataStructure(), _varOrder, new MiniSATRestarts(), _nbConflictsBeforeUseOfPGUIDE);
-		learning.setDataStructureFactory(solver.getDSFactory());
-		learning.setVarActivityListener(solver);
-		_solver = solver;
-		_solver.newVar(_sat4jInitNbVar);
-		_iteratorOnSolver = new ModelIterator(_solver);
+	@Override
+	protected void destroyHandler() {
+		_handler = null;
+		_modelReader = null;
 	}
 
+	public void testPBCPGUIDE_TSelectionStrategy() throws NoSolutionException {
+		PBCPGUIDESelectionStrategy testPhaseSelection = new PBCPGUIDESelectionStrategy();
+
+		int[] nbPos = {-1,0,1,2};
+		int[] nbNeg = {-1,2,1,0};
+		
+		for(int i=0; i<5;i++){
+			testPhaseSelection.init(4);
+			int testBCPGUIDE_var1 = testPhaseSelection.select(nbPos, nbNeg, 1);
+			int testBCPGUIDE_var2 = testPhaseSelection.select(nbPos, nbNeg, 2);
+			int testBCPGUIDE_var3 = testPhaseSelection.select(nbPos, nbNeg, 3);
+			
+			System.out.println();
+			assertEquals(testBCPGUIDE_var1, negLit(1) );
+			assertEquals(testBCPGUIDE_var2, negLit(2) );
+			assertEquals(testBCPGUIDE_var3, posLit(3) );			
+		}
+	}
 }

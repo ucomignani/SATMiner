@@ -91,4 +91,6 @@ public interface RestartStrategy extends Serializable, ConflictTimer {
      * @since 2.3.3
      */
     void newLearnedClause(Constr learned, int trailLevel);
+
+	long getConflictsCount();
 }

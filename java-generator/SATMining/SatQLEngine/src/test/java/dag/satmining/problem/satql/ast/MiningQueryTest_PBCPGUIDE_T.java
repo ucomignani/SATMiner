@@ -1,4 +1,4 @@
-/* ./SATQLEngine/src/test/java/dag/satmining/problem/satql/ast/MiningQueryTest_PBCPGUIDE.java
+/* ./SATQLEngine/src/test/java/dag/satmining/problem/satql/ast/MiningQueryTest_PBCPGUIDE_T.java
 
    Copyright (C) 2013, 2014 Emmanuel Coquery.
 
@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
 
 import dag.satmining.NoSolutionException;
 import dag.satmining.backend.dimacs.DimacsLiteral;
-import dag.satmining.backend.sat4j.SAT4JPBBuilderPBCPGUIDE;
+import dag.satmining.backend.sat4j.SAT4JPBBuilderPBCPGUIDE_T;
 import dag.satmining.problem.satql.ast.sql.SingleStatementBitSetFetcher;
 import dag.satmining.problem.satql.parser.ParseException;
 import dag.satmining.utils.SQLScript;
@@ -65,7 +65,7 @@ import dag.satmining.utils.SQLScript;
  * 
  * @author ecoquery
  */
-public class MiningQueryTest_PBCPGUIDE extends TestCase {
+public class MiningQueryTest_PBCPGUIDE_T extends TestCase {
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(MiningExpressionTest.class);
@@ -73,9 +73,9 @@ public class MiningQueryTest_PBCPGUIDE extends TestCase {
 	private static final String DB_FILE = "target/test.db";
 	Connection c;
 	EmbeddedDataSource ds;
-	SAT4JPBBuilderPBCPGUIDE sat4jHandler;
+	SAT4JPBBuilderPBCPGUIDE_T sat4jHandler;
 
-	public MiningQueryTest_PBCPGUIDE() throws SQLException {
+	public MiningQueryTest_PBCPGUIDE_T() throws SQLException {
 		ds = new EmbeddedDataSource();
 		ds.setDatabaseName(DB_FILE);
 		ds.setConnectionAttributes("create=true");
@@ -106,7 +106,7 @@ public class MiningQueryTest_PBCPGUIDE extends TestCase {
 						.getResourceAsStream("/quantifier_forall.satql")));
 		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
 		LOG.debug("before parser");
-		sat4jHandler = new SAT4JPBBuilderPBCPGUIDE(SAT4JPBBuilderPBCPGUIDE.SMALL);
+		sat4jHandler = new SAT4JPBBuilderPBCPGUIDE_T(SAT4JPBBuilderPBCPGUIDE_T.SMALL, 10);
 		LOG.debug("made parser");
 		query.addClauses(sat4jHandler);
 		LOG.debug("added clauses");
@@ -127,7 +127,7 @@ public class MiningQueryTest_PBCPGUIDE extends TestCase {
 						.getResourceAsStream("/quantifier_atleast.satql")));
 		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
 		LOG.debug("before parser");
-		sat4jHandler = new SAT4JPBBuilderPBCPGUIDE(SAT4JPBBuilderPBCPGUIDE.SMALL);
+		sat4jHandler = new SAT4JPBBuilderPBCPGUIDE_T(SAT4JPBBuilderPBCPGUIDE_T.SMALL, 10);
 		LOG.debug("made parser");
 		query.addClauses(sat4jHandler);
 		LOG.debug("added clauses");
@@ -148,7 +148,7 @@ public class MiningQueryTest_PBCPGUIDE extends TestCase {
 						.getResourceAsStream("/quantifier_percent.satql")));
 		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
 		LOG.debug("before parser");
-		sat4jHandler = new SAT4JPBBuilderPBCPGUIDE(SAT4JPBBuilderPBCPGUIDE.SMALL);
+		sat4jHandler = new SAT4JPBBuilderPBCPGUIDE_T(SAT4JPBBuilderPBCPGUIDE_T.SMALL, 10);
 		LOG.debug("made parser");
 		query.addClauses(sat4jHandler);
 		LOG.debug("added clauses");
@@ -170,7 +170,7 @@ public class MiningQueryTest_PBCPGUIDE extends TestCase {
 						.getResourceAsStream("/quantifier_percent_round.satql")));
 		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
 		LOG.debug("before parser");
-		sat4jHandler = new SAT4JPBBuilderPBCPGUIDE(SAT4JPBBuilderPBCPGUIDE.SMALL);
+		sat4jHandler = new SAT4JPBBuilderPBCPGUIDE_T(SAT4JPBBuilderPBCPGUIDE_T.SMALL, 10);
 		LOG.debug("made parser");
 		query.addClauses(sat4jHandler);
 		LOG.debug("added clauses");
@@ -191,7 +191,7 @@ public class MiningQueryTest_PBCPGUIDE extends TestCase {
 						.getResourceAsStream("/quantifier_couple_non_term.satql")));
 		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
 		LOG.debug("before parser");
-		sat4jHandler = new SAT4JPBBuilderPBCPGUIDE(SAT4JPBBuilderPBCPGUIDE.SMALL);
+		sat4jHandler = new SAT4JPBBuilderPBCPGUIDE_T(SAT4JPBBuilderPBCPGUIDE_T.SMALL, 10);
 		LOG.debug("made parser");
 		query.addClauses(sat4jHandler);
 		LOG.debug("added clauses");
@@ -212,7 +212,7 @@ public class MiningQueryTest_PBCPGUIDE extends TestCase {
 						.getResourceAsStream("/quantifier_couple_term.satql")));
 		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
 		LOG.debug("before parser");
-		sat4jHandler = new SAT4JPBBuilderPBCPGUIDE(SAT4JPBBuilderPBCPGUIDE.SMALL);
+		sat4jHandler = new SAT4JPBBuilderPBCPGUIDE_T(SAT4JPBBuilderPBCPGUIDE_T.SMALL, 10);
 		LOG.debug("made parser");
 		query.addClauses(sat4jHandler);
 		LOG.debug("added clauses");
@@ -233,7 +233,7 @@ public class MiningQueryTest_PBCPGUIDE extends TestCase {
 						.getResourceAsStream("/quantifier_couple_from.satql")));
 		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
 		LOG.debug("before parser");
-		sat4jHandler = new SAT4JPBBuilderPBCPGUIDE(SAT4JPBBuilderPBCPGUIDE.SMALL);
+		sat4jHandler = new SAT4JPBBuilderPBCPGUIDE_T(SAT4JPBBuilderPBCPGUIDE_T.SMALL, 10);
 		LOG.debug("made parser");
 		query.addClauses(sat4jHandler);
 		LOG.debug("added clauses");
@@ -255,7 +255,7 @@ public class MiningQueryTest_PBCPGUIDE extends TestCase {
 						.getResourceAsStream("/quantifier_nuplet_from.satql")));
 		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
 		LOG.debug("before parser");
-		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
+		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL, 10);
 		LOG.debug("made parser");
 		query.addClauses(sat4jHandler);
 		LOG.debug("added clauses");
@@ -277,7 +277,7 @@ public class MiningQueryTest_PBCPGUIDE extends TestCase {
 						.getResourceAsStream("/quantifier_nuplet_non_term.satql")));
 		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
 		LOG.debug("before parser");
-		sat4jHandler = new SAT4JPBBuilderPBCPGUIDE(SAT4JPBBuilderPBCPGUIDE.SMALL);
+		sat4jHandler = new SAT4JPBBuilderPBCPGUIDE_T(SAT4JPBBuilderPBCPGUIDE_T.SMALL, 10);
 		LOG.debug("made parser");
 		query.addClauses(sat4jHandler);
 		LOG.debug("added clauses");
@@ -298,7 +298,7 @@ public class MiningQueryTest_PBCPGUIDE extends TestCase {
 MiningQuery<DimacsLiteral> query = MiningQuery.parse(DimacsLiteral.class, new InputStreamReader(getClass()
 		.getResourceAsStream("/funct_deps_min_x_singleton_y_limit_5.satql")));
 query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
-sat4jHandler = new SAT4JPBBuilderPBCPGUIDE(SAT4JPBBuilderPBCPGUIDE.SMALL);
+sat4jHandler = new SAT4JPBBuilderPBCPGUIDE_T(SAT4JPBBuilderPBCPGUIDE_T.SMALL, 10);
 query.addClauses(sat4jHandler);
 sat4jHandler.setLimit(query.getLimit());
 sat4jHandler.endProblem();
@@ -317,7 +317,7 @@ assertEquals(5, nbModels);
 						.getResourceAsStream("/funct_deps.satql")));
 		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
 		LOG.debug("before parser");
-		sat4jHandler = new SAT4JPBBuilderPBCPGUIDE(SAT4JPBBuilderPBCPGUIDE.SMALL);
+		sat4jHandler = new SAT4JPBBuilderPBCPGUIDE_T(SAT4JPBBuilderPBCPGUIDE_T.SMALL, 10);
 		LOG.debug("made parser");
 		query.addClauses(sat4jHandler);
 		LOG.debug("added clauses");
@@ -338,7 +338,7 @@ assertEquals(5, nbModels);
 						.getResourceAsStream("/funct_deps_ifthen.satql")));
 		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
 		LOG.debug("before parser");
-		sat4jHandler = new SAT4JPBBuilderPBCPGUIDE(SAT4JPBBuilderPBCPGUIDE.SMALL);
+		sat4jHandler = new SAT4JPBBuilderPBCPGUIDE_T(SAT4JPBBuilderPBCPGUIDE_T.SMALL, 10);
 		LOG.debug("made parser");
 		query.addClauses(sat4jHandler);
 		LOG.debug("added clauses");
@@ -358,7 +358,7 @@ assertEquals(5, nbModels);
 		MiningQuery<DimacsLiteral> query = MiningQuery.parse(DimacsLiteral.class, new InputStreamReader(getClass()
 				.getResourceAsStream("/funct_deps_min_x_singleton_y.satql")));
 		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
-		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
+		sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL, 10);
 		query.addClauses(sat4jHandler);
 		sat4jHandler.endProblem();
 		int nbModels = 0;
@@ -375,7 +375,7 @@ assertEquals(5, nbModels);
 		MiningQuery<DimacsLiteral> query = MiningQuery.parse(DimacsLiteral.class, new InputStreamReader(getClass()
 				.getResourceAsStream("/funct_deps_y_singleton.satql")));
 		query.setBitSetFetcher(new SingleStatementBitSetFetcher(c));
-		sat4jHandler = new SAT4JPBBuilderPBCPGUIDE(SAT4JPBBuilderPBCPGUIDE.SMALL);
+		sat4jHandler = new SAT4JPBBuilderPBCPGUIDE_T(SAT4JPBBuilderPBCPGUIDE_T.SMALL, 10);
 		query.addClauses(sat4jHandler);
 		sat4jHandler.endProblem();
 		int nbModels = 0;

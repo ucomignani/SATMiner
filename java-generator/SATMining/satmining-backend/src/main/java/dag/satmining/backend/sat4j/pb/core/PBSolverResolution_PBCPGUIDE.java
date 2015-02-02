@@ -68,25 +68,25 @@ public class PBSolverResolution_PBCPGUIDE extends PBSolverResolution{
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(PBSolverResolution_PBCPGUIDE.class);
-					
+
 	protected int[] nbPos;
 	protected int[] nbNeg;
-	
-	   public PBSolverResolution_PBCPGUIDE(LearningStrategy<PBDataStructureFactory> learner,
-	            PBDataStructureFactory dsf, SearchParams params, IOrder order,
-	            RestartStrategy restarter) {
-	        super(learner, dsf, params, order, restarter);
-	    }
-	
 
-    public PBSolverResolution_PBCPGUIDE(LearningStrategy<PBDataStructureFactory> learner,
-            PBDataStructureFactory dsf, IOrder order, RestartStrategy restarter) {
-        super(learner, dsf, order, restarter);
-    }
+	public PBSolverResolution_PBCPGUIDE(LearningStrategy<PBDataStructureFactory> learner,
+			PBDataStructureFactory dsf, SearchParams params, IOrder order,
+			RestartStrategy restarter) {
+		super(learner, dsf, params, order, restarter);
+	}
+
+
+	public PBSolverResolution_PBCPGUIDE(LearningStrategy<PBDataStructureFactory> learner,
+			PBDataStructureFactory dsf, IOrder order, RestartStrategy restarter) {
+		super(learner, dsf, order, restarter);
+	}
 
 	public void initOuUpdateCompteurs(){
 		boolean nouveauCompteur = false;
-		
+
 		if(this.nbPos == null || this.nbNeg == null || this.nbPos.length < nVars() || this.nbNeg.length < nVars()){
 			this.nbPos = new int[nVars()+1];
 			this.nbNeg = new int[nVars()+1];
@@ -104,236 +104,240 @@ public class PBSolverResolution_PBCPGUIDE extends PBSolverResolution{
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+	 private static final long serialVersionUID = 1L;
 
-	@Override
-	protected Lbool search(IVecInt assumps) {
-		assert this.rootLevel == decisionLevel();
-		this.stats.starts++;
-		int backjumpLevel;
+	 @Override
+	 protected Lbool search(IVecInt assumps) {
+		 assert this.rootLevel == decisionLevel();
+		 this.stats.starts++;
+		 int backjumpLevel;
 
-		// varDecay = 1 / params.varDecay;
-		this.getOrder().setVarDecay(1 / this.getParams().getVarDecay());
-		this.setClaDecay(1 / this.getParams().getClaDecay());
+		 // varDecay = 1 / params.varDecay;
+		 this.getOrder().setVarDecay(1 / this.getParams().getVarDecay());
+		 this.setClaDecay(1 / this.getParams().getClaDecay());
 
-		do {
-			this.slistener.beginLoop();
-			// propage les clauses unitaires
-			Constr confl = propagate();
-			assert this.trail.size() == this.getQhead();
+		 do {
+			 this.slistener.beginLoop();
+			 // propage les clauses unitaires
+			 Constr confl = propagate();
+			 assert this.trail.size() == this.getQhead();
 
-			if (confl == null) {
-				// No conflict found
-				// simpliFYDB() prevents a correct use of
-				// constraints removal.
-				if (decisionLevel() == 0 && this.isDBSimplificationAllowed()) {
-					// // Simplify the set of problem clause
-					// // iff rootLevel==0
-					this.stats.rootSimplifications++;
-					boolean ret = simplifyDB();
-					assert ret;
-				}
-				// was learnts.size() - nAssigns() > nofLearnts
-				// if (nofLearnts.obj >= 0 && learnts.size() > nofLearnts.obj) {
-				assert nAssigns() <= this.voc.realnVars();
-				if (nAssigns() == this.voc.realnVars()) {
-					modelFound();
-					this.slistener
-					.solutionFound((this.getFullmodel() != null) ? this.getFullmodel()
-							: this.getModel(), this);
-					if (this.sharedConflict == null) {
-						cancelUntil(this.rootLevel);
-						return Lbool.TRUE;
-					} else {
-						// listener called ISolverService.backtrack()
-						confl = this.sharedConflict;
-						this.sharedConflict = null;
-					}
-				} else {
-					if (this.getRestarter().shouldRestart()) {
-						// Reached bound on number of conflicts
-						// Force a restart
-						cancelUntil(this.rootLevel);
-						return Lbool.UNDEFINED;
-					}
-					if (this.needToReduceDB) {
-						reduceDB();
-						this.needToReduceDB = false;
-						// Runtime.getRuntime().gc();
-					}
-					if (this.sharedConflict == null) {
-						// New variable decision
-						this.stats.decisions++;
+			 if (confl == null) {
+				 // No conflict found
+				 // simpliFYDB() prevents a correct use of
+				 // constraints removal.
+				 if (decisionLevel() == 0 && this.isDBSimplificationAllowed()) {
+					 // // Simplify the set of problem clause
+					 // // iff rootLevel==0
+					 this.stats.rootSimplifications++;
+					 boolean ret = simplifyDB();
+					 assert ret;
+				 }
+				 // was learnts.size() - nAssigns() > nofLearnts
+				 // if (nofLearnts.obj >= 0 && learnts.size() > nofLearnts.obj) {
+				 assert nAssigns() <= this.voc.realnVars();
+				 if (nAssigns() == this.voc.realnVars()) {
+					 modelFound();
+					 this.slistener
+					 .solutionFound((this.getFullmodel() != null) ? this.getFullmodel()
+							 : this.getModel(), this);
+					 if (this.sharedConflict == null) {
+						 cancelUntil(this.rootLevel);
+						 return Lbool.TRUE;
+					 } else {
+						 // listener called ISolverService.backtrack()
+						 confl = this.sharedConflict;
+						 this.sharedConflict = null;
+					 }
+				 } else {
+					 if (this.getRestarter().shouldRestart()) {
+						 // Reached bound on number of conflicts
+						 // Force a restart
+						 cancelUntil(this.rootLevel);
+						 return Lbool.UNDEFINED;
+					 }
+					 if (this.needToReduceDB) {
+						 reduceDB();
+						 this.needToReduceDB = false;
+						 // Runtime.getRuntime().gc();
+					 }
+					 if (this.sharedConflict == null) {
+						 // New variable decision
+						 this.stats.decisions++;
 
-						/*
-						 * implementation du PBCPGUIDE
-						 */
-						this.initOuUpdateCompteurs(); //si les compteurs ne sont pas deja init on les cree pour avoir le bon nombre de variables
-						
-						int p = ((StrongBackdoorVarOrderHeap_PBCPGUIDE) this.getOrder()).select(this.nbPos,this.nbNeg);
-						SimpleUnitPropagation prop = new SimpleUnitPropagation();
-						VecInt resPropagationPos = prop.simplePropagation(p, this.trail, this.voc, this.constrs, this.learnts);
-								
-						// on fait la propagation sur la negation
-						p=neg(p);
-						prop = new SimpleUnitPropagation();
-						VecInt resPropagationNeg = prop.simplePropagation(p, this.trail, this.voc, this.constrs, this.learnts);
+						 /*
+						  * implementation du PBCPGUIDE
+						  */
+						 this.initOuUpdateCompteurs(); //si les compteurs ne sont pas deja init on les cree pour avoir le bon nombre de variables
 
-						// calcul des distances et choix de la phase
-						double distLitPos = distanceWithVectorAndAffectations(resPropagationPos);
-						double distLitNeg = distanceWithVectorAndAffectations(resPropagationNeg);
-						
-						if(distLitPos > distLitNeg) // si la version positive est plus rentable on revient a celle-ci via negation
-							p=neg(p);
-						
-						/*
-						 * fin PBCPGUIDE
-						 */
-						
-						if (p == ILits.UNDEFINED) {
-							confl = preventTheSameDecisionsToBeMade();
-							this.setLastConflictMeansUnsat(false);
-						} else {
-							assert p > 1;
-							this.slistener.assuming(toDimacs(p));
-							boolean ret = assume(p);
-							assert ret;
-						}
-					} else {
-						// listener called ISolverService.backtrack()
-						confl = this.sharedConflict;
-						this.sharedConflict = null;
-					}
-				}
-			}
-			if (confl != null) {
-				// un conflit apparait
-				this.stats.conflicts++;
-				this.slistener.conflictFound(confl, decisionLevel(),
-						this.trail.size());
-				this.getConflictCount().newConflict();
+						 int p = ((StrongBackdoorVarOrderHeap_PBCPGUIDE) this.getOrder()).select(this.nbPos,this.nbNeg);
+						 SimpleUnitPropagation prop = new SimpleUnitPropagation();
+						 VecInt resPropagationPos = prop.simplePropagation(p, this.trail, this.voc, this.constrs, this.learnts);
 
-				if (decisionLevel() == this.rootLevel) {
-					if (this.isLastConflictMeansUnsat()) {
-						// conflict at root level, the formula is inconsistent
-						this.setUnsatExplanationInTermsOfAssumptions(analyzeFinalConflictInTermsOfAssumptions(
-								confl, assumps, ILits.UNDEFINED));
-						return Lbool.FALSE;
-					}
-					return Lbool.UNDEFINED;
-				}
-				int conflictTrailLevel = this.trail.size();
-				// analyze conflict
-				try {
-					analyze(confl, this.getAnalysisResult());
-				} catch (TimeoutException e) {
-					return Lbool.UNDEFINED;
-				}
-				assert this.getAnalysisResult().backtrackLevel < decisionLevel();
-				backjumpLevel = Math.max(this.getAnalysisResult().backtrackLevel,
-						this.rootLevel);
-				this.slistener.backjump(backjumpLevel);
-				cancelUntil(backjumpLevel);
-				if (backjumpLevel == this.rootLevel) {
-					this.getRestarter().onBackjumpToRootLevel();
-				}
-				assert decisionLevel() >= this.rootLevel
-						&& decisionLevel() >= this.getAnalysisResult().backtrackLevel;
-						if (this.getAnalysisResult().reason == null) {
-							return Lbool.FALSE;
-						}
-						record(this.getAnalysisResult().reason);
-						this.getRestarter().newLearnedClause(this.getAnalysisResult().reason,
-								conflictTrailLevel);
-						this.getAnalysisResult().reason = null;
-						decayActivities();
-			}
-		} while (this.undertimeout);
-		return Lbool.UNDEFINED; // timeout occured
-	}
+						 // on fait la propagation sur la negation
+						 p=neg(p);
+						 prop = new SimpleUnitPropagation();
+						 VecInt resPropagationNeg = prop.simplePropagation(p, this.trail, this.voc, this.constrs, this.learnts);
 
-	/**
-	 * 
-	 */
-	protected void modelFound() {
-		IVecInt tempmodel = new VecInt(nVars());
-		this.setUserbooleanmodel(new boolean[realNumberOfVariables()]);
-		this.setFullmodel(null);
-		for (int i = 1; i <= nVars(); i++) {
-			if (this.voc.belongsToPool(i)) {
-				int p = this.voc.getFromPool(i);
-				if (!this.voc.isUnassigned(p)) {
+						 // calcul des distances et choix de la phase
+						 double distLitPos = distanceWithVectorAndAffectations(resPropagationPos);
+						 double distLitNeg = distanceWithVectorAndAffectations(resPropagationNeg);
 
-					/*
-					 * On incremente ici les compteurs pour les calculs de distance entre modeles
-					 */
-					if(this.voc.isSatisfied(p))
-						this.nbPos[i]++;
-					else
-						this.nbNeg[i]++;
-					
-					tempmodel.push(this.voc.isSatisfied(p) ? i : -i);                  
-					this.getUserbooleanmodel()[i - 1] = this.voc.isSatisfied(p);
-					if (this.voc.getReason(p) == null && voc.getLevel(p) > 0) {
-						this.getDecisions().push(tempmodel.last());
-					} else {
-						this.getImplied().push(tempmodel.last());
-					}
-				}
-			}
-		}
-		this.setModel(new int[tempmodel.size()]);
-		tempmodel.copyTo(this.getModel());
-		if (realNumberOfVariables() > nVars()) {
-			for (int i = nVars() + 1; i <= realNumberOfVariables(); i++) {
-				if (this.voc.belongsToPool(i)) {
-					int p = this.voc.getFromPool(i);
-					if (!this.voc.isUnassigned(p)) {
-						tempmodel.push(this.voc.isSatisfied(p) ? i : -i);
-						this.getUserbooleanmodel()[i - 1] = this.voc.isSatisfied(p);
-						if (this.voc.getReason(p) == null) {
-							this.getDecisions().push(tempmodel.last());
-						} else {
-							this.getImplied().push(tempmodel.last());
-						}
-					}
-				}
-			}
-			this.setFullmodel(new int[tempmodel.size()]);
-			tempmodel.moveTo(this.getFullmodel());
-		} else {
-			this.setFullmodel(this.getModel());
-		}
-	}
-	
-	/**
-	 * @param resPropagation
-	 * 			vecteur de literaux
-	 * 
-	 * @return distance resultante si les literaux du vecteur etaient affectes
-	 */
-	private double distanceWithVectorAndAffectations(VecInt resPropagation) {
-		IteratorInt literalIt = resPropagation.iterator();
-		int literalTmp, varTmp;
+						 if(distLitPos > distLitNeg) // si la version positive est plus rentable on revient a celle-ci via negation
+							 p=neg(p);
 
-		int diversificationSum = 0;
-		int nbLiterals = resPropagation.size();
-		double distance = -1;
-		
-		// ici choix de la version alternative de calcul de la distance issue du papier de Nadel. TODO tester la structure permettant l'autre version
-		while(literalIt.hasNext())
-		{
-			literalTmp = literalIt.next();
-			varTmp = var(literalTmp);
-			if(toDimacs(literalTmp) > 0)
-				diversificationSum += (this.nbPos[varTmp] + 1) * this.nbNeg[varTmp];
-			else
-				diversificationSum += this.nbPos[varTmp] * (this.nbNeg[varTmp] + 1);
-		}
-		
-		// ici on s'abstient de l'introduction de la prise en compte du nombre de modeles, celui-ci etant le meme il n'a pas d'utilite dans le cadre de notre comparaison
-		distance = (double) diversificationSum / nbLiterals;
-		return distance;
-	}
+						 /*
+						  * fin PBCPGUIDE
+						  */
+
+						 if (p == ILits.UNDEFINED) {
+							 confl = preventTheSameDecisionsToBeMade();
+							 this.setLastConflictMeansUnsat(false);
+						 } else {
+							 assert p > 1;
+							 this.slistener.assuming(toDimacs(p));
+							 boolean ret = assume(p);
+							 assert ret;
+						 }
+					 } else {
+						 // listener called ISolverService.backtrack()
+						 confl = this.sharedConflict;
+						 this.sharedConflict = null;
+					 }
+				 }
+			 }
+			 if (confl != null) {
+				 // un conflit apparait
+				 this.stats.conflicts++;
+				 this.slistener.conflictFound(confl, decisionLevel(),
+						 this.trail.size());
+				 this.getConflictCount().newConflict();
+
+				 if (decisionLevel() == this.rootLevel) {
+					 if (this.isLastConflictMeansUnsat()) {
+						 // conflict at root level, the formula is inconsistent
+						 this.setUnsatExplanationInTermsOfAssumptions(analyzeFinalConflictInTermsOfAssumptions(
+								 confl, assumps, ILits.UNDEFINED));
+						 return Lbool.FALSE;
+					 }
+					 return Lbool.UNDEFINED;
+				 }
+				 int conflictTrailLevel = this.trail.size();
+				 // analyze conflict
+				 try {
+					 analyze(confl, this.getAnalysisResult());
+				 } catch (TimeoutException e) {
+					 return Lbool.UNDEFINED;
+				 }
+				 assert this.getAnalysisResult().backtrackLevel < decisionLevel();
+				 backjumpLevel = Math.max(this.getAnalysisResult().backtrackLevel,
+						 this.rootLevel);
+				 this.slistener.backjump(backjumpLevel);
+				 cancelUntil(backjumpLevel);
+				 if (backjumpLevel == this.rootLevel) {
+					 this.getRestarter().onBackjumpToRootLevel();
+				 }
+				 assert decisionLevel() >= this.rootLevel
+						 && decisionLevel() >= this.getAnalysisResult().backtrackLevel;
+						 if (this.getAnalysisResult().reason == null) {
+							 return Lbool.FALSE;
+						 }
+						 record(this.getAnalysisResult().reason);
+						 this.getRestarter().newLearnedClause(this.getAnalysisResult().reason,
+								 conflictTrailLevel);
+						 this.getAnalysisResult().reason = null;
+						 decayActivities();
+			 }
+		 } while (this.undertimeout);
+		 return Lbool.UNDEFINED; // timeout occured
+	 }
+
+	 /**
+	  * 
+	  */
+	 protected void modelFound() {
+		 IVecInt tempmodel = new VecInt(nVars());
+		 this.setUserbooleanmodel(new boolean[realNumberOfVariables()]);
+		 this.setFullmodel(null);
+		 for (int i = 1; i <= nVars(); i++) {
+			 if (this.voc.belongsToPool(i)) {
+				 int p = this.voc.getFromPool(i);
+				 if (!this.voc.isUnassigned(p)) {
+
+					 /*
+					  * On incremente ici les compteurs pour les calculs de distance entre modeles
+					  */
+					 if(this.voc.isSatisfied(p))
+						 this.nbPos[i]++;
+					 else
+						 this.nbNeg[i]++;
+
+					 tempmodel.push(this.voc.isSatisfied(p) ? i : -i);                  
+					 this.getUserbooleanmodel()[i - 1] = this.voc.isSatisfied(p);
+					 if (this.voc.getReason(p) == null && voc.getLevel(p) > 0) {
+						 this.getDecisions().push(tempmodel.last());
+					 } else {
+						 this.getImplied().push(tempmodel.last());
+					 }
+				 }
+			 }
+		 }
+		 this.setModel(new int[tempmodel.size()]);
+		 tempmodel.copyTo(this.getModel());
+		 if (realNumberOfVariables() > nVars()) {
+			 for (int i = nVars() + 1; i <= realNumberOfVariables(); i++) {
+				 if (this.voc.belongsToPool(i)) {
+					 int p = this.voc.getFromPool(i);
+					 if (!this.voc.isUnassigned(p)) {
+						 tempmodel.push(this.voc.isSatisfied(p) ? i : -i);
+						 this.getUserbooleanmodel()[i - 1] = this.voc.isSatisfied(p);
+						 if (this.voc.getReason(p) == null) {
+							 this.getDecisions().push(tempmodel.last());
+						 } else {
+							 this.getImplied().push(tempmodel.last());
+						 }
+					 }
+				 }
+			 }
+			 this.setFullmodel(new int[tempmodel.size()]);
+			 tempmodel.moveTo(this.getFullmodel());
+		 } else {
+			 this.setFullmodel(this.getModel());
+		 }
+	 }
+
+	 /**
+	  * @param resPropagation
+	  * 			vecteur de literaux
+	  * 
+	  * @return distance resultante si les literaux du vecteur etaient affectes
+	  */
+	 private double distanceWithVectorAndAffectations(VecInt resPropagation) {
+		 IteratorInt literalIt = resPropagation.iterator();
+		 int literalTmp, varTmp;
+
+		 int diversificationSum = 0;
+		 int nbLiterals = resPropagation.size();
+		 double distance = -1;
+
+		 // ici choix de la version alternative de calcul de la distance issue du papier de Nadel. TODO tester la structure permettant l'autre version
+		 while(literalIt.hasNext())
+		 {
+			 literalTmp = literalIt.next();
+			 varTmp = var(literalTmp);
+
+			 if(varTmp <= this.nVars()) // on ne calcule la distance aue pour les strongs variables, donc de valeurs <= a la valeur renvoyee par nVars()
+			 {
+				 if(toDimacs(literalTmp) > 0)
+					 diversificationSum += (this.nbPos[varTmp] + 1) * this.nbNeg[varTmp];
+				 else
+					 diversificationSum += this.nbPos[varTmp] * (this.nbNeg[varTmp] + 1);
+			 }
+		 }
+
+		 // ici on s'abstient de l'introduction de la prise en compte du nombre de modeles, celui-ci etant le meme il n'a pas d'utilite dans le cadre de notre comparaison
+		 distance = (double) diversificationSum / nbLiterals;
+		 return distance;
+	 }
 
 }

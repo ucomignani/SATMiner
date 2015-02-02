@@ -90,4 +90,9 @@ public final class MiniSATRestarts implements RestartStrategy {
 
     public void newLearnedClause(Constr learned, int trailLevel) {
     }
+
+	@Override
+	public long getConflictsCount() {
+		return this.conflictcount;
+	}
 }

@@ -146,4 +146,8 @@ public final class LubyRestarts implements RestartStrategy {
 
     public void newLearnedClause(Constr learned, int trailLevel) {
     }
+
+	public long getConflictsCount() {
+		return this.conflictcount;
+	}
 }

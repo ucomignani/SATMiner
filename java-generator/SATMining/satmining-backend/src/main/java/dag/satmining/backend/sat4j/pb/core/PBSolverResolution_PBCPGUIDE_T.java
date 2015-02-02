@@ -1,4 +1,4 @@
-/* ./satmining-backend/src/main/java/dag/satmining/backend/sat4j/pb/core/PBSolverResolution_PGUIDE.java
+/* ./satmining-backend/src/main/java/dag/satmining/backend/sat4j/pb/core/PBSolverResolution_PBCPGUIDE.java
 
    Copyright (C) 2013, 2014 Emmanuel Coquery.
 
@@ -39,6 +39,7 @@ exception statement from your version. */
 package dag.satmining.backend.sat4j.pb.core;
 
 import static org.sat4j.core.LiteralsUtils.toDimacs;
+import static org.sat4j.core.LiteralsUtils.var;
 
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.core.Constr;
@@ -50,35 +51,45 @@ import org.sat4j.minisat.core.SearchParams;
 import org.sat4j.pb.core.PBDataStructureFactory;
 import org.sat4j.pb.core.PBSolverResolution;
 import org.sat4j.specs.IVecInt;
+import org.sat4j.specs.IteratorInt;
 import org.sat4j.specs.Lbool;
 import org.sat4j.specs.TimeoutException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import dag.satmining.backend.sat4j.StrongBackdoorVarOrderHeap_PGUIDE;
+import static org.sat4j.core.LiteralsUtils.neg;
+import dag.satmining.backend.sat4j.StrongBackdoorVarOrderHeap_PBCPGUIDE;
 
 /**
  *
  * @author ucomignani
  */
-public class PBSolverResolution_PGUIDE extends PBSolverResolution{
+public class PBSolverResolution_PBCPGUIDE_T extends PBSolverResolution{
+
+	private static final Logger LOG = LoggerFactory
+			.getLogger(PBSolverResolution_PBCPGUIDE_T.class);
 
 	protected int[] nbPos;
 	protected int[] nbNeg;
-	
-	   public PBSolverResolution_PGUIDE(LearningStrategy<PBDataStructureFactory> learner,
-	            PBDataStructureFactory dsf, SearchParams params, IOrder order,
-	            RestartStrategy restarter) {
-	        super(learner, dsf, params, order, restarter);
-	    }
-	
+	private int nbConflictsBeforeUseOfPGUIDE;
 
-    public PBSolverResolution_PGUIDE(LearningStrategy<PBDataStructureFactory> learner,
-            PBDataStructureFactory dsf, IOrder order, RestartStrategy restarter) {
-        super(learner, dsf, order, restarter);
-    }
+	public PBSolverResolution_PBCPGUIDE_T(LearningStrategy<PBDataStructureFactory> learner,
+			PBDataStructureFactory dsf, SearchParams params, IOrder order,
+			RestartStrategy restarter, int nbConflictsBeforeUseOfPGUIDE) {
+		super(learner, dsf, params, order, restarter);
+		this.nbConflictsBeforeUseOfPGUIDE = nbConflictsBeforeUseOfPGUIDE;
+	}
+
+
+	public PBSolverResolution_PBCPGUIDE_T(LearningStrategy<PBDataStructureFactory> learner,
+			PBDataStructureFactory dsf, IOrder order, RestartStrategy restarter, int nbConflictsBeforeUseOfPGUIDE) {
+		super(learner, dsf, order, restarter);
+		this.nbConflictsBeforeUseOfPGUIDE = nbConflictsBeforeUseOfPGUIDE;
+	}
 
 	public void initOuUpdateCompteurs(){
 		boolean nouveauCompteur = false;
-		
+
 		if(this.nbPos == null || this.nbNeg == null || this.nbPos.length < nVars() || this.nbNeg.length < nVars()){
 			this.nbPos = new int[nVars()+1];
 			this.nbNeg = new int[nVars()+1];
@@ -96,7 +107,7 @@ public class PBSolverResolution_PGUIDE extends PBSolverResolution{
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+	 private static final long serialVersionUID = 1L;
 
 	@Override
 	protected Lbool search(IVecInt assumps) {
@@ -158,14 +169,37 @@ public class PBSolverResolution_PGUIDE extends PBSolverResolution{
 						this.stats.decisions++;
 
 						/*******************************
-						 * implementation du PGUIDE
+						 * implementation du PBCPGUIDE_T
 						 *******************************/
-						this.initOuUpdateCompteurs(); //si les compteurs ne sont pas deja init on les cree pour avoir le bon nombre de variables
-						int p = ((StrongBackdoorVarOrderHeap_PGUIDE) this.getOrder()).select(this.nbPos,this.nbNeg);
-						/*******************************
-						 * fin du PGUIDE
-						 *******************************/
-						
+						int p;
+
+						if(this.getRestarter().getConflictsCount() < nbConflictsBeforeUseOfPGUIDE)
+						{
+							this.initOuUpdateCompteurs(); //si les compteurs ne sont pas deja init on les cree pour avoir le bon nombre de variables
+							p = ((StrongBackdoorVarOrderHeap_PBCPGUIDE) this.getOrder()).select(this.nbPos,this.nbNeg);
+							SimpleUnitPropagation prop = new SimpleUnitPropagation();
+							VecInt resPropagationPos = prop.simplePropagation(p, this.trail, this.voc, this.constrs, this.learnts);
+
+							// on fait la propagation sur la negation
+							p=neg(p);
+							prop = new SimpleUnitPropagation();
+							VecInt resPropagationNeg = prop.simplePropagation(p, this.trail, this.voc, this.constrs, this.learnts);
+
+							// calcul des distances et choix de la phase
+							double distLitPos = distanceWithVectorAndAffectations(resPropagationPos);
+							double distLitNeg = distanceWithVectorAndAffectations(resPropagationNeg);
+
+							if(distLitPos > distLitNeg) // si la version positive est plus rentable on revient a celle-ci via negation
+								p=neg(p);
+						}
+						else
+						{
+							p = ((StrongBackdoorVarOrderHeap_PBCPGUIDE) this.getOrder()).select(this.nbPos,this.nbNeg);
+						}
+						/*****************************
+						 * fin PBCPGUIDE_T
+						 *****************************/
+
 						if (p == ILits.UNDEFINED) {
 							confl = preventTheSameDecisionsToBeMade();
 							this.setLastConflictMeansUnsat(false);
@@ -280,6 +314,40 @@ public class PBSolverResolution_PGUIDE extends PBSolverResolution{
 		} else {
 			this.setFullmodel(this.getModel());
 		}
+	}
+
+	/**
+	 * @param resPropagation
+	 * 			vecteur de literaux
+	 * 
+	 * @return distance resultante si les literaux du vecteur etaient affectes
+	 */
+	private double distanceWithVectorAndAffectations(VecInt resPropagation) {
+		IteratorInt literalIt = resPropagation.iterator();
+		int literalTmp, varTmp;
+
+		int diversificationSum = 0;
+		int nbLiterals = resPropagation.size();
+		double distance = -1;
+
+		// ici choix de la version alternative de calcul de la distance issue du papier de Nadel. TODO tester la structure permettant l'autre version
+		while(literalIt.hasNext())
+		{
+			literalTmp = literalIt.next();
+			varTmp = var(literalTmp);
+
+			if(varTmp <= this.nVars()) // on ne calcule la distance aue pour les strongs variables, donc de valeurs <= a la valeur renvoyee par nVars()
+			{
+				if(toDimacs(literalTmp) > 0)
+					diversificationSum += (this.nbPos[varTmp] + 1) * this.nbNeg[varTmp];
+				else
+					diversificationSum += this.nbPos[varTmp] * (this.nbNeg[varTmp] + 1);
+			}
+		}
+
+		// ici on s'abstient de l'introduction de la prise en compte du nombre de modeles, celui-ci etant le meme il n'a pas d'utilite dans le cadre de notre comparaison
+		distance = (double) diversificationSum / nbLiterals;
+		return distance;
 	}
 
 }

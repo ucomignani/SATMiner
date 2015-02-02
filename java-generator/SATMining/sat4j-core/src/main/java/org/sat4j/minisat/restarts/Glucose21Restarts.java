@@ -111,4 +111,11 @@ public class Glucose21Restarts implements RestartStrategy {
     public String toString() {
         return "Glucose 2.1 dynamic restart strategy";
     }
+
+	@Override
+	public long getConflictsCount() {
+		// TODO Auto-generated method stub
+		return -1;
+	}
+
 }

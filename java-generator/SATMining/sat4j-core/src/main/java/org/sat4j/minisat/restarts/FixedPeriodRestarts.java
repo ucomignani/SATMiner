@@ -88,4 +88,8 @@ public class FixedPeriodRestarts implements RestartStrategy {
     public String toString() {
         return "constant restarts strategy every " + this.period + " conflicts";
     }
+
+	public long getConflictsCount() {
+		return this.conflictCount;
+	}
 }
