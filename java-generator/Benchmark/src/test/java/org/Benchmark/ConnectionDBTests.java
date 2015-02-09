@@ -45,37 +45,28 @@ import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dag.satmining.backend.sat4j.SAT4JPBBuilder;
 import junit.framework.TestCase;
 
 /**
-*
-* @author ucomignani
-*/
+ *
+ * @author ucomignani
+ */
 public class ConnectionDBTests 
-    extends TestCase
+extends TestCase
 {
-    private final static Logger LOG = LoggerFactory
-            .getLogger(ConnectionDBTests.class);
-            		
-    private Connection pgConnect() {
-        Driver d = new org.postgresql.Driver();
-        try {
-            return d.connect(
-                    "jdbc:postgresql://localhost/benchs_satql?user=satql&password=satql",
-                    null);
-        } catch (SQLException e) {
-            return null;
-        }
-    }
+	private final static Logger LOG = LoggerFactory
+			.getLogger(ConnectionDBTests.class);
 
-    public void testPGInfos() throws SQLException {
-        Connection c = pgConnect();
-        if (c != null) {
-            LOG.info("PG driver: {}, version {}", c.getMetaData()
-                    .getDriverName(), c.getMetaData().getDriverVersion());
-            c.close();
-        } else {
-            LOG.warn("skipped PG test");
-        }
-    }
+	public void testCreateBenchmark() throws SQLException {
+		SAT4JPBBuilder sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
+		Benchmark benchmark = new Benchmark(sat4jHandler);
+	}
+	
+	public void testBenchBASE() throws SQLException {
+		SAT4JPBBuilder sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
+		Benchmark benchmark = new Benchmark(sat4jHandler);
+
+		benchmark.bench("/percent.satql");
+	}
 }

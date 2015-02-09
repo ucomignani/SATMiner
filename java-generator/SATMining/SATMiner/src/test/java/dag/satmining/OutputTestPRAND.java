@@ -94,6 +94,7 @@ public class OutputTestPRAND extends TestCase {
 				sat4j, sat4j);
 		pgm.parseArgs(args);
 		pgm.run();
+		
 		System.out.flush();
 		System.err.flush();
 	}

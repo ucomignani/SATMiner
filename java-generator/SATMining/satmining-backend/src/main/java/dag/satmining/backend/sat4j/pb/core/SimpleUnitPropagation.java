@@ -45,6 +45,7 @@ package dag.satmining.backend.sat4j.pb.core;
 import static org.sat4j.core.LiteralsUtils.negLit;
 import static org.sat4j.core.LiteralsUtils.posLit;
 import static org.sat4j.core.LiteralsUtils.toDimacs;
+import static org.sat4j.core.LiteralsUtils.neg;
 
 import java.util.Iterator;
 
@@ -89,7 +90,7 @@ public class SimpleUnitPropagation {
 	 * @param p
 	 * 			literal a propager
 	 * 
-	 * @return liste des literaux propages.
+	 * @return liste des literaux propages. Si un conflit apparait, retourne null
 	 */
 
 	public VecInt simplePropagation(int p, IVecInt trail, ILits vocIn, IVec<Constr> constrsIn, IVec<Constr> learntsIn){
@@ -107,7 +108,7 @@ public class SimpleUnitPropagation {
 		VecInt vecRes = null;
 
 		// detection point fixe et insertion des literaux resultats dans le vecteur sans doublons
-		while(idHead < propagatedLiterals.size())
+		while(propagatedLiterals != null && idHead < propagatedLiterals.size())
 		{
 			vecRes = propagate(propagatedLiterals.get(idHead), this.constrs);
 			if(vecRes != null)
@@ -119,6 +120,10 @@ public class SimpleUnitPropagation {
 					if(!propagatedLiterals.contains(literal))
 						propagatedLiterals.push(literal);
 				}
+			}
+			else
+			{
+				return null;
 			}
 
 			vecRes = propagate(propagatedLiterals.get(idHead), this.learnts);
@@ -132,20 +137,12 @@ public class SimpleUnitPropagation {
 						propagatedLiterals.push(literal);
 				}
 			}
+			else
+			{
+				return null;
+			}
 			
 			idHead++;
-		}
-
-		VecInt clauseTmp = null;
-		Iterator<VecInt> itClauses = this.constrs.iterator();
-		if(itClauses.hasNext())
-		{
-			clauseTmp = itClauses.next();
-		}
-		itClauses = this.learnts.iterator();
-		if(itClauses.hasNext())
-		{
-			clauseTmp = itClauses.next();
 		}
 
 		return propagatedLiterals;
@@ -155,22 +152,22 @@ public class SimpleUnitPropagation {
 		VecInt clauseTmp = null;
 		VecInt res = new VecInt();
 		
-		Iterator<VecInt> itClauses = vectorClauses.iterator();
-
-		if(itClauses.hasNext())
-		{
-			clauseTmp = itClauses.next();
-			simplifyClause(p, vectorClauses, clauseTmp);
-			
-			if(isClauseUnit(clauseTmp))
-				res.push(clauseTmp.get(0));
-		}
+		IVec<VecInt> vectorClausesTmp = new Vec<VecInt>(); //on itere sur une copie afin d'eviter de pouvoir faire les remove dans vectorClauses a la volee et sans decalage a gerer
+		vectorClauses.copyTo(vectorClausesTmp);
+		
+		Iterator<VecInt> itClauses = vectorClausesTmp.iterator();
 		
 		while(itClauses.hasNext())
 		{
 			clauseTmp = itClauses.next();
 
-			simplifyClause(p, vectorClauses, clauseTmp);
+			VecInt clauseAvant = new VecInt();
+			clauseTmp.copyTo(clauseAvant);;
+
+			clauseTmp = simplifyClause(p, vectorClauses, clauseTmp);
+					
+			if(isEmptyClause(clauseTmp))
+				return null;	
 			
 			if(isClauseUnit(clauseTmp))
 				res.push(clauseTmp.get(0));
@@ -179,23 +176,36 @@ public class SimpleUnitPropagation {
 		return res;
 	}
 
-	private void simplifyClause(int p, IVec<VecInt> vectorClauses, VecInt clauseTmp) {
+	private VecInt simplifyClause(int p, IVec<VecInt> vectorClauses, VecInt clauseTmp) {
 		IteratorInt itInt = clauseTmp.iterator();
+		VecInt clauseTmp2 = new VecInt();
 		int literalCourant;
+		boolean isPropagated = false;
 
-		// gestion de la suppression de clauses
-		VecInt removableClause = null;
-		
-		while(itInt.hasNext())
+		while(itInt.hasNext() && isPropagated == false)
 		{
 			literalCourant = itInt.next();
 
+			
+			if(isRemovableLiteral(p, literalCourant))
+			{
+				clauseTmp.copyTo(clauseTmp2);
+				clauseTmp2.remove(literalCourant);
+				vectorClauses.remove(clauseTmp);
+				vectorClauses.push(clauseTmp2);
+
+				clauseTmp = clauseTmp2;
+			}
+			
 			if(isRemovableClause(p, literalCourant))
 			{
-				removableClause = clauseTmp;
-				vectorClauses.remove(removableClause);
+				vectorClauses.remove(clauseTmp);
+				isPropagated = true;
 			}
-		}	
+		}
+
+		return clauseTmp;
+
 	}
 
 	private boolean isRemovableClause(int p, int literalCourant) {
@@ -203,7 +213,16 @@ public class SimpleUnitPropagation {
 
 	}
 	
+	private boolean isRemovableLiteral(int p, int literalCourant) {
+		return neg(p) == literalCourant;
+
+	}
+	
 	private boolean isClauseUnit(VecInt clauseTmp) {
 		return clauseTmp.size() == 1;		
+	}
+
+	private boolean isEmptyClause(VecInt clauseTmp) {
+		return clauseTmp.size() == 0;
 	}
 }

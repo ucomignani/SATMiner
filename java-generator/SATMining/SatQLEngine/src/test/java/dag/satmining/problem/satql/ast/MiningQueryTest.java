@@ -75,7 +75,6 @@ public class MiningQueryTest extends TestCase {
 	EmbeddedDataSource ds;
 	SAT4JPBBuilder sat4jHandler;
 
-
 	public MiningQueryTest() throws SQLException {
 		ds = new EmbeddedDataSource();
 		ds.setDatabaseName(DB_FILE);

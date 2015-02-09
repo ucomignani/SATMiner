@@ -182,15 +182,28 @@ public class PBSolverResolution_PBCPGUIDE_T extends PBSolverResolution{
 
 							// on fait la propagation sur la negation
 							p=neg(p);
-							prop = new SimpleUnitPropagation();
-							VecInt resPropagationNeg = prop.simplePropagation(p, this.trail, this.voc, this.constrs, this.learnts);
+													
+							// si la version positive conduisait a un conflit on utlise la negation sans tester l afin d'economiser une propagation unitaire
+							if(resPropagationPos != null)
+							{
+								prop = new SimpleUnitPropagation();
+								VecInt resPropagationNeg = prop.simplePropagation(p, this.trail, this.voc, this.constrs, this.learnts);
 
-							// calcul des distances et choix de la phase
-							double distLitPos = distanceWithVectorAndAffectations(resPropagationPos);
-							double distLitNeg = distanceWithVectorAndAffectations(resPropagationNeg);
+								// si la seconde propagation renvois null (= conflit) on utilise directement le premier literal sans tenter de calculer la distance
+								if(resPropagationNeg == null)
+								{
+									p=neg(p);	
+								}
+								else
+								{
+									// calcul des distances et choix de la phase
+									double distLitPos = distanceWithVectorAndAffectations(resPropagationPos);
+									double distLitNeg = distanceWithVectorAndAffectations(resPropagationNeg);
 
-							if(distLitPos > distLitNeg) // si la version positive est plus rentable on revient a celle-ci via negation
-								p=neg(p);
+									if(distLitPos > distLitNeg) // si la version positive est plus rentable on revient a celle-ci via negation
+										p=neg(p);
+								}
+							}
 						}
 						else
 						{

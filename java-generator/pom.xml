@@ -12,5 +12,6 @@
     <module>LinesToChars</module>
     <module>DataGenerator</module>
     <module>Benchmark</module>
+    <module>MainBench</module>
   </modules>
 </project>

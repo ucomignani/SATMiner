@@ -40,11 +40,14 @@ exception statement from your version. */
 package org.Benchmark;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -52,44 +55,65 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.apache.derby.jdbc.EmbeddedDataSource;
+import org.apache.derby.jdbc.EmbeddedDriver;
 import org.apache.log4j.BasicConfigurator;
 
 import dag.satmining.NoSolutionException;
 import dag.satmining.backend.dimacs.DimacsLiteral;
+import dag.satmining.backend.sat4j.SAT4JPBBuilder;
 import dag.satmining.backend.sat4j.SAT4JPBBuilderPRAND;
 import dag.satmining.problem.satql.ast.MiningQuery;
 import dag.satmining.problem.satql.ast.sql.SingleStatementBitSetFetcher;
 import dag.satmining.problem.satql.parser.ParseException;
+import dag.satmining.utils.SQLScript;
 
 /**
-*
-* @author ucomignani
-*/
+ *
+ * @author ucomignani
+ */
 public class Benchmark {
-	private static final String DB_FILE = "target/test.db";
-
-	EmbeddedDataSource ds;
-	static SAT4JPBBuilderPRAND sat4jHandlerPRAND;
-
 	
-	//TODO ecrire bench performances
-	public void benchPerformances(int nbIterations){
-		
-		Connection connection = null;      
-		connection = pgConnect();	
-		
-		for(int l=0; l<nbIterations; l++){
-			/*
-			 * debut test
-			 */
-			
-			testPRAND(connection);
-			
-			/*
-			 * fin test
-			 */	
+	private static final String DB_FILE = "target/testDiversification.db";
+	Connection c;
+	EmbeddedDataSource ds;
+	static SAT4JPBBuilder sat4jHandler;
+
+	public Benchmark(SAT4JPBBuilder sat4jHandler){
+		this.sat4jHandler = sat4jHandler;
+		try {
+			setUp();
+		} catch (Exception e) {
+			System.out.println(e.toString());
 		}
-        
+	}
+
+	//TODO ecrire bench performances
+	public void bench(String fichierSatQL){
+		Connection connection = this.c;
+		if(connection == null)
+		{
+			System.out.println("Connection a la base echouee");
+			System.exit(1);
+		}
+		else 
+		{
+			System.out.println("Connection OK");
+		}
+
+		String resultatSatQL = "";
+
+		InputStream inputStream = initInputStream(fichierSatQL);		
+		MiningQuery<DimacsLiteral> query = initQuery(connection, inputStream);
+
+		int nbModels = 0;
+		while (sat4jHandler.getNext()) {
+			resultatSatQL = query.getPatternForBench(sat4jHandler.getCurrentInterpretation()).toString();
+
+			System.out.println("found: "+ resultatSatQL);
+
+			nbModels++;
+		}	
+		
 		try {
 			connection.close();
 		} catch (SQLException e) {
@@ -97,83 +121,20 @@ public class Benchmark {
 			e.printStackTrace();
 		}
 	}
-	
-	//TODO ecrire bench qualite
-	public void benchQualite(int nbIterations){
-		PrintWriter writer = null;
-		File fichier = null;
-		try{
-			fichier = new File("bench_" + System.currentTimeMillis() + ".txt");
-			writer = new PrintWriter(fichier, "UTF-8");
-		}catch(FileNotFoundException e){
-			System.out.println("not found");
-		}catch(UnsupportedEncodingException e){
-			System.out.println("encoding error");
-		}
-		for(int l=0; l<nbIterations; l++){
-			// fonction a evaluer
-			writer.println("test");
-		}
-		
-		writer.close();
-	}
-	
-	private void testPRAND(Connection connection){
-		Statement st = initStatement(connection);
-        ResultSet rs = null;
-        String querySQL = null;
-        
-		float debut = 0;
-		float fin = 0;
-		float tpsExec = -1;
-		
-        InputStream inputStream = initInputStream("/quantifier_percent.satql");		
-		MiningQuery<DimacsLiteral> query = initQuery(connection, inputStream);
-			
-		/*
-		 * debut mesure
-		 */
-		int nbModels = 0;
-		float tpsDepartExec = System.nanoTime();
 
-		debut = System.nanoTime();
-		while (sat4jHandlerPRAND.getNext()) {
-	
-			System.out.println("found: {}"+
-					query.getPattern(sat4jHandlerPRAND.getCurrentInterpretation()));
-			
-			nbModels++;
-		}
-		fin = System.nanoTime();
-
-		/*
-		 * fin mesure
-		 */
-		try {
-			tpsExec = ((float) (fin-debut)) / 1000f;
-			querySQL = "INSERT INTO bench_diversification(id_exec, id_model, algo_utilise, temps_exec) VALUES (" + tpsDepartExec + "," + nbModels+ ", 'PRAND' " +","+ Float.toString(tpsExec) + ");" ;
-			rs = st.executeQuery(querySQL);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
-	
-    private InputStream initInputStream(String satqlFileDir) {
-    	return getClass().getResourceAsStream(satqlFileDir);
+	private InputStream initInputStream(String satqlFileDir) {
+		return getClass().getResourceAsStream(satqlFileDir);
 	}
 
 	private MiningQuery<DimacsLiteral> initQuery(Connection connection, InputStream inputStream) {
-    	MiningQuery<DimacsLiteral> query = null;
-    	
-    	try {
+		MiningQuery<DimacsLiteral> query = null;
+
+		try {
 			query = MiningQuery.parse(
 					DimacsLiteral.class, new InputStreamReader(inputStream));
 			query.setBitSetFetcher(new SingleStatementBitSetFetcher(connection));
-			sat4jHandlerPRAND = new SAT4JPBBuilderPRAND(SAT4JPBBuilderPRAND.SMALL);
-			query.addClauses(sat4jHandlerPRAND);
-			sat4jHandlerPRAND.endProblem();
+			query.addClauses(sat4jHandler);
+			sat4jHandler.endProblem();
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -181,31 +142,22 @@ public class Benchmark {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	
-    	return query;
+
+		return query;
 	}
 
-	private Statement initStatement(Connection connection) {
-    	Statement st = null;
-    	
-    	try {
-			st = connection.createStatement();	        
-		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}		
-    	
-    	return st;
+	protected void setUp() throws Exception {
+		ds = new EmbeddedDataSource();
+		ds.setDatabaseName(DB_FILE);
+		ds.setConnectionAttributes("create=true");
+		c = ds.getConnection();
+		Statement stat = c.createStatement();
+		String checkTable = "SELECT * FROM SYS.SYSTABLES WHERE TABLENAME = 'BENCH_INSTANCE1'";
+		ResultSet rs = stat.executeQuery(checkTable);
+		if (!rs.next()) {
+			SQLScript.importCSVWithTypes(c, "bench_instance1", getClass()
+					.getResourceAsStream("/funct_deps.csv"));
+		}
+		stat.close();
 	}
-
-	private static Connection pgConnect() {
-        Driver d = new org.postgresql.Driver();
-        try {
-            return d.connect(
-                    "jdbc:postgresql://localhost/benchs_satql?user=satql&password=satql",
-                    null);
-        } catch (SQLException e) {
-            return null;
-        }
-    }
 }

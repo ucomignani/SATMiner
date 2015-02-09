@@ -259,6 +259,18 @@ public class MiningQuery<L extends Literal<L>> implements Constraint<L>, Pattern
 		return sb;
 	}
 
+	// ajout d'un retour sous un format plus facile a parser pour les benchs
+	public CharSequence getPatternForBench(Interpretation model) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < _domain.length; i++) {
+			sb.append(getSchemaVariables().get(i).getName());
+			sb.append(" ; ");
+			addVariablePattern(model, _domain[i], sb);
+			sb.append("|");
+		}
+		return sb;
+	}
+	
 	private void addVariablePattern(Interpretation model, L[] lits,
 			StringBuilder sb) {
 		boolean first = true;

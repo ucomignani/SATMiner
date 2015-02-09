@@ -1,0 +1,5 @@
+id varchar(5),g1 varchar(5),g2 varchar(5),g3 varchar(5),g4 varchar(5),g5 varchar(5)
+1,1,1,0,0,0
+2,0,1,1,0,0
+3,0,1,0,1,1
+4,1,0,2,0,1
