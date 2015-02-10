@@ -1,7 +1,0 @@
-FIND X,Y OVER g1,g2,g3,g4,g5
-SCOPE bench_instance1 t1, t2
-
-ATLEAST 50 PERCENT OF t1: 
-ATLEAST 2 OF t2 WHERE {t1.g2 = t2.g2}: {2=2} AND
-
-SUCH THAT ((FORALL $A IN X: FORALL $B IN Y: {t1.$A = t2.$B}));

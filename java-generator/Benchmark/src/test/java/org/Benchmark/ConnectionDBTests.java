@@ -65,8 +65,10 @@ extends TestCase
 	
 	public void testBenchBASE() throws SQLException {
 		SAT4JPBBuilder sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
+		
 		Benchmark benchmark = new Benchmark(sat4jHandler);
+		benchmark.bench("/forall.satql");
 
-		benchmark.bench("/percent.satql");
 	}
+	
 }

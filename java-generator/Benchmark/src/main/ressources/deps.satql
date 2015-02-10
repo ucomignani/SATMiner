@@ -1,9 +1,0 @@
-FIND X,Y OVER g1,g2,g3,g4,g5
-SCOPE bench_instance1 t1, t2
-
-FORALL (t1,t2):
-
-SUCH THAT (NOT (FORALL $A IN X: {t1.$A = t2.$A}) OR (FORALL $B IN Y: {t1.$B = t2.$B}))
-AND EMPTY INTERSECTION (X,Y)
-;
-

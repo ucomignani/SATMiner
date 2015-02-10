@@ -61,18 +61,23 @@ public class Main {
 		switch(premierArg)
 		{
 		case "BASE":
+			System.out.println("Algorithme: BASE");
 			sat4jHandler = new SAT4JPBBuilder(SAT4JPBBuilder.SMALL);
 			break;
 		case "PRAND":
+			System.out.println("Algorithme: PRAND");
 			sat4jHandler = new SAT4JPBBuilderPRAND(SAT4JPBBuilderPRAND.SMALL);
 			break;
 		case "PGUIDE":
+			System.out.println("Algorithme: PGUIDE");
 			sat4jHandler = new SAT4JPBBuilderPGUIDE(SAT4JPBBuilderPGUIDE.SMALL);
 			break;
 		case "PBCPGUIDE":
+			System.out.println("Algorithme: PBCPGUIDE");
 			sat4jHandler = new SAT4JPBBuilderPBCPGUIDE(SAT4JPBBuilderPBCPGUIDE.SMALL);
 			break;
 		case "PBCPGUIDE_T":
+			System.out.println("Algorithme: PBCPGUIDE_T");
 			sat4jHandler = new SAT4JPBBuilderPBCPGUIDE_T(SAT4JPBBuilderPBCPGUIDE_T.SMALL, Integer.parseInt(secondArg));
 			secondArg = args[2];
 			break;

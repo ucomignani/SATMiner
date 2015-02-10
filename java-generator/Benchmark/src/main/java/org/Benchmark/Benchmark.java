@@ -39,6 +39,7 @@ exception statement from your version. */
 
 package org.Benchmark;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -73,7 +74,7 @@ import dag.satmining.utils.SQLScript;
  */
 public class Benchmark {
 	
-	private static final String DB_FILE = "target/testDiversification.db";
+	private static final String DB_FILE = "target/testDiversificationAbalo.db";
 	Connection c;
 	EmbeddedDataSource ds;
 	static SAT4JPBBuilder sat4jHandler;
@@ -87,7 +88,6 @@ public class Benchmark {
 		}
 	}
 
-	//TODO ecrire bench performances
 	public void bench(String fichierSatQL){
 		Connection connection = this.c;
 		if(connection == null)
@@ -102,9 +102,22 @@ public class Benchmark {
 
 		String resultatSatQL = "";
 
-		InputStream inputStream = initInputStream(fichierSatQL);		
-		MiningQuery<DimacsLiteral> query = initQuery(connection, inputStream);
 
+		// LOG de l'existence du fichier
+		File f = new File( System.getProperty("user.dir")+fichierSatQL);
+	    System.out.println("Working Directory = " + System.getProperty("user.dir"));
+		if(!f.exists()) { System.out.println("Erreur, le fichier " + fichierSatQL + " n'existe pas. "); System.exit(1); }
+		else {System.out.println(f.toString());}
+		
+		InputStream inputStream = null;
+		try {
+			inputStream = new FileInputStream(f);	
+		} catch (FileNotFoundException e) {
+			System.out.println("Erreur au niveau de l'InputStream du fichier SatQL: " + e.toString());
+			System.exit(1);
+		}
+		MiningQuery<DimacsLiteral> query = initQuery(connection, inputStream);
+		
 		int nbModels = 0;
 		while (sat4jHandler.getNext()) {
 			resultatSatQL = query.getPatternForBench(sat4jHandler.getCurrentInterpretation()).toString();
@@ -120,10 +133,6 @@ public class Benchmark {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-
-	private InputStream initInputStream(String satqlFileDir) {
-		return getClass().getResourceAsStream(satqlFileDir);
 	}
 
 	private MiningQuery<DimacsLiteral> initQuery(Connection connection, InputStream inputStream) {
@@ -151,13 +160,32 @@ public class Benchmark {
 		ds.setDatabaseName(DB_FILE);
 		ds.setConnectionAttributes("create=true");
 		c = ds.getConnection();
+
+		// abalone
 		Statement stat = c.createStatement();
-		String checkTable = "SELECT * FROM SYS.SYSTABLES WHERE TABLENAME = 'BENCH_INSTANCE1'";
+		String checkTable = "SELECT * FROM SYS.SYSTABLES WHERE TABLENAME = 'ABALONE'";
 		ResultSet rs = stat.executeQuery(checkTable);
 		if (!rs.next()) {
-			SQLScript.importCSVWithTypes(c, "bench_instance1", getClass()
-					.getResourceAsStream("/funct_deps.csv"));
+			String fichierBdD = System.getProperty("user.dir") + "/abalone.csv";
+	        System.out.println(fichierBdD);
+			InputStream inputStream = new FileInputStream(new File(fichierBdD));
+
+			SQLScript.importCSVWithTypes(c, "abalone", inputStream);
 		}
+
+		stat.close();
+		
+		stat = c.createStatement();
+		checkTable = "SELECT * FROM SYS.SYSTABLES WHERE TABLENAME = 'FUNCTDEPS'";
+		rs = stat.executeQuery(checkTable);
+		if (!rs.next()) {
+			String fichierBdD = System.getProperty("user.dir") + "/functDeps.csv";
+	        System.out.println(fichierBdD);
+			InputStream inputStream = new FileInputStream(new File(fichierBdD));
+
+			SQLScript.importCSVWithTypes(c, "FunctDeps", inputStream);
+		}
+
 		stat.close();
 	}
 }

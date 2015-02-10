@@ -10,6 +10,7 @@ CREATE SCHEMA diversification;
 
 CREATE TABLE diversification.bench_temps (
     id_exec FLOAT PRIMARY KEY,
+    nom_bench VARCHAR(40) NOT NULL,
     algo_utilise VARCHAR(40) NOT NULL,
     temps_exec FLOAT8 NOT NULL
 );
