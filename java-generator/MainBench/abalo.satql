@@ -2,8 +2,9 @@ FIND X,Y OVER sex,length,diameter,height,whole_weight,meat_weight,viscera_weight
 SCOPE {SELECT * FROM abalone FETCH FIRST 10 ROWS ONLY} t1,
       {SELECT * FROM abalone FETCH FIRST 10 ROWS ONLY} t2
 
-FORALL (t1,t2):
+FORALL t1:
+ATLEAST 70 PERCENT OF t2:
 
 SUCH THAT 
-((FORALL $A in X: {t1.$A = t2.$A} OR (FORALL $B IN Y: {t1.$B = t2.$B}))
+((FORALL $A in X: {t1.$A = t2.$A}) OR (FORALL $B IN Y: {t1.$B = t2.$B}))
 AND EMPTY INTERSECTION (X,Y);

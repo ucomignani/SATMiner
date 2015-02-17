@@ -59,18 +59,22 @@ import org.Benchmark.Benchmark;
  * @author ucomignani
  */
 public class main {
+	
 	public static void main(String[] args) throws Exception {
-		String fichierSatQL = "/deps.satql";
-		int nbIterations = 10;
+
+		String fichierSatQL = "/abalo.satql";
+		int nbIterations = 100;
+		String nomBench = "abalone";
 		
-		execBench("BASE", fichierSatQL, nbIterations);
-		execBench("PRAND", fichierSatQL, nbIterations);
-		execBench("PGUIDE", fichierSatQL, nbIterations);
-		execBench("PBCPGUIDE", fichierSatQL, nbIterations);
-		execBench("PBCPGUIDE_T 10", fichierSatQL, nbIterations);
+		execBench(nomBench, "BASE", fichierSatQL, nbIterations);
+		execBench(nomBench, "PRAND", fichierSatQL, nbIterations);
+		execBench(nomBench, "PGUIDE", fichierSatQL, nbIterations);
+		execBench(nomBench, "PBCPGUIDE", fichierSatQL, nbIterations);
+		execBench(nomBench, "PBCPGUIDE_T 10", fichierSatQL, nbIterations);
+
 	}
 
-	private static void execBench(String algo, String fichierSatQL, int nbIterations) throws Exception {
+	private static void execBench(String nomBench, String algo, String fichierSatQL, int nbIterations) throws Exception {
 
 		/*
 		 * BdD
@@ -99,7 +103,10 @@ public class main {
 		float tpsDepartExec = 0;
 
 		ArrayList<Map<String, ArrayList<String>>> attributsModeles = null; // pour lister les occurences des attributs dans les differents ensembles d'attributs
-		float diversite1 = 0;
+		double sommeDistancesModeleActuel = 0;
+		double moyenneDistancesModeleActuel = 0;
+		double sommeDistancesTotales = 0;
+		double moyenneDistancesGlobale = 0;
 
 		/*
 		 * execution
@@ -123,11 +130,11 @@ public class main {
 			 */
 			try {
 				tpsExec = ((float) (fin-debut)) / 1000f;
-				querySQL = "INSERT INTO diversification.bench_temps(id_exec, algo_utilise, temps_exec) VALUES (" + tpsDepartExec + ", '" + algo + "', "+ Float.toString(tpsExec) + ");" ;
+				querySQL = "INSERT INTO diversification.bench_temps(id_exec, nom_bench, algo_utilise, temps_exec) VALUES (" + tpsDepartExec + ", '" + nomBench + "', '" + algo + "', "+ Float.toString(tpsExec) + ");" ;
 				st.executeUpdate(querySQL);
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println(e.toString());
 			}
 
 			System.out.println("fin de l'iteration " + (i+1));
@@ -139,7 +146,7 @@ public class main {
 			in = new BufferedReader(
 					new InputStreamReader(pr.getInputStream()) );
 			while ((output = in.readLine()) != null) {
-				//System.out.println(output);
+				//System.out.println("renvois: "+output);
 
 				if(output.startsWith("found: "))
 				{
@@ -150,10 +157,20 @@ public class main {
 					/*
 					 * calcul des distances
 					 */
-					diversite1 = calculSommeDistanceHamming(attributsModeles, output);
-					System.out.println("dist= " + diversite1);
+					sommeDistancesModeleActuel = calculSommeDistances(attributsModeles, output);
+					moyenneDistancesModeleActuel = sommeDistancesModeleActuel/nbModeles;
+					if(sommeDistancesModeleActuel == 0) // permet de detecter les nouvelles iterations
+						sommeDistancesTotales = 0;
 					
-					querySQL = "INSERT INTO diversification.bench_modeles(id_exec, id_model, resultat_requete, distances) VALUES (" + tpsDepartExec + ", " + nbModeles + ", '"+ output + "', " + diversite1 + ");" ;
+					sommeDistancesTotales += sommeDistancesModeleActuel;
+					if(nbModeles > 1)
+						moyenneDistancesGlobale = sommeDistancesTotales/(nbModeles*nbModeles - nbModeles);
+					else
+						moyenneDistancesGlobale = sommeDistancesTotales;
+					
+					System.out.println("dist= " + moyenneDistancesGlobale);
+					
+					querySQL = "INSERT INTO diversification.bench_modeles(id_exec, id_model, resultat_requete, moy_dist_modele, moy_dist_globale) VALUES (" + tpsDepartExec + ", " + nbModeles + ", '"+ output + "', " + moyenneDistancesModeleActuel + ", " + moyenneDistancesGlobale + ");" ;
 					st.executeUpdate(querySQL);
 				}
 			}
@@ -197,14 +214,14 @@ public class main {
 		}
 	}
 
-	private static float calculSommeDistanceHamming(
+	private static double calculSommeDistances(
 			ArrayList<Map<String, ArrayList<String>>> attributsModeles,
 			String output) {
 		
 		Map<String, ArrayList<String>> modeleActuel = new TreeMap<String, ArrayList<String>>();
 		int nbAttributsCommuns = 0;
 		int nbAttributsDifferents = 0;
-		float distanceHamming = 0;
+		double sommeDistances = 0;
 
 		String[] ensembles = output.split("\\|");
 		String[] ensTmp = null;
@@ -244,9 +261,9 @@ public class main {
 					}
 				}
 				
-				// on ajoute la moyenne du nombre d'attributs differents entre les deux modeles
+				// on ajoute la moyenne du nombre d'attributs differents entre les ensembles d'attributs des modeles
 				nbAttributsDifferents = (attributs.length - nbAttributsCommuns) + (listeAttributsTmp.size() - nbAttributsCommuns);
-				distanceHamming +=  (float) nbAttributsDifferents / (nbAttributsDifferents + nbAttributsCommuns);
+				sommeDistances +=  (float) nbAttributsDifferents / (nbAttributsDifferents + nbAttributsCommuns);
 			}
 			
 			// ajout de la liste a la structure
@@ -255,44 +272,6 @@ public class main {
 		
 		attributsModeles.add(modeleActuel);
 		
-		return distanceHamming;
-	}
-	
-	private static float calculNbOccurencesAttributs(
-			Map<String, TreeMap<String, Integer>> occurencesAttributs,
-			String output) {
-		String[] ensembles = output.split("\\|");
-		String[] ensTmp = null;
-		TreeMap<String, Integer> mapOccurences = null;
-		String[] attributs = null;
-		int occurenceTmp = -1;
-
-		for(int i =0; i<ensembles.length; i++)
-		{
-			ensTmp = ensembles[i].split(";");
-
-			attributs = ensTmp[1].split(",");
-
-			mapOccurences = occurencesAttributs.get(ensTmp[0]);
-			if(mapOccurences == null)
-				mapOccurences = new TreeMap<String, Integer>();
-			
-			
-			for(int j =0; j<attributs.length; j++)
-			{
-				if(!mapOccurences.containsKey(attributs[j]))
-					mapOccurences.put(attributs[j], 1);
-				else
-				{
-					occurenceTmp = mapOccurences.get(attributs[j]);
-							mapOccurences.put(attributs[j], ++occurenceTmp);
-				}
-				occurencesAttributs.put(ensTmp[0], mapOccurences);
-			}
-
-		}
-		//output.
-
-		return 0;
+		return sommeDistances;
 	}
 }
